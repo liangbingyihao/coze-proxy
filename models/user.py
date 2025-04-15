@@ -1,6 +1,6 @@
 from datetime import datetime
 from extensions import db
-from utils.security import generate_password_hash
+from utils.security import generate_password_hash,verify_password
 
 
 class User(db.Model):
@@ -17,3 +17,9 @@ class User(db.Model):
         self.username = username
         self.email = email
         self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return verify_password(self.password_hash, password)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
