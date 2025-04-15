@@ -1,7 +1,6 @@
-from ..models.user import User
-from .. import db
-from ..utils.security import generate_jwt_token
-from ..utils.exceptions import AuthError
+from models.user import User
+from utils.security import generate_jwt_token
+from utils.exceptions import AuthError
 
 
 class AuthService:

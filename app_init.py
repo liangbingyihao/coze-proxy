@@ -3,18 +3,19 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
-from .config import Config
-from .utils.exceptions import AuthError, handle_auth_error
-from .services.auth_service import AuthService
-from .services.user_service import UserService
-from .schemas.user_schema import UserSchema, AuthSchema
+from config import Config
+from utils.exceptions import AuthError, handle_auth_error
+from services.auth_service import AuthService
+from services.user_service import UserService
+from schemas.user_schema import UserSchema, AuthSchema
+from extensions import db
 
 # 初始化应用
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # 初始化扩展
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
 CORS(app)
