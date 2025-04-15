@@ -1,6 +1,6 @@
 from datetime import datetime
-from .. import db
-from ..utils.security import generate_password_hash
+from extensions import db
+from utils.security import generate_password_hash
 
 
 class User(db.Model):
