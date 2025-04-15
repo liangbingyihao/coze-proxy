@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_migrate import Migrate, migrate
 from flask_cors import CORS
 
 from api import init_api
@@ -15,15 +15,15 @@ from schemas.user_schema import UserSchema, AuthSchema
 from extensions import db
 from utils.security import generate_password_hash
 
-# 初始化应用
-app = Flask(__name__)
-app.config.from_object(Config)
-
-# 初始化扩展
-db.init_app(app)
-migrate = Migrate(app, db)
-jwt = JWTManager(app)
-CORS(app)
+# # 初始化应用
+# app = Flask(__name__)
+# app.config.from_object(Config)
+#
+# # 初始化扩展
+# db.init_app(app)
+# migrate = Migrate(app, db)
+# jwt = JWTManager(app)
+# CORS(app)
 
 
 def create_app():
@@ -32,7 +32,7 @@ def create_app():
 
     # 初始化扩展
     db.init_app(app)
-    migrate.init_app(app, db)
+    # migrate = Migrate(app, db)
     CORS(app)
 
     # 初始化API
@@ -140,4 +140,5 @@ def register_commands(app):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app()
+    app.run(host="0.0.0.0",debug=True)
