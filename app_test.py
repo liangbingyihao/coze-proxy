@@ -14,7 +14,7 @@ def register():
 def login():
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "username": "user1",
+        "username": "user2",
         "password": "123456"
     }
 
@@ -50,6 +50,6 @@ def my_session(token):
     print(response.json())
 
 if __name__ == '__main__':
-    register()
-    # token = login()
-    # my_session(token)
+    # register()
+    token = login()
+    new_session(token)

@@ -1,6 +1,7 @@
 from marshmallow import Schema, fields
 
 class SessionSchema(Schema):
+    id = fields.Int(dump_only=True)
     owner_id = fields.Int(dump_only=True)
     robt_id = fields.Int(dump_only=True)
     session_name = fields.Str()
