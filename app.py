@@ -32,7 +32,8 @@ def create_app():
 
     # 初始化扩展
     db.init_app(app)
-    # migrate = Migrate(app, db)
+    migrate = Migrate(app, db)
+    jwt = JWTManager(app)
     CORS(app)
 
     # 初始化API
