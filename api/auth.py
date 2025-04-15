@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from services.auth_service import AuthService
-from schemas.user_schema import AuthSchema
+from schemas.user_schema import AuthSchema, UserSchema
+from services.user_service import UserService
 from utils.exceptions import AuthError
 
 auth_bp = Blueprint('auth', __name__)
@@ -71,3 +74,17 @@ def login():
         raise e
     except Exception as e:
         raise AuthError(str(e), 500)
+
+@auth_bp.route('/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()
+    user = UserService.get_user_by_id(user_id)
+
+    if not user:
+        raise AuthError('User not found', 404)
+
+    return jsonify({
+        'success': True,
+        'data': UserSchema().dump(user)
+    })

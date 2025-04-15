@@ -26,17 +26,3 @@ def get_users():
         'data': UserSchema(many=True).dump(users)
     })
 
-
-@user_bp.route('/me', methods=['GET'])
-@jwt_required()
-def get_current_user():
-    user_id = get_jwt_identity()
-    user = UserService.get_user_by_id(user_id)
-
-    if not user:
-        raise AuthError('User not found', 404)
-
-    return jsonify({
-        'success': True,
-        'data': UserSchema().dump(user)
-    })

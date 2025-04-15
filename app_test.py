@@ -9,22 +9,22 @@ import requests
 #
 # response = requests.post(url, json=data)
 # print(response.text)
+#
+# url = "http://8.217.172.116:5000/api/auth/login"
+# data = {
+#     "username": "testuser1",
+#     "password": "securepassword123"
+# }
+#
+# response = requests.post(url, json=data)
+# print(response.text)
 
-url = "http://8.217.172.116:5000/api/auth/login"
+
+url = "http://8.217.172.116:5000/api/user/me"
 data = {
     "username": "testuser1",
     "password": "securepassword123"
 }
 
-response = requests.post(url, json=data)
-print(response.text)
-
-
-url = "http://8.217.172.116:5000/api/auth/login"
-data = {
-    "username": "testuser1",
-    "password": "securepassword123"
-}
-
-response = requests.get(url, json=data)
+response = requests.get(url)
 print(response.text)
