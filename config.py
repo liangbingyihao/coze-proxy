@@ -9,6 +9,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'abdfdfjdfljdgjrldfdfg')
     JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))
+    SQLALCHEMY_ECHO = True
     SWAGGER = {
         'title': 'User Auth API',
         'uiversion': 3,

@@ -14,7 +14,7 @@ def init_api(app):
 
     main_bp.register_blueprint(auth_bp, url_prefix='/api/auth')
     main_bp.register_blueprint(user_bp, url_prefix='/api/user')
-    session_bp.register_blueprint(session_bp, url_prefix='/api/session')
+    main_bp.register_blueprint(session_bp, url_prefix='/api/session')
     main_bp.register_blueprint(docs_bp)
 
     # 注册主蓝图
