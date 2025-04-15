@@ -9,11 +9,13 @@ def init_api(app):
     # 注册子蓝图
     from .auth import auth_bp
     from .user import user_bp
-    # from .docs import docs_bp
+    from .session import session_bp
+    from .docs import docs_bp
 
     main_bp.register_blueprint(auth_bp, url_prefix='/api/auth')
     main_bp.register_blueprint(user_bp, url_prefix='/api/user')
-    # main_bp.register_blueprint(docs_bp)
+    session_bp.register_blueprint(session_bp, url_prefix='/api/session')
+    main_bp.register_blueprint(docs_bp)
 
     # 注册主蓝图
     app.register_blueprint(main_bp)
