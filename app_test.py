@@ -18,3 +18,13 @@ data = {
 
 response = requests.post(url, json=data)
 print(response.text)
+
+
+url = "http://8.217.172.116:5000/api/auth/login"
+data = {
+    "username": "testuser1",
+    "password": "securepassword123"
+}
+
+response = requests.get(url, json=data)
+print(response.text)

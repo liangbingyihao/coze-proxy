@@ -27,7 +27,7 @@ def get_users():
     })
 
 
-@user_bp.route('/api/auth/me', methods=['GET'])
+@user_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
     user_id = get_jwt_identity()
