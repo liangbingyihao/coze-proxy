@@ -46,7 +46,7 @@ def my_sessions():
         data = SessionService.get_session_by_owner(owner_id)
         return jsonify({
             'success': True,
-            'data': SessionSchema().dump(data)
+            'data': SessionSchema(many=True).dump(data)
         })
     except AuthError as e:
         raise e

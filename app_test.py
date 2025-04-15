@@ -52,4 +52,4 @@ def my_session(token):
 if __name__ == '__main__':
     # register()
     token = login()
-    new_session(token)
+    my_session(token)
