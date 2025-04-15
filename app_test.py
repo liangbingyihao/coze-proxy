@@ -1,14 +1,15 @@
 import requests
 
-# url = "http://8.217.172.116:5000/api/auth/register"
-# data = {
-#     "username": "user1",
-#     "email": "user1@163.com",
-#     "password": "123456"
-# }
+def register():
+    url = "http://8.217.172.116:5000/api/auth/register"
+    data = {
+        "username": "user2",
+        "email": "user2@163.com",
+        "password": "123456"
+    }
 
-# response = requests.post(url, json=data)
-# print(response.text)
+    response = requests.post(url, json=data)
+    print(response.text)
 
 def login():
     url = "http://8.217.172.116:5000/api/auth/login"
@@ -49,5 +50,6 @@ def my_session(token):
     print(response.json())
 
 if __name__ == '__main__':
-    token = login()
-    my_session(token)
+    register()
+    # token = login()
+    # my_session(token)

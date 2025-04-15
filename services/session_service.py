@@ -11,6 +11,7 @@ class SessionService:
         session = Session(session_name=session_name, owner_id=owner_id, robt_id=robt_id)
         db.session.add(session)
         db.session.commit()
+        print(f"session.id:{session.id}")
 
         return session
 
