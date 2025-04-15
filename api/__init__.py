@@ -7,8 +7,8 @@ def init_api(app):
     main_bp = Blueprint('api', __name__, url_prefix='/api')
 
     # 注册子蓝图
-    from auth import auth_bp
-    from user import user_bp
+    from .auth import auth_bp
+    from .user import user_bp
     # from .docs import docs_bp
 
     main_bp.register_blueprint(auth_bp)
