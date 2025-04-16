@@ -72,7 +72,7 @@ def my_message(token):
     }
 
 
-    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
+    response = requests.get("http://8.217.172.116:5000/api/message/filter", headers=headers,params=data)
     print(response.text)
 
 if __name__ == '__main__':

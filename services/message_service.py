@@ -34,4 +34,4 @@ class MessageService:
     @staticmethod
     def filter_message(owner_id,session_id,search,page,limit):
         session = MessageService.check_permission(session_id, owner_id)
-        return Message.query.filter_by(session_id=session_id).ilter(Message.content.contains(search)).paginate(page=page, per_page=limit)
+        return Message.query.filter_by(session_id=session_id).filter(Message.content.contains(search)).paginate(page=page, per_page=limit)
