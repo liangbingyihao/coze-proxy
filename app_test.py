@@ -68,14 +68,14 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":"4"
+        "session_id":4
     }
 
 
-    response = requests.post("http://8.217.172.116:5000/api/message/", headers=headers,params=data)
-    print(response.json())
+    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
+    print(response.text)
 
 if __name__ == '__main__':
     # register()
-    token = login("user1")
+    token = login("user2")
     my_message(token)

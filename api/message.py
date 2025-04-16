@@ -43,18 +43,16 @@ def add():
 @jwt_required()
 def my_message():
     owner_id = get_jwt_identity()
-
-    # 转为普通字典
-    args_dict = request.args.to_dict()
     # 获取特定参数（带默认值）
-    page = args_dict.get('page', '1')
-    limit = args_dict.get('limit', '10')
-    session_id = args_dict.get("session_id")
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('per_page', default=10, type=int)
     search = request.args.get('search', default='', type=str)
+    session_id = request.args.get("session_id", default='', type=str)
 
     try:
         data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, search=search, page=page,
                                              limit=limit)
+        print(data)
         return jsonify({
             'success': True,
             'data': {
@@ -62,7 +60,8 @@ def my_message():
                 'total': data.total
             }
         })
-    except AuthError as e:
-        raise e
     except Exception as e:
-        raise AuthError(str(e), 500)
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
