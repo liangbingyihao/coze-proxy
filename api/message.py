@@ -34,7 +34,7 @@ def add():
         }), 400
 
 
-@message_bp.route('', methods=['GET'])
+@message_bp.route('/filter', methods=['GET'])
 @swag_from({
     'tags': ['Authentication'],
     'description': 'my sessions',

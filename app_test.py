@@ -11,10 +11,10 @@ def register():
     response = requests.post(url, json=data)
     print(response.text)
 
-def login():
+def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "username": "user2",
+        "username": user_name,
         "password": "123456"
     }
 
@@ -49,21 +49,33 @@ def my_session(token):
     response = requests.get("http://8.217.172.116:5000/api/session/mine", headers=headers)
     print(response.json())
 
-def my_message(token):
+def add_message(token):
     headers = {
         "Authorization": f"Bearer {token}"
     }
     data = {
         "content": "你好啊",
         "robt_id": "0",
-        "session_id":"13"
+        "session_id":"4"
     }
 
 
     response = requests.post("http://8.217.172.116:5000/api/message/add", headers=headers,json=data)
     print(response.json())
 
+def my_message(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "session_id":"4"
+    }
+
+
+    response = requests.post("http://8.217.172.116:5000/api/message/", headers=headers,params=data)
+    print(response.json())
+
 if __name__ == '__main__':
     # register()
-    token = login()
+    token = login("user1")
     my_message(token)
