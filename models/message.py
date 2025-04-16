@@ -3,7 +3,7 @@ from extensions import db
 
 
 class Message(db.Model):
-    __tablename__ = 'sessions'
+    __tablename__ = 'message'
 
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, index=True, nullable=False)
