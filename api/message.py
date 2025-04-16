@@ -46,7 +46,7 @@ def my_message():
     owner_id = get_jwt_identity()
     # 获取特定参数（带默认值）
     page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('per_page', default=10, type=int)
+    limit = request.args.get('limit', default=10, type=int)
     search = request.args.get('search', default='', type=str)
     session_id = request.args.get("session_id", default='', type=str)
 
@@ -56,7 +56,7 @@ def my_message():
         return jsonify({
             'success': True,
             'data': {
-                'data': MessageSchema(many=True).dump(data.items),
+                'items': MessageSchema(many=True).dump(data.items),
                 'total': data.total
             }
         })

@@ -68,7 +68,8 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":4
+        "session_id":4,
+        "limit":1
     }
 
 
@@ -78,4 +79,4 @@ def my_message(token):
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    my_session(token)
+    my_message(token)
