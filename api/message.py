@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from schemas.message_schema import MessageSchema
 from schemas.session_schema import SessionSchema
 from services.auth_service import AuthService
 from schemas.user_schema import AuthSchema, UserSchema
@@ -52,11 +53,10 @@ def my_message():
     try:
         data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, search=search, page=page,
                                              limit=limit)
-        print(data)
         return jsonify({
             'success': True,
             'data': {
-                'data': [msg.to_dict() for msg in data.items],
+                'data': MessageSchema(many=True).dump(data.items),
                 'total': data.total
             }
         })
