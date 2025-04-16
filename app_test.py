@@ -49,7 +49,21 @@ def my_session(token):
     response = requests.get("http://8.217.172.116:5000/api/session/mine", headers=headers)
     print(response.json())
 
+def my_message(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "content": "你好啊",
+        "robt_id": "0",
+        "session_id":"13"
+    }
+
+
+    response = requests.post("http://8.217.172.116:5000/api/message/add", headers=headers,json=data)
+    print(response.json())
+
 if __name__ == '__main__':
     # register()
     token = login()
-    my_session(token)
+    my_message(token)

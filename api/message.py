@@ -19,7 +19,6 @@ def add():
     data = request.get_json()
     content = data.get('content')
     owner_id = get_jwt_identity()
-    robt_id = data.get('robt_id')
     session_id = data.get("session_id")
 
     try:
@@ -35,21 +34,33 @@ def add():
         }), 400
 
 
-@message_bp.route('/mine', methods=['GET'])
+@message_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['Authentication'],
     'description': 'my sessions',
     # 类似上面的Swagger定义
 })
 @jwt_required()
-def my_sessions():
+def my_message():
     owner_id = get_jwt_identity()
 
+    # 转为普通字典
+    args_dict = request.args.to_dict()
+    # 获取特定参数（带默认值）
+    page = args_dict.get('page', '1')
+    limit = args_dict.get('limit', '10')
+    session_id = args_dict.get("session_id")
+    search = request.args.get('search', default='', type=str)
+
     try:
-        data = SessionService.get_session_by_owner(owner_id)
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, search=search, page=page,
+                                             limit=limit)
         return jsonify({
             'success': True,
-            'data': SessionSchema(many=True).dump(data)
+            'data': {
+                'data': [msg.to_dict() for msg in data.items],
+                'total': data.total
+            }
         })
     except AuthError as e:
         raise e
