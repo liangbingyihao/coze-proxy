@@ -1,3 +1,5 @@
+from time import time
+
 from models.session import Session
 from extensions import db
 
@@ -8,6 +10,8 @@ class SessionService:
     def new_session(session_name, owner_id, robt_id):
 
         # 创建新用户
+        if not session_name:
+            session_name = f"{robt_id}_{int(time())}"
         session = Session(session_name=session_name, owner_id=owner_id, robt_id=robt_id)
         db.session.add(session)
         db.session.commit()
