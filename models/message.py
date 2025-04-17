@@ -8,6 +8,7 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, index=True, nullable=False)
     context_id = db.Column(db.Integer, index=True, nullable=False)
+    status = db.Column(db.Integer, nullable=False,default=0)
     content = db.Column(db.UnicodeText, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
