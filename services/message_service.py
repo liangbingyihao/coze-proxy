@@ -32,13 +32,11 @@ class MessageService:
     #     return Session.query.get(session_id)
 
     @staticmethod
-    def filter_message(owner_id,session_id,search,page,limit):
+    def filter_message(owner_id,session_id,context_id,search,page,limit):
         session = MessageService.check_permission(session_id, owner_id)
-        messages = (Message.query.
-                filter_by(session_id=session_id)
-                # .filter(Message.content.contains(search))
-                .paginate(page=page, per_page=limit, error_out=False))
-        if not messages.items:  # 手动检查是否为空
-            return {"messages": [], "total": 0}
+        if context_id:
+            return Message.query.filter_by(context_id=context_id)
         else:
-            return {"messages": messages.items, "total": messages.total}
+            return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
+                # .filter(Message.content.contains(search))
+

@@ -70,8 +70,8 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":1,
-        "page":1,
+        "session_id":10,
+        "page":10,
         "limit":10
     }
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)

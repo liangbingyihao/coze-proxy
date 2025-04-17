@@ -48,9 +48,11 @@ def my_message():
     limit = request.args.get('limit', default=10, type=int)
     search = request.args.get('search', default='', type=str)
     session_id = request.args.get("session_id", default='', type=str)
+    context_id = request.args.get("context_id", default='', type=str)
 
     try:
-        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, search=search, page=page,
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id,
+                                             search=search, page=page,
                                              limit=limit)
         return jsonify({
             'success': True,
