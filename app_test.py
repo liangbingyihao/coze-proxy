@@ -73,7 +73,7 @@ def my_message(token):
         "session_id":13,
         # "context_id":21,
         "page":1,
-        "limit":10
+        "limit":1
     }
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
     print(response.json())
@@ -81,4 +81,4 @@ def my_message(token):
 if __name__ == '__main__':
     # register()
     token = login("user1")
-    my_session(token)
+    my_message(token)

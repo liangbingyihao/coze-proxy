@@ -35,8 +35,11 @@ class MessageService:
     def filter_message(owner_id,session_id,context_id,search,page,limit):
         session = MessageService.check_permission(session_id, owner_id)
         if context_id:
-            return {"items":Message.query.filter_by(context_id=context_id),"total":1}
-        else:
-            return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
-                # .filter(Message.content.contains(search))
+            return Message.query.filter_by(context_id=context_id)
+        return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
+
+    @staticmethod
+    def filter_msg_by_context_id(owner_id, session_id, context_id):
+        session = MessageService.check_permission(session_id, owner_id)
+        return Message.query.filter_by(context_id=context_id)
 

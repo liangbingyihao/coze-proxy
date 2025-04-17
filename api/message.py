@@ -54,13 +54,21 @@ def my_message():
         data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id,
                                              search=search, page=page,
                                              limit=limit)
-        return jsonify({
-            'success': True,
-            'data': {
-                'items': MessageSchema(many=True).dump(data.items),
-                'total': data.total
-            }
-        })
+        if isinstance(data,dict):
+            return jsonify({
+                'success': True,
+                'data': {
+                    'items': MessageSchema(many=True).dump(data)
+                }
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'data': {
+                    'items': MessageSchema(many=True).dump(data.items),
+                    'total': data.total
+                }
+            })
     except Exception as e:
         return jsonify({
             'success': False,
