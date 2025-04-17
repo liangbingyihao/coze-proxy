@@ -8,7 +8,7 @@ from services.message_service import MessageService
 message_bp = Blueprint('message', __name__)
 
 
-@message_bp.route('/add', methods=['POST'])
+@message_bp.route('', methods=['POST'])
 @jwt_required()
 def add():
     data = request.get_json()
