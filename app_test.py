@@ -54,17 +54,15 @@ def add_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "content": "你好啊",
+        "text": "你好啊!",
         "robt_id": "0",
-        "session_id":"4"
+        "session_id":"1"
     }
-    data = {
-        "text":1
-    }
+    # data = {
+    #     "text":1
+    # }
 
-
-
-    response = requests.post("http://8.217.172.116:5000/api/message/add", headers=headers,json=data)
+    response = requests.post("http://8.217.172.116:5000/api/message", headers=headers,json=data)
     print(response.text)
 
 def my_message(token):
@@ -72,15 +70,14 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":4,
-        "page":2,
-        "limit":1
+        "session_id":1,
+        "page":1,
+        "limit":10
     }
-
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
-    print(response.json())
+    print(response.text)
 
 if __name__ == '__main__':
     # register()
     token = login("user1")
-    add_message(token)
+    my_message(token)

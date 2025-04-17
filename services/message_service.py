@@ -34,4 +34,11 @@ class MessageService:
     @staticmethod
     def filter_message(owner_id,session_id,search,page,limit):
         session = MessageService.check_permission(session_id, owner_id)
-        return Message.query.filter_by(session_id=session_id).filter(Message.content.contains(search)).paginate(page=page, per_page=limit)
+        messages = (Message.query.
+                filter_by(session_id=session_id)
+                # .filter(Message.content.contains(search))
+                .paginate(page=page, per_page=limit, error_out=False))
+        if not messages.items:  # 手动检查是否为空
+            return {"messages": [], "total": 0}
+        else:
+            return {"messages": messages.items, "total": messages.total}
