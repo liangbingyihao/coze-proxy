@@ -3,13 +3,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.message_schema import MessageSchema
-from schemas.session_schema import SessionSchema
-from services.auth_service import AuthService
-from schemas.user_schema import AuthSchema, UserSchema
 from services.message_service import MessageService
-from services.session_service import SessionService
-from services.user_service import UserService
-from utils.exceptions import AuthError
 
 message_bp = Blueprint('message', __name__)
 
@@ -18,9 +12,14 @@ message_bp = Blueprint('message', __name__)
 @jwt_required()
 def add():
     data = request.get_json()
-    content = data.get('content')
+    content = data.get('text')
     owner_id = get_jwt_identity()
     session_id = data.get("session_id")
+
+    if not session_id:
+        return jsonify({"error": "Missing required parameter 'session_id'"}), 400
+    if not content:
+        return jsonify({"error": "Missing required parameter 'text'"}), 400
 
     try:
         message_id = MessageService.new_message(session_id, owner_id, content, 0)

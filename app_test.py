@@ -58,10 +58,14 @@ def add_message(token):
         "robt_id": "0",
         "session_id":"4"
     }
+    data = {
+        "text":1
+    }
+
 
 
     response = requests.post("http://8.217.172.116:5000/api/message/add", headers=headers,json=data)
-    print(response.json())
+    print(response.text)
 
 def my_message(token):
     headers = {
@@ -69,14 +73,14 @@ def my_message(token):
     }
     data = {
         "session_id":4,
+        "page":2,
         "limit":1
     }
 
-
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
-    print(response.text)
+    print(response.json())
 
 if __name__ == '__main__':
     # register()
-    token = login("user2")
-    my_message(token)
+    token = login("user1")
+    add_message(token)
