@@ -1,6 +1,5 @@
-import logging
-
 import click
+import pymysql
 from flask import Flask
 from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager
@@ -13,6 +12,7 @@ from utils.exceptions import AuthError, handle_auth_error
 from extensions import db
 from utils.security import generate_password_hash
 
+pymysql.install_as_MySQLdb()
 # # 初始化应用
 # app = Flask(__name__)
 # app.config.from_object(Config)

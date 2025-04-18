@@ -3,11 +3,12 @@ import time
 
 from models.message import Message
 from extensions import db
+from services.coze_service import CozeService
 from services.session_service import SessionService
 from utils.exceptions import AuthError
 from concurrent.futures import ThreadPoolExecutor
 
-executor = ThreadPoolExecutor(2)
+executor = ThreadPoolExecutor(3)
 
 
 class MessageService:
@@ -27,7 +28,7 @@ class MessageService:
         db.session.add(message)
         db.session.commit()
         logging.debug(f"message.id:{message.id}")
-        executor.submit(MessageService.call_llm)
+        executor.submit(CozeService.chat_with_coze,(owner_id,message.id))
 
         return message.id
 
