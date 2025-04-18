@@ -1,6 +1,7 @@
 import logging
 import os
-import time
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker,scoped_session
 from concurrent.futures import ThreadPoolExecutor
 from extensions import db
 
@@ -10,6 +11,17 @@ from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL,COZ
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=COZE_CN_BASE_URL)
+
+# 第一步：生成engine对象
+engine = create_engine(
+    os.getenv("DATABASE_URL"),
+    max_overflow=0,  # 超过连接池大小外最多创建的连接
+    pool_size=5,  # 连接池大小
+    pool_timeout=30,  # 池中没有线程最多等待的时间，否则报错
+    pool_recycle=-1  # 多久之后对线程池中的线程进行一次连接的回收（重置）
+)
+# 第二步：拿到一个Session类,传入engine
+Session = sessionmaker(bind=engine)
 
 
 class CozeService:
@@ -28,7 +40,7 @@ class CozeService:
     def chat_with_coze(user_id, context_id):
         session = None
         try:
-            session = db.create_scoped_session()
+            session = scoped_session(Session)
             from models.message import Message
             from models.user import User
             message = Message.query.filter_by(id=context_id, status=0).with_entities(Message.content).one()
