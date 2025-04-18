@@ -1,8 +1,6 @@
 import logging
 from time import time
-
 from models.message import Message
-from models.session import Session
 from extensions import db
 from services.session_service import SessionService
 from utils.exceptions import AuthError
@@ -50,6 +48,6 @@ class MessageService:
 
     @staticmethod
     def call_llm():
-        logging.debug("Task #1 started!")
+        logging.warning("Task #1 start!")
         time.sleep(5)
-        logging.debug("Task #1 is done!")
+        logging.warning("Task #1 is done!")
