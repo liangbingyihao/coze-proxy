@@ -1,5 +1,6 @@
 import logging
-from time import time
+import time
+
 from models.message import Message
 from extensions import db
 from services.session_service import SessionService
@@ -50,7 +51,7 @@ class MessageService:
     def call_llm():
         logging.warning("Task #1 start!")
         try:
-            pass
+            time.sleep(10)
         except Exception as e:
             logging.exception(e)
         logging.warning("Task #1 is done!")
