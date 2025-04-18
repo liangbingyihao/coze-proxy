@@ -8,8 +8,6 @@ from services.session_service import SessionService
 from utils.exceptions import AuthError
 from concurrent.futures import ThreadPoolExecutor
 
-executor = ThreadPoolExecutor(3)
-
 
 class MessageService:
 
@@ -27,8 +25,8 @@ class MessageService:
         message = Message(session_id, content, context_id)
         db.session.add(message)
         db.session.commit()
-        logging.debug(f"message.id:{message.id}")
-        executor.submit(CozeService.chat_with_coze,(owner_id,message.id))
+        logging.warning(f"message.id:{message.id}")
+        CozeService.chat_with_coze_async(owner_id,message.id)
 
         return message.id
 
