@@ -19,8 +19,8 @@ def login(user_name):
     }
 
     response = requests.post(url, json=data)
+    print(response.text)
     token = response.json().get("data").get("access_token")
-    print(response.text,token)
     return token
 
 def new_session(token):
