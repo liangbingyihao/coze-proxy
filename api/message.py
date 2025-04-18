@@ -54,7 +54,8 @@ def my_message():
         data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id,
                                              search=search, page=page,
                                              limit=limit)
-        if isinstance(data,dict):
+        import flask_sqlalchemy
+        if isinstance(data,flask_sqlalchemy.BaseQuery):
             return jsonify({
                 'success': True,
                 'data': {

@@ -1,17 +1,13 @@
 import click
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask.cli import with_appcontext
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate, migrate
 from flask_cors import CORS
 
 from api import init_api
 from config import Config
 from utils.exceptions import AuthError, handle_auth_error
-from services.auth_service import AuthService
-from services.user_service import UserService
-from schemas.user_schema import UserSchema, AuthSchema
 from extensions import db
 from utils.security import generate_password_hash
 

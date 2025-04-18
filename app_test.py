@@ -71,9 +71,9 @@ def my_message(token):
     }
     data = {
         "session_id":13,
-        # "context_id":21,
-        "page":1,
-        "limit":1
+        "context_id":21,
+        # "page":1,
+        # "limit":1
     }
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
     print(response.json())
