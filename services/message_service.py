@@ -49,5 +49,8 @@ class MessageService:
     @staticmethod
     def call_llm():
         logging.warning("Task #1 start!")
-        time.sleep(5)
+        try:
+            pass
+        except Exception as e:
+            logging.exception(e)
         logging.warning("Task #1 is done!")
