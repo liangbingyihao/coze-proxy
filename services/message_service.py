@@ -1,3 +1,4 @@
+import logging
 from time import time
 
 from models.message import Message
@@ -22,11 +23,11 @@ class MessageService:
     @staticmethod
     def new_message(session_id, owner_id, content, context_id):
         session = MessageService.check_permission(session_id, owner_id)
-        print(f"session:{session.session_name, session.robt_id}")
+        logging.debug(f"session:{session.session_name, session.robt_id}")
         message = Message(session_id, content, context_id)
         db.session.add(message)
         db.session.commit()
-        print(f"message.id:{message.id}")
+        logging.debug(f"message.id:{message.id}")
         executor.submit(MessageService.call_llm)
 
         return message.id
@@ -49,6 +50,6 @@ class MessageService:
 
     @staticmethod
     def call_llm():
-        print("Task #1 started!")
-        time.sleep(10)
-        print("Task #1 is done!")
+        logging.debug("Task #1 started!")
+        time.sleep(5)
+        logging.debug("Task #1 is done!")
