@@ -42,20 +42,26 @@ class CozeService:
             session = Session()
             from models.message import Message
             from models.user import User
-            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,Message.session_id).one()
             user =  session.query(User).filter_by(id=user_id).with_entities(User.username).one()
-            logging.warning(f"GOT: {user_id, context_id, message, user}")
+            logging.warning(f"start: {user_id, context_id, message, user}")
+            response = CozeService._chat_with_coze(user[0],message[0])
+            if response:
+                rsp_msg = Message(message[1], response,context_id,1)
+                session.add(rsp_msg)
+                session.commit()
+                logging.warning(f"GOT: {response}")
         except Exception as e:
             logging.exception(e)
-        finally:
-            if session:
-                session.remove()  # 重要！清理会话
+        # finally:
+        #     if session:
+        #         session.close()  # 重要！清理会话
 
     @staticmethod
-    def _chat_with_coze(cls, user_id, msg):
+    def _chat_with_coze(user_id, msg):
         all_content = ""
         for event in coze.chat.stream(
-                bot_id=cls.bot_id, user_id=user_id, additional_messages=[Message.build_user_question_text(msg)]
+                bot_id=CozeService.bot_id, user_id=user_id, additional_messages=[Message.build_user_question_text(msg)]
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
