@@ -57,10 +57,17 @@ class CozeService:
             from models.message import Message
             message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,Message.session_id).one()
             logging.warning(f"start: {user_id, context_id, message, user}")
+
+            rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
+            session.add(rsp_msg)
+            session.commit()
+
             response = CozeService._chat_with_coze(user[0],message[0])
             if response:
-                rsp_msg = Message(message[1], response,context_id,1)
-                session.add(rsp_msg)
+                rsp_msg.content = response
+                rsp_msg.status = 2
+                # rsp_msg = Message(message[1], response,context_id,1)
+                # session.add(rsp_msg)
                 session.commit()
                 logging.warning(f"GOT: {response}")
         except Exception as e:
