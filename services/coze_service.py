@@ -85,7 +85,7 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                ori_msg.content = all_content
+                ori_msg.content = "(回应生成中)"+all_content
                 session.commit()
                 # print(f"role={message.role}, content={message.content}")
         return all_content
