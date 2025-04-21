@@ -62,7 +62,7 @@ class CozeService:
             session.add(rsp_msg)
             session.commit()
 
-            response = CozeService._chat_with_coze(user[0],message[0])
+            response = CozeService._chat_with_coze(rsp_msg,user[0],message[0])
             if response:
                 rsp_msg.content = response
                 rsp_msg.status = 2
@@ -77,7 +77,7 @@ class CozeService:
         #         session.close()  # 重要！清理会话
 
     @staticmethod
-    def _chat_with_coze(user_id, msg):
+    def _chat_with_coze(ori_msg,user_id, msg):
         all_content = ""
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id, user_id=user_id, additional_messages=[Message.build_user_question_text(msg)]
@@ -85,5 +85,7 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
+                ori_msg.content = all_content
+                ori_msg.commit()
                 # print(f"role={message.role}, content={message.content}")
         return all_content
