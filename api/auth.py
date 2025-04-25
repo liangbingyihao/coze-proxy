@@ -70,10 +70,11 @@ def login():
             'success': True,
             'data': AuthSchema().dump(auth_data)
         })
-    except AuthError as e:
-        raise e
     except Exception as e:
-        raise AuthError(str(e), 500)
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
