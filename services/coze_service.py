@@ -49,50 +49,49 @@ class CozeService:
 
 
     @staticmethod
-    def chat_with_coze_async(user_id, context_id):
+    def chat_with_coze_async(user_id, context_id,conversation_id):
         try:
-            logger.warning(f"chat_with_coze_async: {user_id, context_id}")
-            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id)
+            logger.info(f"chat_with_coze_async: {user_id, context_id,conversation_id}")
+            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id,conversation_id)
         except Exception as e:
             logger.exception(e)
 
     @staticmethod
-    def chat_with_coze(user_id, context_id):
+    def chat_with_coze(user_id, context_id,conversation_id):
         session = None
-        from models.user import User
+        from models.message import Message
         try:
             session = DBSession()
-            user = session.query(User).filter_by(id=user_id).with_entities(User.username).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
+                                                                                              Message.session_id).one()
         except exc.OperationalError as e:
             session.rollback()
             logger.exception(e)
             engine.dispose()
             session = DBSession()
-            user = session.query(User).filter_by(id=user_id).with_entities(User.username).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
+                                                                                              Message.session_id).one()
         except Exception as e:
             logger.exception(e)
             return
 
         try:
-            from models.message import Message
-            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
-                                                                                              Message.session_id).one()
 
-            from models.session import Session
-            coze_session = session.query(Session).filter_by(id=message.session_id).one()
-            logger.warning(f"start: {user_id, context_id, message, user, coze_session}")
-            # session_name, conversation_id = thread.session_name, thread.conversation_id
-            if not coze_session.conversation_id:
-                conversation_id = CozeService.create_conversations()
-                logger.warning(f"create_conversations: {conversation_id}")
-                coze_session.conversation_id = conversation_id
-                session.commit()
+            # from models.session import Session
+            # coze_session = session.query(Session).filter_by(id=message.session_id).one()
+            # logger.warning(f"start: {user_id, context_id, message, user, coze_session}")
+            # # session_name, conversation_id = thread.session_name, thread.conversation_id
+            # if not coze_session.conversation_id:
+            #     conversation_id = CozeService.create_conversations()
+            #     logger.warning(f"create_conversations: {conversation_id}")
+            #     coze_session.conversation_id = conversation_id
+            #     session.commit()
 
             rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
             session.commit()
 
-            response = CozeService._chat_with_coze(session, coze_session.conversation_id, rsp_msg, user[0], message[0])
+            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message[0])
             if response:
                 rsp_msg.content = response
                 rsp_msg.status = 2

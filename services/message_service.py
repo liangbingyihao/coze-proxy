@@ -13,7 +13,7 @@ class MessageService:
     @staticmethod
     def check_permission(session_id, owner_id):
         # session = SessionService.get_session_by_id(session_id)
-        session = Session.query.filter_by(id=session_id).with_entities(Session.owner_id,Session.session_name).one()
+        session = Session.query.filter_by(id=session_id).with_entities(Session.owner_id,Session.session_name,Session.conversation_id).one()
         # session_owner,session_name = session[0],session[1]
         if session[0] != owner_id:
             raise AuthError('session no permission', 404)
@@ -21,8 +21,8 @@ class MessageService:
 
     @staticmethod
     def new_message(session_id, owner_id, content, context_id):
-        session = MessageService.check_permission(session_id, owner_id)
-        logging.debug(f"session:{session}")
+        session_owner,session_name,conversation_id = MessageService.check_permission(session_id, owner_id)
+        logging.debug(f"session:{session_owner,session_name}")
         message = Message(session_id, content, context_id)
         db.session.add(message)
         db.session.commit()

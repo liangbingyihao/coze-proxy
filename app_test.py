@@ -28,7 +28,7 @@ def new_session(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_name": "session_name1",
+        # "session_name": "session_name1",
         "robt_id": "0"
     }
 
@@ -81,4 +81,4 @@ def my_message(token):
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    add_message(token)
+    new_session(token)
