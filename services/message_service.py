@@ -27,7 +27,7 @@ class MessageService:
         db.session.add(message)
         db.session.commit()
         logging.warning(f"message.id:{message.id}")
-        CozeService.chat_with_coze_async(owner_id,message.id)
+        CozeService.chat_with_coze_async(owner_id,message.id,conversation_id)
 
         return message.id
 
