@@ -120,6 +120,7 @@ class CozeService:
     def _chat_with_coze(session, conversation_id, ori_msg, user_id, msg):
         all_content = ""
         logger.info(f"_chat_with_coze: {user_id, msg,conversation_id}")
+        msg_list = []
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
@@ -131,8 +132,10 @@ class CozeService:
                 all_content += message.content
                 ori_msg.content = all_content + "(回应生成中...)"
                 session.commit()
+            elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
+                msg_list.append(event.message.content)
                 # print(f"role={message.role}, content={message.content}")
-        return all_content
+        return "\n\n".join(msg_list)
 
     @staticmethod
     def _summary_by_coze(conversation_id, user_id):
