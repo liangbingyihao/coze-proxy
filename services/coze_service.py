@@ -49,15 +49,15 @@ class CozeService:
 
 
     @staticmethod
-    def chat_with_coze_async(user_id, context_id,conversation_id):
+    def chat_with_coze_async(user_id, context_id,conversation_id,need_summary):
         try:
             logger.info(f"chat_with_coze_async: {user_id, context_id,conversation_id}")
-            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id,conversation_id)
+            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id,conversation_id,need_summary)
         except Exception as e:
             logger.exception(e)
 
     @staticmethod
-    def chat_with_coze(user_id, context_id,conversation_id):
+    def chat_with_coze(user_id, context_id,conversation_id,need_summary):
         session = None
         from models.message import Message
         try:
@@ -99,6 +99,12 @@ class CozeService:
                 # session.add(rsp_msg)
                 session.commit()
                 logger.warning(f"GOT: {response}")
+            if need_summary:
+                summary = CozeService._summary_by_coze(conversation_id, user_id)
+                if summary:
+                    from models.session import Session
+                    session.query(Session).filter_by(id=message.session_id).update({"session_name": summary})
+                    session.commit()
         except Exception as e:
             logger.exception(e)
         # finally:
@@ -113,9 +119,10 @@ class CozeService:
     @staticmethod
     def _chat_with_coze(session, conversation_id, ori_msg, user_id, msg):
         all_content = ""
+        logger.info(f"_chat_with_coze: {user_id, msg,conversation_id}")
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
-                user_id=user_id,
+                user_id=str(user_id),
                 additional_messages=[Message.build_user_question_text(msg)],
                 conversation_id=conversation_id
         ):
@@ -126,3 +133,16 @@ class CozeService:
                 session.commit()
                 # print(f"role={message.role}, content={message.content}")
         return all_content
+
+    @staticmethod
+    def _summary_by_coze(conversation_id, user_id):
+        logger.info(f"_summary_by_coze: {user_id, conversation_id}")
+        for event in coze.chat.stream(
+                bot_id=CozeService.bot_id,
+                user_id=str(user_id),
+                additional_messages=[Message.build_user_question_text("10个字内描述本会话的主题")],
+                conversation_id=conversation_id
+        ):
+            if event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
+                logger.info(f"_summary_by_coze got: {conversation_id,event.message.content}")
+                return event.message.content
