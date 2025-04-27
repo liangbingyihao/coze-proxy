@@ -15,7 +15,7 @@ class Session(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __init__(self, session_name, owner_id, robt_id):
-        self.session_name = session_name
+        self.session_name = session_name or ""
         self.owner_id = owner_id
         self.robt_id = robt_id
 

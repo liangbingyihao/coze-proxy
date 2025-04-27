@@ -3,25 +3,27 @@ import time
 
 from models.message import Message
 from extensions import db
+from models.session import Session
 from services.coze_service import CozeService
 from services.session_service import SessionService
 from utils.exceptions import AuthError
-from concurrent.futures import ThreadPoolExecutor
 
 
 class MessageService:
 
     @staticmethod
     def check_permission(session_id, owner_id):
-        session = SessionService.get_session_by_id(session_id)
-        if session.owner_id != owner_id:
+        # session = SessionService.get_session_by_id(session_id)
+        session = Session.query.get(session_id).with_entities(Session.owner_id,Message.Session.session_name)
+        # session_owner,session_name = session[0],session[1]
+        if session[0] != owner_id:
             raise AuthError('session no permission', 404)
         return session
 
     @staticmethod
     def new_message(session_id, owner_id, content, context_id):
         session = MessageService.check_permission(session_id, owner_id)
-        logging.debug(f"session:{session.session_name, session.robt_id}")
+        logging.debug(f"session:{session}")
         message = Message(session_id, content, context_id)
         db.session.add(message)
         db.session.commit()
