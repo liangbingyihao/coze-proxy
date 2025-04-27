@@ -77,10 +77,9 @@ class CozeService:
                                                                                               Message.session_id).one()
 
             from models.session import Session
-            thread = session.query(Session).filter_by(id=message.session_id).with_entities(Session.session_name,
-                                                                                           Session.conversation_id).one()
+            thread = session.query(Session).filter_by(id=message.session_id).one()
             logger.warning(f"start: {user_id, context_id, message, user, thread}")
-            session_name, conversation_id = thread[0], thread[1]
+            session_name, conversation_id = thread.name, thread.conversation_id
             if not conversation_id:
                 conversation_id = CozeService.create_conversations()
                 logger.warning(f"create_conversations: {conversation_id}")
