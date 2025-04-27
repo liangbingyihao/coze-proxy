@@ -133,8 +133,9 @@ class CozeService:
                 ori_msg.content = all_content + "(回应生成中...)"
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
+                if event.message.content.startswith("{"):
+                    continue
                 msg_list.append(event.message.content)
-                # print(f"role={message.role}, content={message.content}")
         return "\n\n".join(msg_list)
 
     @staticmethod
