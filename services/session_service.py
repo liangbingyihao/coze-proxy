@@ -10,9 +10,9 @@ class SessionService:
     @staticmethod
     def new_session(session_name, owner_id, robt_id):
 
-        # 创建新用户
-        if not session_name:
-            session_name = f"{robt_id}_{int(time())}"
+        # 创建会话
+        # if not session_name:
+        #     session_name = f"{robt_id}_{int(time())}"
         session = Session(session_name=session_name, owner_id=owner_id, robt_id=robt_id)
         session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
