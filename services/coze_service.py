@@ -5,8 +5,30 @@ from sqlalchemy.orm import sessionmaker,scoped_session
 from concurrent.futures import ThreadPoolExecutor
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
-
 from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL,COZE_COM_BASE_URL  # noqa
+
+
+
+import logging
+
+# 创建日志记录器
+logger = logging.getLogger('my_app')
+logger.setLevel(logging.DEBUG)  # 设置日志级别
+
+# 创建文件处理器
+file_handler = logging.FileHandler('coze.log')
+file_handler.setLevel(logging.INFO)
+
+# 创建日志格式
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+file_handler.setFormatter(formatter)
+
+# 添加处理器到日志记录器
+logger.addHandler(file_handler)
+
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=COZE_CN_BASE_URL)
@@ -20,7 +42,7 @@ engine = create_engine(
     pool_recycle=3600  # 多久之后对线程池中的线程进行一次连接的回收（重置）
 )
 # 第二步：拿到一个Session类,传入engine
-Session = sessionmaker(bind=engine)
+DBSession = sessionmaker(bind=engine)
 
 
 class CozeService:
@@ -30,33 +52,35 @@ class CozeService:
     @staticmethod
     def chat_with_coze_async(user_id, context_id):
         try:
-            logging.warning(f"chat_with_coze_async: {user_id, context_id}")
+            logger.warning(f"chat_with_coze_async: {user_id, context_id}")
             CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id)
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
 
     @staticmethod
     def chat_with_coze(user_id, context_id):
         session = None
         from models.user import User
         try:
-            session = Session()
+            session = DBSession()
             user =  session.query(User).filter_by(id=user_id).with_entities(User.username).one()
         except exc.OperationalError as e:
             session.rollback()
-            logging.exception(e)
+            logger.exception(e)
             engine.dispose()
-            session = Session()
+            session = DBSession()
             user =  session.query(User).filter_by(id=user_id).with_entities(User.username).one()
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
             return
-
 
         try:
             from models.message import Message
             message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,Message.session_id).one()
-            logging.warning(f"start: {user_id, context_id, message, user}")
+
+            from models.session import Session
+            thread = session.query(Session).filter_by(id=message.session_id).with_entities(Session.session_name,Session.conversation_id).one()
+            logger.warning(f"start: {user_id, context_id, message, user,thread}")
 
             rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
@@ -69,9 +93,9 @@ class CozeService:
                 # rsp_msg = Message(message[1], response,context_id,1)
                 # session.add(rsp_msg)
                 session.commit()
-                logging.warning(f"GOT: {response}")
+                logger.warning(f"GOT: {response}")
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
         # finally:
         #     if session:
         #         session.close()  # 重要！清理会话

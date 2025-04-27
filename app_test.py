@@ -80,5 +80,5 @@ def my_message(token):
 
 if __name__ == '__main__':
     # register()
-    token = login("user1")
+    token = login("user3")
     my_message(token)

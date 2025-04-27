@@ -1,6 +1,5 @@
 from datetime import datetime
 from extensions import db
-from utils.security import generate_password_hash,verify_password
 
 
 class Session(db.Model):
@@ -11,6 +10,7 @@ class Session(db.Model):
     owner_id = db.Column(db.Integer, index=True, nullable=False)
     robt_id = db.Column(db.Integer, index=True, nullable=False)
     tags = db.Column(db.String(255))
+    conversation_id = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
