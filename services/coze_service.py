@@ -79,8 +79,8 @@ class CozeService:
             from models.session import Session
             thread = session.query(Session).filter_by(id=message.session_id).one()
             logger.warning(f"start: {user_id, context_id, message, user, thread}")
-            session_name, conversation_id = thread.name, thread.conversation_id
-            if not conversation_id:
+            # session_name, conversation_id = thread.session_name, thread.conversation_id
+            if not thread.conversation_id:
                 conversation_id = CozeService.create_conversations()
                 logger.warning(f"create_conversations: {conversation_id}")
                 thread.conversation_id = conversation_id
@@ -90,7 +90,7 @@ class CozeService:
             session.add(rsp_msg)
             session.commit()
 
-            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user[0], message[0])
+            response = CozeService._chat_with_coze(session, thread.conversation_id, rsp_msg, user[0], message[0])
             if response:
                 rsp_msg.content = response
                 rsp_msg.status = 2
