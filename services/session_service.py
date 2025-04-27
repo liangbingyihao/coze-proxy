@@ -2,6 +2,7 @@ from time import time
 
 from models.session import Session
 from extensions import db
+from services.coze_service import CozeService
 
 
 class SessionService:
@@ -13,6 +14,7 @@ class SessionService:
         if not session_name:
             session_name = f"{robt_id}_{int(time())}"
         session = Session(session_name=session_name, owner_id=owner_id, robt_id=robt_id)
+        session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
         db.session.commit()
         print(f"session.id:{session.id}")

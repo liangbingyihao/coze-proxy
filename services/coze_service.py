@@ -1,13 +1,11 @@
 import logging
 import os
 from sqlalchemy import create_engine, exc
-from sqlalchemy.orm import sessionmaker,scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
 from concurrent.futures import ThreadPoolExecutor
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
-from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL,COZE_COM_BASE_URL  # noqa
-
-
+from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL  # noqa
 
 import logging
 
@@ -28,7 +26,6 @@ file_handler.setFormatter(formatter)
 
 # 添加处理器到日志记录器
 logger.addHandler(file_handler)
-
 
 # Init the Coze client through the access_token.
 coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=COZE_CN_BASE_URL)
@@ -63,30 +60,38 @@ class CozeService:
         from models.user import User
         try:
             session = DBSession()
-            user =  session.query(User).filter_by(id=user_id).with_entities(User.username).one()
+            user = session.query(User).filter_by(id=user_id).with_entities(User.username).one()
         except exc.OperationalError as e:
             session.rollback()
             logger.exception(e)
             engine.dispose()
             session = DBSession()
-            user =  session.query(User).filter_by(id=user_id).with_entities(User.username).one()
+            user = session.query(User).filter_by(id=user_id).with_entities(User.username).one()
         except Exception as e:
             logger.exception(e)
             return
 
         try:
             from models.message import Message
-            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,Message.session_id).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
+                                                                                              Message.session_id).one()
 
             from models.session import Session
-            thread = session.query(Session).filter_by(id=message.session_id).with_entities(Session.session_name,Session.conversation_id).one()
-            logger.warning(f"start: {user_id, context_id, message, user,thread}")
+            thread = session.query(Session).filter_by(id=message.session_id).with_entities(Session.session_name,
+                                                                                           Session.conversation_id).one()
+            logger.warning(f"start: {user_id, context_id, message, user, thread}")
+            session_name, conversation_id = thread[0], thread[1]
+            if not conversation_id:
+                conversation_id = CozeService.create_conversations()
+                logger.warning(f"create_conversations: {conversation_id}")
+                thread.conversation_id = conversation_id
+                session.commit()
 
             rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
             session.commit()
 
-            response = CozeService._chat_with_coze(session,rsp_msg,user[0],message[0])
+            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user[0], message[0])
             if response:
                 rsp_msg.content = response
                 rsp_msg.status = 2
@@ -101,15 +106,23 @@ class CozeService:
         #         session.close()  # 重要！清理会话
 
     @staticmethod
-    def _chat_with_coze(session,ori_msg,user_id, msg):
+    def create_conversations():
+        conversation = coze.conversations.create()
+        return conversation.id
+
+    @staticmethod
+    def _chat_with_coze(session, conversation_id, ori_msg, user_id, msg):
         all_content = ""
         for event in coze.chat.stream(
-                bot_id=CozeService.bot_id, user_id=user_id, additional_messages=[Message.build_user_question_text(msg)]
+                bot_id=CozeService.bot_id,
+                user_id=user_id,
+                additional_messages=[Message.build_user_question_text(msg)],
+                conversation_id=conversation_id
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                ori_msg.content = all_content+"(回应生成中...)"
+                ori_msg.content = all_content + "(回应生成中...)"
                 session.commit()
                 # print(f"role={message.role}, content={message.content}")
         return all_content
