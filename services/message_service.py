@@ -14,7 +14,7 @@ class MessageService:
     @staticmethod
     def check_permission(session_id, owner_id):
         # session = SessionService.get_session_by_id(session_id)
-        session = Session.query.get(session_id).with_entities(Session.owner_id,Message.Session.session_name)
+        session = Session.query.filter_by(id=session_id).with_entities(Session.owner_id,Message.Session.session_name).one()
         # session_owner,session_name = session[0],session[1]
         if session[0] != owner_id:
             raise AuthError('session no permission', 404)

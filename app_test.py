@@ -70,7 +70,7 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":13,
+        "session_id":2,
         "context_id":21,
         # "page":1,
         # "limit":1
@@ -80,5 +80,5 @@ def my_message(token):
 
 if __name__ == '__main__':
     # register()
-    token = login("user3")
-    my_message(token)
+    token = login("user2")
+    add_message(token)
