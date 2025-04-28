@@ -9,6 +9,6 @@ class UserSchema(Schema):
 
 class AuthSchema(Schema):
     access_token = fields.Str(dump_only=True)
-    user_id = fields.Int(dump_only=True)
+    user_id = fields.Str(dump_only=True)
     username = fields.Str(dump_only=True)
     email = fields.Str(dump_only=True)

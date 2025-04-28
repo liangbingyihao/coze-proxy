@@ -81,7 +81,6 @@ def my_message(token):
     print(response.json())
 
 if __name__ == '__main__':
-    # register()
-    # token = login("user1")
+    register()
+    token = login("user2")
     # my_session(token)
-    print(len("6c6cbd0d-503a-38e1-ba88-252340860c1a"))
