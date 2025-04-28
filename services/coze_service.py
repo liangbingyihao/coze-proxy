@@ -85,18 +85,18 @@ class CozeService:
             #     coze_session.conversation_id = conversation_id
             #     session.commit()
 
-            rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
+            rsp_msg = Message(message.session_id, "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
             message.status = 1
             session.commit()
 
-            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message[0])
+            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message.content)
             if response:
                 if isinstance(response,list):
                     rsp_msg.content = response[0]
                     rsp_msg.status = 2
                     for i in range(1,len(response)):
-                        more_msg = Message(message[1], response[i], context_id, 2)
+                        more_msg = Message(message.session_id, response[i], context_id, 2)
                         session.add(more_msg)
                 elif isinstance(response,str):
                     rsp_msg.content = response
