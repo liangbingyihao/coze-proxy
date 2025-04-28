@@ -41,15 +41,14 @@ def my_session(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_name": "session_name1",
-        "robt_id": "0"
+        "page":1,
+        "limit":50
     }
 
 
-    response = requests.get("http://8.217.172.116:5000/api/session", headers=headers)
-    print(response.text)
+    response = requests.get("http://8.217.172.116:5000/api/session", headers=headers,params=data)
     sessions = response.json().get("data")
-    for s in sessions:
+    for s in sessions.get("items"):
         print(s)
 
 def add_message(token):

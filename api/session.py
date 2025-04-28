@@ -12,7 +12,7 @@ from utils.exceptions import AuthError
 session_bp = Blueprint('session', __name__)
 
 
-@session_bp.route('/add', methods=['POST'])
+@session_bp.route('', methods=['POST'])
 @jwt_required()
 def add():
     data = request.get_json()
