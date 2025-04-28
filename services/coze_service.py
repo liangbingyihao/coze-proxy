@@ -93,8 +93,16 @@ class CozeService:
 
             response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message[0])
             if response:
-                rsp_msg.content = response
-                rsp_msg.status = 2
+                if isinstance(response,list):
+                    rsp_msg.content = response[0]
+                    rsp_msg.status = 2
+                    for i in range(1,len(response)):
+                        more_msg = Message(message[1], response[i], context_id, 2)
+                        session.add(more_msg)
+                elif isinstance(response,str):
+                    rsp_msg.content = response
+                    rsp_msg.status = 2
+                message.status = 2
                 # rsp_msg = Message(message[1], response,context_id,1)
                 # session.add(rsp_msg)
                 session.commit()
@@ -136,7 +144,7 @@ class CozeService:
                 if event.message.content.startswith("{"):
                     continue
                 msg_list.append(event.message.content)
-        return "\n\n".join(msg_list)
+        return msg_list
 
     @staticmethod
     def _summary_by_coze(conversation_id, user_id):
