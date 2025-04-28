@@ -29,4 +29,4 @@ class SessionService:
 
     @staticmethod
     def get_session_by_owner(owner_id, page, limit):
-        return Session.query.filter_by(owner_id=owner_id).paginate(page=page, per_page=limit, error_out=False).order_by(desc(Session.id))
+        return Session.query.filter_by(owner_id=owner_id).order_by(desc(Session.id)).paginate(page=page, per_page=limit, error_out=False)

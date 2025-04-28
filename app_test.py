@@ -46,7 +46,8 @@ def my_session(token):
     }
 
 
-    response = requests.get("http://8.217.172.116:5000/api/session/mine", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/session", headers=headers)
+    print(response.text)
     sessions = response.json().get("data")
     for s in sessions:
         print(s)

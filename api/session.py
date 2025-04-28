@@ -49,7 +49,11 @@ def my_sessions():
                                              limit=limit)
         return jsonify({
             'success': True,
-            'data': SessionSchema(many=True).dump(data)
+            # 'data': SessionSchema(many=True).dump(data),
+            'data': {
+                'items': SessionSchema(many=True).dump(data.items),
+                'total': data.total
+            }
         })
     except AuthError as e:
         raise e
