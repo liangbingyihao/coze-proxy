@@ -1,5 +1,7 @@
 from time import time
 
+from sqlalchemy import desc
+
 from models.session import Session
 from extensions import db
 from services.coze_service import CozeService
@@ -26,5 +28,5 @@ class SessionService:
         return Session.query.get(session_id)
 
     @staticmethod
-    def get_session_by_owner(owner_id):
-        return Session.query.filter_by(owner_id=owner_id)
+    def get_session_by_owner(owner_id, page, limit):
+        return Session.query.filter_by(owner_id=owner_id).paginate(page=page, per_page=limit, error_out=False).order_by(desc(Session.id))

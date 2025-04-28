@@ -32,7 +32,7 @@ def add():
             'message': str(e)
         }), 400
 
-@session_bp.route('/mine', methods=['GET'])
+@session_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['Authentication'],
     'description': 'my sessions',
@@ -41,9 +41,12 @@ def add():
 @jwt_required()
 def my_sessions():
     owner_id = get_jwt_identity()
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
 
     try:
-        data = SessionService.get_session_by_owner(owner_id)
+        data = SessionService.get_session_by_owner(owner_id,page=page,
+                                             limit=limit)
         return jsonify({
             'success': True,
             'data': SessionSchema(many=True).dump(data)

@@ -47,7 +47,9 @@ def my_session(token):
 
 
     response = requests.get("http://8.217.172.116:5000/api/session/mine", headers=headers)
-    print(response.json())
+    sessions = response.json().get("data")
+    for s in sessions:
+        print(s)
 
 def add_message(token):
     headers = {
@@ -80,5 +82,5 @@ def my_message(token):
 
 if __name__ == '__main__':
     # register()
-    token = login("user2")
-    new_session(token)
+    token = login("user1")
+    my_session(token)
