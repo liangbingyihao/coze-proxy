@@ -66,7 +66,10 @@ def login():
     guest = data.get('guest')
 
     try:
-        auth_data = AuthService.login_user(username, password)
+        if guest:
+            auth_data = AuthService.login_guest(guest)
+        else:
+            auth_data = AuthService.login_user(username, password)
         return jsonify({
             'success': True,
             'data': AuthSchema().dump(auth_data)

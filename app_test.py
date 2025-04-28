@@ -33,8 +33,8 @@ def new_session(token):
     }
 
 
-    response = requests.post("http://8.217.172.116:5000/api/session/add", headers=headers, json=data)
-    print(response.json())
+    response = requests.post("http://8.217.172.116:5000/api/session", headers=headers, json=data)
+    print(response.text)
 
 def my_session(token):
     headers = {
@@ -81,6 +81,6 @@ def my_message(token):
     print(response.json())
 
 if __name__ == '__main__':
-    register()
+    # register()
     token = login("user2")
-    # my_session(token)
+    new_session(token)
