@@ -62,15 +62,13 @@ class CozeService:
         from models.message import Message
         try:
             session = DBSession()
-            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
-                                                                                              Message.session_id).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).first()
         except exc.OperationalError as e:
             session.rollback()
             logger.exception(e)
             engine.dispose()
             session = DBSession()
-            message = session.query(Message).filter_by(id=context_id, status=0).with_entities(Message.content,
-                                                                                              Message.session_id).one()
+            message = session.query(Message).filter_by(id=context_id, status=0).first()
         except Exception as e:
             logger.exception(e)
             return
@@ -89,6 +87,7 @@ class CozeService:
 
             rsp_msg = Message(message[1], "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
+            message.status = 1
             session.commit()
 
             response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message[0])
