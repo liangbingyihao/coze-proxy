@@ -96,7 +96,13 @@ class CozeService:
                     rsp_msg.content = response[0]
                     rsp_msg.status = 2
                     for i in range(1,len(response)):
-                        more_msg = Message(message.session_id, response[i], context_id, 2)
+                        content = response[i]
+                        action = 0
+                        if content.endswith("?"):
+                            action = 1
+                        elif content.endswith("经文图。"):
+                            action = 2
+                        more_msg = Message(message.session_id, content, context_id, 2,action)
                         session.add(more_msg)
                 elif isinstance(response,str):
                     rsp_msg.content = response
