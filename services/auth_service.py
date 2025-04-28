@@ -34,7 +34,27 @@ class AuthService:
 
         return {
             'access_token': access_token,
-            'user_id': user.id,
+            'user_id': user.public_id,
+            'username': user.username,
+            'email': user.email
+        }
+
+    @staticmethod
+    def login_guest(guest):
+        user = User.query.filter_by(username=guest).first()
+
+        if not user:
+            # 创建新用户
+            user = User(username=guest, email=guest, password="")
+            db.session.add(user)
+            db.session.commit()
+
+        # 生成JWT令牌
+        access_token = generate_jwt_token(user.id)
+
+        return {
+            'access_token': access_token,
+            'user_id': user.public_id,
             'username': user.username,
             'email': user.email
         }

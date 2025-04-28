@@ -13,4 +13,5 @@ response.wav
 temp_response.pcm
 test_api.py
 test_coze.py
+secret_key.py
 .env

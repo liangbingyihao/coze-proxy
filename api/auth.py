@@ -63,6 +63,7 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    guest = data.get('guest')
 
     try:
         auth_data = AuthService.login_user(username, password)

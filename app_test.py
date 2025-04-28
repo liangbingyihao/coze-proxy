@@ -82,5 +82,6 @@ def my_message(token):
 
 if __name__ == '__main__':
     # register()
-    token = login("user1")
-    my_session(token)
+    # token = login("user1")
+    # my_session(token)
+    print(len("6c6cbd0d-503a-38e1-ba88-252340860c1a"))
