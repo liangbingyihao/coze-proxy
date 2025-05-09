@@ -3,10 +3,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.session_schema import SessionSchema
-from services.auth_service import AuthService
-from schemas.user_schema import AuthSchema, UserSchema
 from services.session_service import SessionService
-from services.user_service import UserService
 from utils.exceptions import AuthError
 
 session_bp = Blueprint('session', __name__)

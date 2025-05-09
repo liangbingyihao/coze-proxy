@@ -11,14 +11,16 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     public_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     email = db.Column(db.String(100), unique=True, nullable=False)
+    fcm_token = db.Column(db.String(255))
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password,fcm_token):
         self.username = username
         self.email = email
         self.password_hash = generate_password_hash(password)
+        self.fcm_token = fcm_token
 
     def verify_password(self, password):
         return verify_password(self.password_hash, password)

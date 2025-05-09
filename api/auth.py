@@ -52,6 +52,7 @@ def register():
             'message': str(e)
         }), 400
 
+
 @auth_bp.route('/login', methods=['POST'])
 @swag_from({
     'tags': ['Authentication'],
@@ -64,12 +65,13 @@ def login():
     username = data.get('username')
     password = data.get('password')
     guest = data.get('guest')
+    fcm_token = data.get('fcmToken')
 
     try:
         if guest:
-            auth_data = AuthService.login_guest(guest)
+            auth_data = AuthService.login_guest(guest, fcm_token)
         else:
-            auth_data = AuthService.login_user(username, password)
+            auth_data = AuthService.login_user(username, password, fcm_token)
         return jsonify({
             'success': True,
             'data': AuthSchema().dump(auth_data)
@@ -79,6 +81,7 @@ def login():
             'success': False,
             'message': str(e)
         }), 400
+
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()

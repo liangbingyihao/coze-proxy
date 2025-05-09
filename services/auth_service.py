@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from models.user import User
 from utils.security import generate_jwt_token
 from utils.exceptions import AuthError
@@ -16,14 +18,14 @@ class AuthService:
             raise AuthError('Email already exists', 400)
 
         # 创建新用户
-        user = User(username=username, email=email, password=password)
+        user = User(username=username, email=email, password=password,fcm_token="")
         db.session.add(user)
         db.session.commit()
 
         return user
 
     @staticmethod
-    def login_user(username, password):
+    def login_user(username, password,fcm_token):
         user = User.query.filter_by(username=username).first()
 
         if not user or not user.verify_password(password):
@@ -40,13 +42,17 @@ class AuthService:
         }
 
     @staticmethod
-    def login_guest(guest):
+    def login_guest(guest,fcm_token):
         user = User.query.filter_by(username=guest).first()
 
         if not user:
             # 创建新用户
-            user = User(username=guest, email=guest, password="")
+            user = User(username=guest, email=guest, password="",fcm_token=fcm_token)
             db.session.add(user)
+            db.session.commit()
+        elif fcm_token:
+            user.fcm_token = fcm_token
+            user.updated_at = datetime.now()
             db.session.commit()
 
         # 生成JWT令牌
