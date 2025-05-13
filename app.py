@@ -54,16 +54,16 @@ def register_commands(app):
         ."""
         db.create_all()
 
-        from models.user import User
-        if not User.query.first():
-            admin = User(
-                username="admin",
-                email="admin@example.com",
-                password=generate_password_hash("admin123")
-            )
-            db.session.add(admin)
-            db.session.commit()
-            print("Initialized the database with admin user.")
+        # from models.user import User
+        # if not User.query.first():
+        #     admin = User(
+        #         username="admin",
+        #         email="admin@example.com",
+        #         password=generate_password_hash("admin123")
+        #     )
+        #     db.session.add(admin)
+        #     db.session.commit()
+        #     print("Initialized the database with admin user.")
 
     @app.cli.command("create-user")
     @click.argument("username")

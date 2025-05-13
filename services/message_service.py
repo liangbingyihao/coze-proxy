@@ -20,15 +20,23 @@ class MessageService:
         return session
 
     @staticmethod
-    def new_message(session_id, owner_id, content, context_id):
-        session_owner, session_name, conversation_id = MessageService.check_permission(session_id, owner_id)
-        logging.debug(f"session:{session_owner, session_name}")
-        message = Message(session_id, content, context_id)
-        db.session.add(message)
-        db.session.commit()
-        logging.warning(f"message.id:{message.id}")
-        CozeService.chat_with_coze_async(owner_id, message.id, conversation_id,
-                                         not session_name or len(session_name) < 4)
+    def new_message(owner_id, content,context_id):
+        '''
+        :param context_id:用户探索的信息id
+        :param owner_id:
+        :param content:
+        :return:
+        '''
+        # session_owner, session_name, conversation_id = MessageService.check_permission(session_id, owner_id)
+        # logging.debug(f"session:{session_owner, session_name}")
+        message = None
+        if content:
+            message = Message(0,owner_id, content)
+            db.session.add(message)
+            db.session.commit()
+            logging.warning(f"message.id:{message.id}")
+
+        CozeService.chat_with_coze_async(owner_id, context_id or message.id)
 
         return message.id
 

@@ -2,7 +2,7 @@ import logging
 import os
 from functools import lru_cache
 
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, exc, desc
 from sqlalchemy.orm import sessionmaker, scoped_session
 from concurrent.futures import ThreadPoolExecutor
 
@@ -43,21 +43,41 @@ engine = create_engine(
 # 第二步：拿到一个Session类,传入engine
 DBSession = sessionmaker(bind=engine)
 
+msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
+                1.feedback:返回一段基督教新教的圣经中的相关经文进行鼓励。并针对该经文予一段100字左右的内容拓展。
+                2.event:从输入内容里提取出发生的事件，6个字以内。优先使用事件：${event}。没有匹配事件可以新增事件
+                3.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
+                4.summary:给出8个字以内的重点小结
+                5.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
+                6.严格按json格式返回。{"event":<event>,"tag":<tag>,"summary":<summary>,"feedback":<feedback>,"explore":<explore>}
+                7.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
+                以下是用户的输入内容：
+                '''
+
+msg_explore = '''在基督教正统教义范围内回应下面输入，回应内容200字以内:
+                '''
+
+
 class CozeService:
     bot_id = "7481241756508504091"
     executor = ThreadPoolExecutor(3)
 
-
     @staticmethod
-    def chat_with_coze_async(user_id, context_id,conversation_id,need_summary):
+    def chat_with_coze_async(user_id, context_id):
+        '''
+        :param user_id:
+        :param context_id:
+        :param session_id: 1 用户正常记录；其他 用户探索
+        :return:
+        '''
         try:
-            logger.info(f"chat_with_coze_async: {user_id, context_id,conversation_id}")
-            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id,conversation_id,need_summary)
+            logger.info(f"chat_with_coze_async: {user_id, context_id}")
+            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id)
         except Exception as e:
             logger.exception(e)
 
     @staticmethod
-    def chat_with_coze(user_id, context_id,conversation_id,need_summary):
+    def chat_with_coze(user_id, context_id):
         session = None
         from models.message import Message
         try:
@@ -84,25 +104,35 @@ class CozeService:
             #     logger.warning(f"create_conversations: {conversation_id}")
             #     coze_session.conversation_id = conversation_id
             #     session.commit()
-
-            rsp_msg = Message(message.session_id, "(回应生成中)", context_id, 1)
+            rsp_msg = Message(0, user_id, "(回应生成中)", context_id, 1)
             session.add(rsp_msg)
-            message.status = 1
             session.commit()
 
-            response = CozeService._chat_with_coze(session, conversation_id, rsp_msg, user_id, message.content)
+            if message.action == 0:
+                from models.session import Session
+                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
+                    desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
+                names = ""
+                for session_id, session_name in session_lst:
+                    names += f"{session_name},"
+                ask_msg = msg_feedback.replace("${event}", names)
+                ask_msg += message.content
+            else:
+                ask_msg = message.content
+
+            response = CozeService._chat_with_coze(session, rsp_msg, user_id, ask_msg)
             if response:
-                if isinstance(response,list):
+                if isinstance(response, list):
                     rsp_msg.content = response[0]
                     rsp_msg.status = 2
-                    for i in range(1,len(response)):
+                    for i in range(1, len(response)):
                         content = response[i]
                         action = 1
-                        if i==len(response)-1 and "经文图" in content:
+                        if i == len(response) - 1 and "经文图" in content:
                             action = 2
-                        more_msg = Message(message.session_id, content, context_id, 2,action)
+                        more_msg = Message(message.session_id, content, context_id, 2, action)
                         session.add(more_msg)
-                elif isinstance(response,str):
+                elif isinstance(response, str):
                     rsp_msg.content = response
                     rsp_msg.status = 2
                 message.status = 2
@@ -110,12 +140,12 @@ class CozeService:
                 # session.add(rsp_msg)
                 session.commit()
                 logger.warning(f"GOT: {response}")
-            if need_summary:
-                summary = CozeService._summary_by_coze(conversation_id, user_id)
-                if summary:
-                    from models.session import Session
-                    session.query(Session).filter_by(id=message.session_id).update({"session_name": summary})
-                    session.commit()
+            # if need_summary:
+            #     summary = CozeService._summary_by_coze(conversation_id, user_id)
+            #     if summary:
+            #         from models.session import Session
+            #         session.query(Session).filter_by(id=message.session_id).update({"session_name": summary})
+            #         session.commit()
         except Exception as e:
             logger.exception(e)
         # finally:
@@ -128,15 +158,14 @@ class CozeService:
         return conversation.id
 
     @staticmethod
-    def _chat_with_coze(session, conversation_id, ori_msg, user_id, msg):
+    def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
-        logger.info(f"_chat_with_coze: {user_id, msg,conversation_id}")
+        logger.info(f"_chat_with_coze: {user_id, msg}")
         msg_list = []
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
                 additional_messages=[Message.build_user_question_text(msg)],
-                conversation_id=conversation_id
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
@@ -144,9 +173,10 @@ class CozeService:
                 ori_msg.content = all_content + "(回应生成中...)"
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
-                if event.message.content.startswith("{"):
-                    continue
-                msg_list.append(event.message.content)
+                return event.message.content
+                # if event.message.content.startswith("{"):
+                #     continue
+                # msg_list.append(event.message.content)
         return msg_list
 
     @staticmethod
@@ -159,5 +189,5 @@ class CozeService:
                 conversation_id=conversation_id
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
-                logger.info(f"_summary_by_coze got: {conversation_id,event.message.content}")
+                logger.info(f"_summary_by_coze got: {conversation_id, event.message.content}")
                 return event.message.content

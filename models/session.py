@@ -6,7 +6,7 @@ class Session(db.Model):
     __tablename__ = 'sessions'
 
     id = db.Column(db.Integer, primary_key=True)
-    session_name = db.Column(db.String(50), nullable=False)
+    session_name = db.Column(db.String(50), index=True,nullable=False)
     owner_id = db.Column(db.Integer, index=True, nullable=False)
     robt_id = db.Column(db.Integer, index=True, nullable=False)
     tags = db.Column(db.String(255))

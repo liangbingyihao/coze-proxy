@@ -8,13 +8,15 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.Integer, index=True, nullable=False)
     context_id = db.Column(db.Integer, index=True, nullable=False)
+    owner_id = db.Column(db.Integer, index=True, nullable=False)
     status = db.Column(db.Integer, nullable=False,default=0)
-    action = db.Column(db.Integer, nullable=False,default=0)#0 什么也不干 1 直接用来问AI 2 生成图片
+    action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 AI返回的探索问题 2 生成图片
     content = db.Column(db.UnicodeText, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, session_id, content,context_id,status=0,action=0):
+    def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0):
         self.session_id = session_id
+        self.owner_id = owner_id
         self.content = content
         self.context_id =context_id
         self.status = status
