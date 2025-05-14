@@ -208,11 +208,11 @@ class CozeService:
                         ori_msg.feedback = f"{bible, detail}"
                 else:
                     ori_msg.feedback = all_content
-                logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
+                # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED and event.message.type==MessageType.ANSWER:
-                logger.info(f"CONVERSATION_MESSAGE_COMPLETED: {event.message.content}")
+                # logger.info(f"CONVERSATION_MESSAGE_COMPLETED: {event.message.content}")
                 return event.message.content
             # elif event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
             #     logger.info(f"CONVERSATION_CHAT_COMPLETED: {event.chat.usage.token_count}")
