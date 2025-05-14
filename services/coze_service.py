@@ -1,11 +1,7 @@
 import json
-import logging
 import os
-from functools import lru_cache
-
-from mako.ext.babelplugin import extract
 from sqlalchemy import create_engine, exc, desc
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
