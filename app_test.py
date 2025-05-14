@@ -92,13 +92,25 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/9", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/98", headers=headers)
     r = response.json()
     print(r)
     return r
 
 
+def _extract_content(content,s):
+        s1, s2, s3 = s
+        if not s1:
+            s[0] = s1 = content.find("\"bible\":")
+        if s1 and not s2:
+            s[1] = s2 = content.find("\"feed")
+        if s2 and not s3:
+            s[2] = s3 = content.find("\"exp")
+        bible,detail  = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 14:s3 if s3 > 0 else -1]
+        return bible, detail
+
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    get_message(token)
+    r = get_message(token)
+    print(_extract_content(r.get("data").get("feedback"),[0,0,0]))

@@ -182,10 +182,10 @@ class CozeService:
         if not s1:
             s[0] = s1 = content.find("\"bible\":")
         if s1 and not s2:
-            s[1] = s2 = content.find("\", \"feed")
+            s[1] = s2 = content.find("\"feed")
         if s2 and not s3:
-            s[2] = s3 = content.find("\", \"exp")
-        bible,detail  = content[s1 + 8:s2 + 1 if s2 > 0 else -1], content[s2 + 14:s3 + 1 if s3 > 0 else -1]
+            s[2] = s3 = content.find("\"exp")
+        bible,detail  = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 14:s3 if s3 > 0 else -1]
         return bible, detail
 
 
@@ -203,7 +203,7 @@ class CozeService:
                 message = event.message
                 all_content += message.content
                 if not ori_msg.context_id:
-                    if pos[2]==0:
+                    if pos[2]<=0:
                         bible, detail = CozeService._extract_content(all_content,pos)
                         ori_msg.feedback = f"{bible, detail}"
                 else:
@@ -212,7 +212,10 @@ class CozeService:
                 ori_msg.status = 1
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
-                return event.message.content
+                logger.info(f"CONVERSATION_MESSAGE_COMPLETED: {event.message.content}")
+                # return event.message.content
+            elif event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+                logger.info(f"CONVERSATION_CHAT_COMPLETED: {event.chat.usage.token_count}")
                 # if event.message.content.startswith("{"):
                 #     continue
                 # msg_list.append(event.message.content)
