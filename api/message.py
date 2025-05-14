@@ -74,3 +74,20 @@ def my_message():
             'success': False,
             'message': str(e)
         }), 400
+
+# 带int类型参数的路由
+@message_bp.route('/<int:msg_id>', methods=['GET'])
+def msg_detail(msg_id):
+    try:
+        data = MessageService.get_message(msg_id)
+        import flask_sqlalchemy
+        if isinstance(data, flask_sqlalchemy.BaseQuery):
+            return jsonify({
+                'success': True,
+                'data': MessageSchema(many=True).dump(data)
+            })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400

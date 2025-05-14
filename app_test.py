@@ -59,6 +59,9 @@ def add_message(token):
         "text": "如何以祷告引导孩子改变？",
         "context_id": "2",
     }
+    data = {
+        "text": "最近我老发脾气",
+    }
     # data = {
     #     "text":1
     # }

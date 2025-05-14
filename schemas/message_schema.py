@@ -7,4 +7,5 @@ class MessageSchema(Schema):
     status = fields.Int(dump_only=True)
     action = fields.Int(dump_only=True)
     content = fields.Str()
+    feedback = fields.Str()
     created_at = fields.DateTime()

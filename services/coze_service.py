@@ -151,7 +151,7 @@ class CozeService:
                             if summary == session_name:
                                 message.session_id = session_id
                                 break
-                        if not message.session_id:
+                        if not message.session_id and summary:
                             new_session = Session(summary, user_id, 0)
                             session.add(new_session)
                             session.commit()
