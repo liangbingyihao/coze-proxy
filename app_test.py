@@ -60,7 +60,7 @@ def add_message(token):
         "context_id": "2",
     }
     data = {
-        "text": "很担心这次考试",
+        "text": "晚上又对孩子很暴躁了",
     }
     # data = {
     #     "text":1
@@ -98,22 +98,7 @@ def get_message(token):
     return r
 
 
-def _extract_feedback(content,s):
-    s1,s2,s3 = s
-    if not s1:
-        s[0] = s1 = content.find("\"bible\":")
-    if s1 and not s2:
-        s[1] = s2 = content.find("\", \"feed")
-    if s2 and not s3:
-        s[2] = s3 = content.find("\", \"exp")
-    bible,feedbcak = content[s1+8:s2+1 if s2>0 else -1],content[s2+14:s3+1 if s3>0 else -1]
-    return bible,feedbcak
-
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    r = get_message(token)
-    feedback = r.get("data").get("feedback")
-    pos=[0,0,0]
-    _extract_feedback(feedback,pos)
-    print(pos)
+    get_message(token)

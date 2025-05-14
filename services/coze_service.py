@@ -156,7 +156,7 @@ class CozeService:
                 except Exception as e:
                     logger.exception(e)
                 message.feedback = response
-                message.status = 0
+                message.status = 2
                 session.commit()
 
             # if need_summary:
@@ -208,6 +208,7 @@ class CozeService:
                         ori_msg.feedback = f"{bible, detail}"
                 else:
                     ori_msg.feedback = all_content
+                logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
