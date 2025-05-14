@@ -14,7 +14,7 @@ def register():
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "username": user_name,
+        "guest": "guestest",
         "password": "123456"
     }
 
@@ -56,7 +56,7 @@ def add_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "text": "你好啊!",
+        "text": "孩子做事情老拖拉，不知道怎么办",
         "robt_id": "0",
         "session_id":"1"
     }
@@ -83,4 +83,4 @@ def my_message(token):
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    new_session(token)
+    add_message(token)

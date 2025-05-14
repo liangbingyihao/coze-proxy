@@ -54,7 +54,8 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 以下是用户的输入内容：
                 '''
 
-msg_explore = '''在基督教正统教义范围内回应下面输入，回应内容200字以内:
+msg_explore = '''你要在基督教正统教义范围内对下面的输入进行回应，回应内容200字以内:
+                 用户问题:${question}
                 '''
 
 
@@ -63,16 +64,16 @@ class CozeService:
     executor = ThreadPoolExecutor(3)
 
     @staticmethod
-    def chat_with_coze_async(user_id, context_id):
+    def chat_with_coze_async(user_id,msg_id):
         '''
         :param user_id:
         :param context_id:
-        :param session_id: 1 用户正常记录；其他 用户探索
+        :param msg_id: 1 用户正常记录；其他 用户探索
         :return:
         '''
         try:
-            logger.info(f"chat_with_coze_async: {user_id, context_id}")
-            CozeService.executor.submit(CozeService.chat_with_coze, user_id, context_id)
+            logger.info(f"chat_with_coze_async: {user_id, msg_id}")
+            CozeService.executor.submit(CozeService.chat_with_coze, user_id, msg_id)
         except Exception as e:
             logger.exception(e)
 
@@ -104,11 +105,17 @@ class CozeService:
             #     logger.warning(f"create_conversations: {conversation_id}")
             #     coze_session.conversation_id = conversation_id
             #     session.commit()
-            rsp_msg = Message(0, user_id, "(回应生成中)", context_id, 1)
-            session.add(rsp_msg)
-            session.commit()
 
-            if message.action == 0:
+            if message.context_id:
+                # 用户探索类型
+                # context_msg = session.query(Message).filter_by(id=message.context_id).first()
+                # ask_msg = msg_explore.replace("${context}", context_msg.content)
+                ask_msg = msg_explore.replace("${question}", message.content)
+                # rsp_msg = message
+            else:
+                # rsp_msg = Message(0, user_id, "", context_id, 1)
+                # session.add(rsp_msg)
+                # session.commit()
                 from models.session import Session
                 session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
                     desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
@@ -117,27 +124,23 @@ class CozeService:
                     names += f"{session_name},"
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
-            else:
-                ask_msg = message.content
 
-            response = CozeService._chat_with_coze(session, rsp_msg, user_id, ask_msg)
+            # if message.action == 0:
+            #     from models.session import Session
+            #     session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
+            #         desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
+            #     names = ""
+            #     for session_id, session_name in session_lst:
+            #         names += f"{session_name},"
+            #     ask_msg = msg_feedback.replace("${event}", names)
+            #     ask_msg += message.content
+            # else:
+            #     ask_msg = message.content
+
+            response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
             if response:
-                if isinstance(response, list):
-                    rsp_msg.content = response[0]
-                    rsp_msg.status = 2
-                    for i in range(1, len(response)):
-                        content = response[i]
-                        action = 1
-                        if i == len(response) - 1 and "经文图" in content:
-                            action = 2
-                        more_msg = Message(message.session_id, content, context_id, 2, action)
-                        session.add(more_msg)
-                elif isinstance(response, str):
-                    rsp_msg.content = response
-                    rsp_msg.status = 2
-                message.status = 2
-                # rsp_msg = Message(message[1], response,context_id,1)
-                # session.add(rsp_msg)
+                message.feedback = response
+                message.status = 0
                 session.commit()
                 logger.warning(f"GOT: {response}")
             # if need_summary:

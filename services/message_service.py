@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 
@@ -22,7 +23,7 @@ class MessageService:
     @staticmethod
     def new_message(owner_id, content,context_id):
         '''
-        :param context_id:用户探索的信息id
+        :param context_id:用户探索的原信息id
         :param owner_id:
         :param content:
         :return:
@@ -31,12 +32,12 @@ class MessageService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = None
         if content:
-            message = Message(0,owner_id, content)
+            message = Message(0,owner_id, content,context_id)
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")
 
-        CozeService.chat_with_coze_async(owner_id, context_id or message.id)
+        CozeService.chat_with_coze_async(owner_id, message.id)
 
         return message.id
 

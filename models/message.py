@@ -9,10 +9,12 @@ class Message(db.Model):
     session_id = db.Column(db.Integer, index=True, nullable=False)
     context_id = db.Column(db.Integer, index=True, nullable=False)
     owner_id = db.Column(db.Integer, index=True, nullable=False)
-    status = db.Column(db.Integer, nullable=False,default=0)
-    action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 AI返回的探索问题 2 生成图片
+    status = db.Column(db.Integer, nullable=False,default=0)# 0 默认状态 1 AI回应中 2 AI回应完毕
+    action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 探索问题 2 生成图片
     content = db.Column(db.UnicodeText, nullable=False)
+    feedback = db.Column(db.UnicodeText, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0):
         self.session_id = session_id
@@ -21,6 +23,7 @@ class Message(db.Model):
         self.context_id =context_id
         self.status = status
         self.action = action
+        self.feedback = ""
 
     def __repr__(self):
         return f'<message {self.id}>'
