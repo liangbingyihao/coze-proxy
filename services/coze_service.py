@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
-from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL  # noqa
+from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL, MessageType  # noqa
 
 import logging
 
@@ -211,11 +211,11 @@ class CozeService:
                 logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()
-            elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
+            elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED and event.message.type==MessageType.ANSWER:
                 logger.info(f"CONVERSATION_MESSAGE_COMPLETED: {event.message.content}")
-                # return event.message.content
-            elif event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
-                logger.info(f"CONVERSATION_CHAT_COMPLETED: {event.chat.usage.token_count}")
+                return event.message.content
+            # elif event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+            #     logger.info(f"CONVERSATION_CHAT_COMPLETED: {event.chat.usage.token_count}")
                 # if event.message.content.startswith("{"):
                 #     continue
                 # msg_list.append(event.message.content)
