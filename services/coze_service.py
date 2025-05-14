@@ -44,13 +44,14 @@ engine = create_engine(
 DBSession = sessionmaker(bind=engine)
 
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
-                1.feedback:返回一段基督教新教的圣经中的相关经文进行鼓励。并针对该经文予一段100字左右的内容拓展。
-                2.event:从输入内容里提取出发生的事件，6个字以内。优先使用事件：${event}。没有匹配事件可以新增事件
-                3.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
-                4.summary:给出8个字以内的重点小结
-                5.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                6.严格按json格式返回。{"event":<event>,"tag":<tag>,"summary":<summary>,"feedback":<feedback>,"explore":<explore>}
-                7.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
+                1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
+                2.feedback:并针对该经文予一段100字左右的内容拓展。
+                3.event:从输入内容里提取出发生的事件，6个字以内。优先使用事件：${event}。没有匹配事件可以新增事件
+                4.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
+                5.summary:给出8个字以内的重点小结
+                6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
+                7.严格按json格式返回。{"event":<event>,"tag":<tag>,"summary":<summary>,"bible":<bible>,"feedback":<feedback>,"explore":<explore>}
+                8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
                 以下是用户的输入内容：
                 '''
 
@@ -117,8 +118,7 @@ class CozeService:
                 # session.add(rsp_msg)
                 # session.commit()
                 from models.session import Session
-                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
-                    desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
+                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
                 names = ""
                 for session_id, session_name in session_lst:
                     names += f"{session_name},"
@@ -173,7 +173,7 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                ori_msg.content = all_content + "(回应生成中...)"
+                ori_msg.feedback = all_content
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
                 return event.message.content
