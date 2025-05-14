@@ -99,18 +99,40 @@ def get_message(token):
 
 
 def _extract_content(content,s):
-        s1, s2, s3 = s
-        if not s1:
-            s[0] = s1 = content.find("\"bible\":")
-        if s1 and not s2:
-            s[1] = s2 = content.find("\"feed")
-        if s2 and not s3:
-            s[2] = s3 = content.find("\"exp")
-        bible,detail  = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 14:s3 if s3 > 0 else -1]
-        return bible, detail
+    print(content)
+    s1, s2, s3 = s
+    if not s1:
+        s[0] = s1 = content.find("\"bible\":")
+    if s1 and not s2:
+        s[1] = s2 = content.find("\"feed")
+    if s2 and not s3:
+        s[2] = s3 = content.find("\"exp")
+    bible,detail  = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 11:s3 if s3 > 0 else -1]
+    return bible, detail
+
+def extract_test(text,s):
+    import re
+    s1,e1, s2, e2 = s
+
+    if not s1:
+        match = re.search(r"(\"bible\"\s*:\s*)", text)
+        if match:
+            s[0] = s1 = match.end()
+
+    if not s2:
+        match = re.search(r"(\"feedback\"\s*:\s*)", text)
+        if match:
+            s[1] = e1 = match.start()
+            s[2] = s2 = match.end()
+
+    if not e2:
+        match = re.search(r"(\"explore\"\s*:\s*)", text)
+        if match:
+            s[3] = e2 = match.start()
+    bible,detail  = text[s1:e1 if e1 > 0 else -1], text[s2:e2 if e2 > 0 else -1]
+    return bible, detail
 
 if __name__ == '__main__':
-    # register()
     token = login("user2")
     r = get_message(token)
-    print(_extract_content(r.get("data").get("feedback"),[0,0,0]))
+    print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
