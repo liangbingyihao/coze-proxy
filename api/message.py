@@ -81,11 +81,10 @@ def msg_detail(msg_id):
     try:
         data = MessageService.get_message(msg_id)
         import flask_sqlalchemy
-        if isinstance(data, flask_sqlalchemy.BaseQuery):
-            return jsonify({
-                'success': True,
-                'data': MessageSchema(many=True).dump(data)
-            })
+        return jsonify({
+            'success': True,
+            'data': MessageSchema().dump(data)
+        })
     except Exception as e:
         return jsonify({
             'success': False,

@@ -3,6 +3,7 @@ import logging
 import os
 from functools import lru_cache
 
+from mako.ext.babelplugin import extract
 from sqlalchemy import create_engine, exc, desc
 from sqlalchemy.orm import sessionmaker, scoped_session
 from concurrent.futures import ThreadPoolExecutor
@@ -51,7 +52,7 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 4.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                7.严格按json格式返回。{"event":<event>,"tag":<tag>,"summary":<summary>,"bible":<bible>,"feedback":<feedback>,"explore":<explore>}
+                7.严格按json格式返回。{"bible":<bible>,"feedback":<feedback>,"explore":<explore>,"event":<event>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
                 以下是用户的输入内容：
                 '''
@@ -180,8 +181,22 @@ class CozeService:
         return conversation.id
 
     @staticmethod
+    def _extract_content(content,s):
+        s1, s2, s3 = s
+        if not s1:
+            s[0] = s1 = content.find("\"bible\":")
+        if s1 and not s2:
+            s[1] = s2 = content.find("\", \"feed")
+        if s2 and not s3:
+            s[2] = s3 = content.find("\", \"exp")
+        bible,detail  = content[s1 + 8:s2 + 1 if s2 > 0 else -1], content[s2 + 14:s3 + 1 if s3 > 0 else -1]
+        return bible, detail
+
+
+    @staticmethod
     def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
+        pos = [0, 0, 0]
         logger.info(f"_chat_with_coze: {user_id, msg}")
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
@@ -191,7 +206,12 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                ori_msg.feedback = all_content
+                if not ori_msg.context_id:
+                    if pos[2]==0:
+                        bible, detail = CozeService._extract_content(all_content,pos)
+                        ori_msg.feedback = f"{bible, detail}"
+                else:
+                    ori_msg.feedback = all_content
                 ori_msg.status = 1
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:

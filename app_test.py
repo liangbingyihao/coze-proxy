@@ -60,7 +60,7 @@ def add_message(token):
         "context_id": "2",
     }
     data = {
-        "text": "最近我老发脾气",
+        "text": "很担心这次考试",
     }
     # data = {
     #     "text":1
@@ -82,7 +82,38 @@ def my_message(token):
     response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
     print(response.json())
 
+def get_message(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "session_id":2,
+        "context_id":21,
+        # "page":1,
+        # "limit":1
+    }
+    response = requests.get("http://8.217.172.116:5000/api/message/9", headers=headers)
+    r = response.json()
+    print(r)
+    return r
+
+
+def _extract_feedback(content,s):
+    s1,s2,s3 = s
+    if not s1:
+        s[0] = s1 = content.find("\"bible\":")
+    if s1 and not s2:
+        s[1] = s2 = content.find("\", \"feed")
+    if s2 and not s3:
+        s[2] = s3 = content.find("\", \"exp")
+    bible,feedbcak = content[s1+8:s2+1 if s2>0 else -1],content[s2+14:s3+1 if s3>0 else -1]
+    return bible,feedbcak
+
 if __name__ == '__main__':
     # register()
     token = login("user2")
-    add_message(token)
+    r = get_message(token)
+    feedback = r.get("data").get("feedback")
+    pos=[0,0,0]
+    _extract_feedback(feedback,pos)
+    print(pos)
