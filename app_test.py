@@ -56,9 +56,8 @@ def add_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "text": "孩子做事情老拖拉，不知道怎么办",
-        "robt_id": "0",
-        "session_id":"1"
+        "text": "如何以祷告引导孩子改变？",
+        "context_id": "2",
     }
     # data = {
     #     "text":1

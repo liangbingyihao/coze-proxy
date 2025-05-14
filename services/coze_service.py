@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from functools import lru_cache
@@ -106,7 +107,8 @@ class CozeService:
             #     logger.warning(f"create_conversations: {conversation_id}")
             #     coze_session.conversation_id = conversation_id
             #     session.commit()
-
+            session_lst = []
+            from models.session import Session
             if message.context_id:
                 # 用户探索类型
                 # context_msg = session.query(Message).filter_by(id=message.context_id).first()
@@ -117,14 +119,15 @@ class CozeService:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
                 # session.add(rsp_msg)
                 # session.commit()
-                from models.session import Session
-                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
+                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                 names = ""
                 for session_id, session_name in session_lst:
                     names += f"{session_name},"
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 
+            message.status=1
+            session.commit()
             # if message.action == 0:
             #     from models.session import Session
             #     session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
@@ -139,10 +142,26 @@ class CozeService:
 
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
             if response:
+                logger.warning(f"GOT: {response}")
+                try:
+                    if not message.context_id and not message.session_id:
+                        result = json.loads(response)
+                        summary = result.get("summary")
+                        for session_id, session_name in session_lst:
+                            if summary == session_name:
+                                message.session_id = session_id
+                                break
+                        if not message.session_id:
+                            new_session = Session(summary, user_id, 0)
+                            session.add(new_session)
+                            session.commit()
+                            message.session_id = new_session.id
+                except Exception as e:
+                    logger.exception(e)
                 message.feedback = response
                 message.status = 0
                 session.commit()
-                logger.warning(f"GOT: {response}")
+
             # if need_summary:
             #     summary = CozeService._summary_by_coze(conversation_id, user_id)
             #     if summary:
@@ -164,7 +183,6 @@ class CozeService:
     def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
         logger.info(f"_chat_with_coze: {user_id, msg}")
-        msg_list = []
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
@@ -174,13 +192,13 @@ class CozeService:
                 message = event.message
                 all_content += message.content
                 ori_msg.feedback = all_content
+                ori_msg.status = 1
                 session.commit()
             elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
                 return event.message.content
                 # if event.message.content.startswith("{"):
                 #     continue
                 # msg_list.append(event.message.content)
-        return msg_list
 
     @staticmethod
     def _summary_by_coze(conversation_id, user_id):
