@@ -92,7 +92,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/121", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/127", headers=headers)
     r = response.json()
     print(r)
     return r
@@ -139,4 +139,4 @@ def extract_test(text,s):
 if __name__ == '__main__':
     token = login("user2")
     r = get_message(token)
-    print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
+    # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

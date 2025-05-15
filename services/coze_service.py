@@ -43,12 +43,12 @@ DBSession = sessionmaker(bind=engine)
 
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
                 1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
-                2.feedback:并针对该经文予一段100字左右的内容拓展。
+                2.view:并针对该经文予一段100字左右的内容拓展。
                 3.event:从输入内容里提取出发生的事件，6个字以内。优先使用事件：${event}。没有匹配事件可以新增事件
                 4.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                7.严格按json格式返回。{"bible":<bible>,"feedback":<feedback>,"explore":<explore>,"event":<event>,"tag":<tag>,"summary":<summary>}
+                7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"event":<event>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
                 以下是用户的输入内容：
                 '''
@@ -104,6 +104,8 @@ class CozeService:
             #     logger.warning(f"create_conversations: {conversation_id}")
             #     coze_session.conversation_id = conversation_id
             #     session.commit()
+            message.status=1
+            session.commit()
             session_lst = []
             from models.session import Session
             if message.context_id:
@@ -123,8 +125,6 @@ class CozeService:
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 
-            message.status=1
-            session.commit()
             # if message.action == 0:
             #     from models.session import Session
             #     session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
@@ -144,6 +144,7 @@ class CozeService:
                     if not message.context_id and not message.session_id:
                         result = json.loads(response)
                         summary = result.get("summary")
+                        message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
                         for session_id, session_name in session_lst:
                             if summary == session_name:
                                 message.session_id = session_id
@@ -155,7 +156,8 @@ class CozeService:
                             message.session_id = new_session.id
                 except Exception as e:
                     logger.exception(e)
-                message.feedback = response
+                if message.context_id:
+                    message.feedback_text = response
                 message.status = 2
                 session.commit()
 
@@ -188,7 +190,7 @@ class CozeService:
                 s[0] = s1 = match.end()
 
         if not s2:
-            match = re.search(r"(\"feedback\"\s*:\s*)", text)
+            match = re.search(r"(\"view\"\s*:\s*)", text)
             if match:
                 s[1] = e1 = match.start()
                 s[2] = s2 = match.end()
@@ -220,9 +222,9 @@ class CozeService:
                 if not ori_msg.context_id:
                     if pos[3]<=0:
                         bible, detail = CozeService._extract_content(all_content,pos)
-                        ori_msg.feedback = json.dumps({"text":f"经文:{bible}\n扩展:{detail}"})
+                        ori_msg.feedback_text = f"经文:{bible}\n扩展:{detail}"
                 else:
-                    ori_msg.feedback = all_content
+                    ori_msg.feedback_text = all_content
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()

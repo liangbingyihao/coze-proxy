@@ -13,6 +13,7 @@ class Message(db.Model):
     action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 探索问题 2 生成图片
     content = db.Column(db.UnicodeText, nullable=False)
     feedback = db.Column(db.UnicodeText, nullable=False)
+    feedback_text = db.Column(db.UnicodeText, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -24,6 +25,7 @@ class Message(db.Model):
         self.status = status
         self.action = action
         self.feedback = ""
+        self.feedback_text = ""
 
     def __repr__(self):
         return f'<message {self.id}>'
