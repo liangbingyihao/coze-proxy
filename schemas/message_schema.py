@@ -12,7 +12,7 @@ class JSONStringField(fields.Field):
         try:
             return json.loads(value) if isinstance(value, str) else value
         except json.JSONDecodeError as e:
-            raise ValidationError(f"Invalid JSON string: {str(e)}")
+            return None
 
     def _deserialize(self, value, attr, data, **kwargs):
         # 反序列化时保持不变或根据需求处理

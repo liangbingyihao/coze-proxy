@@ -92,7 +92,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/2", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/10", headers=headers)
     r = response.json()
     print(r)
     return r
