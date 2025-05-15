@@ -49,7 +49,7 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
                 7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"event":<event>,"tag":<tag>,"summary":<summary>}
-                8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要提供explore字段。
+                8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 以下是用户的输入内容：
                 '''
 
@@ -57,6 +57,8 @@ msg_explore = '''你要在基督教正统教义范围内对下面的输入进行
                  用户问题:${question}
                 '''
 
+msg_error = '''我很乐意帮你做大小事情的记录，都会成为你看见上帝恩典的点点滴滴。但这个问题我暂时没有具体的推荐，你有此刻想记录的心情或亮光想记录吗？
+'''
 
 class CozeService:
     bot_id = "7481241756508504091"
@@ -144,7 +146,9 @@ class CozeService:
                     if not message.context_id and not message.session_id:
                         result = json.loads(response)
                         summary = result.get("summary")
-                        message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
+                        bible,view = result.get('bible'),result.get('view')
+                        if bible and view:
+                            message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
                         for session_id, session_name in session_lst:
                             if summary == session_name:
                                 message.session_id = session_id
