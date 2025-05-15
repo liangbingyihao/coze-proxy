@@ -228,7 +228,11 @@ class CozeService:
                 if not ori_msg.context_id:
                     if pos[3]<=0:
                         bible, detail = CozeService._extract_content(all_content,pos)
-                        ori_msg.feedback_text = f"经文:{bible or ''}\n扩展:{detail or ''}"
+                        if bible:
+                            bible = f"经文:{bible}\n"
+                        if detail:
+                            detail = f"扩展:{detail}"
+                        ori_msg.feedback_text = f"{bible}{detail}"
                 else:
                     ori_msg.feedback_text = all_content
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
