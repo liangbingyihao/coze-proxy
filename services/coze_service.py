@@ -158,6 +158,8 @@ class CozeService:
                     logger.exception(e)
                 if message.context_id:
                     message.feedback_text = response
+                else:
+                    message.feedback = response
                 message.status = 2
                 session.commit()
 
