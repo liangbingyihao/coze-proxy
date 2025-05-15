@@ -16,13 +16,12 @@ class Session(db.Model):
     created_at = db.Column(
         TIMESTAMP,
         server_default=text('CURRENT_TIMESTAMP'),
-        server_onupdate=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         nullable=False
     )
     updated_at = db.Column(
         TIMESTAMP,
         server_default=text('CURRENT_TIMESTAMP'),
-        server_onupdate=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+        server_onupdate=text('CURRENT_TIMESTAMP'),
         nullable=False
     )
 

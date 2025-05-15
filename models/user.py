@@ -1,5 +1,9 @@
 import uuid
 from datetime import datetime, timezone
+
+from pymysql import TIMESTAMP
+from sqlalchemy import text
+
 from extensions import db
 from utils.security import generate_password_hash,verify_password
 
@@ -13,8 +17,17 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     fcm_token = db.Column(db.String(255))
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    created_at = db.Column(
+        TIMESTAMP,
+        server_default=text('CURRENT_TIMESTAMP'),
+        nullable=False
+    )
+    updated_at = db.Column(
+        TIMESTAMP,
+        server_default=text('CURRENT_TIMESTAMP'),
+        server_onupdate=text('CURRENT_TIMESTAMP'),
+        nullable=False
+    )
 
     def __init__(self, username, email, password,fcm_token):
         self.username = username

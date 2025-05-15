@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from extensions import db
 
 
@@ -14,8 +14,8 @@ class Message(db.Model):
     content = db.Column(db.UnicodeText, nullable=False)
     feedback = db.Column(db.UnicodeText, nullable=False)
     feedback_text = db.Column(db.UnicodeText, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    # updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0):
         self.session_id = session_id
