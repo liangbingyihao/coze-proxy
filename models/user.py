@@ -1,9 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-
-from pymysql import TIMESTAMP
-from sqlalchemy import text
-
+from sqlalchemy import text, TIMESTAMP
 from extensions import db
 from utils.security import generate_password_hash,verify_password
 
