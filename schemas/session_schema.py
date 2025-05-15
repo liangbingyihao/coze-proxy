@@ -7,4 +7,4 @@ class SessionSchema(Schema):
     session_name = fields.Str()
     tags = fields.Str()
     created_at = fields.DateTime()
-    updated_at = fields.Str()
+    updated_at = fields.DateTime()

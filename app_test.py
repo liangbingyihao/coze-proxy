@@ -29,7 +29,7 @@ def new_session(token):
     }
     data = {
         # "session_name": "session_name1",
-        "robt_id": "0"
+        "robt_id": "1"
     }
 
 

@@ -10,12 +10,12 @@ from services.coze_service import CozeService
 class SessionService:
 
     @staticmethod
-    def new_session(session_name, owner_id, robt_id):
+    def new_session(session_name, owner_id, robot_id):
 
         # 创建会话
         # if not session_name:
         #     session_name = f"{robt_id}_{int(time())}"
-        session = Session(session_name=session_name, owner_id=owner_id, robt_id=robt_id)
+        session = Session(session_name=session_name, owner_id=owner_id, robot_id=robot_id)
         session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
         db.session.commit()
@@ -29,4 +29,4 @@ class SessionService:
 
     @staticmethod
     def get_session_by_owner(owner_id, page, limit):
-        return Session.query.filter_by(owner_id=owner_id,robt_id=0).order_by(desc(Session.id)).paginate(page=page, per_page=limit, error_out=False)
+        return Session.query.filter_by(owner_id=owner_id,robot_id=0).order_by(desc(Session.id)).paginate(page=page, per_page=limit, error_out=False)

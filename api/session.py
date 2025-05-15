@@ -15,10 +15,10 @@ def add():
     data = request.get_json()
     session_name = data.get('session_name')
     owner_id = get_jwt_identity()
-    robt_id = data.get('robt_id')
+    robot_id = data.get('robot_id')
 
     try:
-        session = SessionService.new_session(session_name, owner_id, robt_id)
+        session = SessionService.new_session(session_name, owner_id, robot_id)
         return jsonify({
             'success': True,
             'data': SessionSchema().dump(session)
