@@ -92,7 +92,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/98", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/121", headers=headers)
     r = response.json()
     print(r)
     return r
@@ -112,7 +112,8 @@ def _extract_content(content,s):
 
 def extract_test(text,s):
     import re
-    s1,e1, s2, e2 = s
+    s1, e1, s2, e2 = s
+    bible, detail = "", ""
 
     if not s1:
         match = re.search(r"(\"bible\"\s*:\s*)", text)
@@ -129,7 +130,10 @@ def extract_test(text,s):
         match = re.search(r"(\"explore\"\s*:\s*)", text)
         if match:
             s[3] = e2 = match.start()
-    bible,detail  = text[s1:e1 if e1 > 0 else -1], text[s2:e2 if e2 > 0 else -1]
+    if s1:
+        bible = text[s1:e1 if e1 > 0 else -1]
+    if s2:
+        detail = text[s2:e2 if e2 > 0 else -1]
     return bible, detail
 
 if __name__ == '__main__':
