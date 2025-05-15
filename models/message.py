@@ -1,4 +1,7 @@
 from datetime import datetime, timezone
+
+from sqlalchemy import TIMESTAMP, text
+
 from extensions import db
 
 
@@ -14,7 +17,11 @@ class Message(db.Model):
     content = db.Column(db.UnicodeText, nullable=False)
     feedback = db.Column(db.UnicodeText, nullable=False)
     feedback_text = db.Column(db.UnicodeText, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    created_at = db.Column(
+        TIMESTAMP,
+        server_default=text('CURRENT_TIMESTAMP'),
+        nullable=False
+    )
     # updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0):
