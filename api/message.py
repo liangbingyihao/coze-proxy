@@ -13,7 +13,7 @@ message_bp = Blueprint('message', __name__)
 def add():
     data = request.get_json()
     content = data.get('text')#新增的信息内容
-    context_id = data.get('contextId') or 0#探索对应的原msg id
+    context_id = data.get('context_id') or 0#探索对应的原msg id
     owner_id = get_jwt_identity()
     # session_id = data.get("session_id")
 

@@ -14,7 +14,7 @@ def register():
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "guest": "guestest",
+        "guest": "6c6cbd0d-503a-38e1-ba88-252340860c1a",
         "password": "123456"
     }
 
@@ -139,5 +139,5 @@ def extract_test(text,s):
 if __name__ == '__main__':
     token = login("user2")
     # add_message(token)
-    r = get_message(token)
+    r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
