@@ -76,7 +76,7 @@ def my_message():
         }), 400
 
 # 带int类型参数的路由
-@message_bp.route('/<int:msg_id>', methods=['GET'])
+@message_bp.route('/<str:msg_id>', methods=['GET'])
 def msg_detail(msg_id):
     try:
         data = MessageService.get_message(msg_id)
