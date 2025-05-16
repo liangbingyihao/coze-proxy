@@ -39,7 +39,7 @@ class MessageService:
 
         CozeService.chat_with_coze_async(owner_id, message.id)
 
-        return message.id
+        return message.public_id
 
     # @staticmethod
     # def get_session_by_id(session_id):
