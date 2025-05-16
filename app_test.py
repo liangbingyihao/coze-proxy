@@ -138,6 +138,6 @@ def extract_test(text,s):
 
 if __name__ == '__main__':
     token = login("user2")
-    get_message(token)
+    add_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

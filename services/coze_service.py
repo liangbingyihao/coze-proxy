@@ -44,7 +44,7 @@ DBSession = sessionmaker(bind=engine)
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
                 1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
                 2.view:并针对该经文予一段100字左右的内容拓展。
-                3.event:从输入内容里提取出发生的事件，6个字以内。优先使用事件：${event}。没有匹配事件可以新增事件
+                3.event:从输入内容里提取出发生的事件，5个字以内。优先选用这些事件：${event}。实在不匹配再新增事件返回
                 4.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
@@ -121,9 +121,10 @@ class CozeService:
                 # session.add(rsp_msg)
                 # session.commit()
                 session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
-                names = ""
+                names = "["
                 for session_id, session_name in session_lst:
-                    names += f"{session_name},"
+                    names += f"\"{session_name}\","
+                names+="]"
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 

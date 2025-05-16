@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -79,8 +81,9 @@ def my_message():
 @message_bp.route('/<string:msg_id>', methods=['GET'])
 def msg_detail(msg_id):
     try:
+        logging.warning(f"get_message:{msg_id}")
         data = MessageService.get_message(msg_id)
-        import flask_sqlalchemy
+        logging.warning(f"get_message:{msg_id} got {data}")
         return jsonify({
             'success': True,
             'data': MessageSchema().dump(data)
