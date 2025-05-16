@@ -68,7 +68,6 @@ class CozeService:
     def chat_with_coze_async(user_id,msg_id):
         '''
         :param user_id:
-        :param context_id:
         :param msg_id: 1 用户正常记录；其他 用户探索
         :return:
         '''
@@ -78,19 +77,25 @@ class CozeService:
         except Exception as e:
             logger.exception(e)
 
+
     @staticmethod
-    def chat_with_coze(user_id, context_id):
+    def is_explore_msg(message):
+        return len(message.context_id)>5
+
+
+    @staticmethod
+    def chat_with_coze(user_id, msg_id):
         session = None
         from models.message import Message
         try:
             session = DBSession()
-            message = session.query(Message).filter_by(id=context_id, status=0).first()
+            message = session.query(Message).filter_by(id=msg_id, status=0).first()
         except exc.OperationalError as e:
             session.rollback()
             logger.exception(e)
             engine.dispose()
             session = DBSession()
-            message = session.query(Message).filter_by(id=context_id, status=0).first()
+            message = session.query(Message).filter_by(id=msg_id, status=0).first()
         except Exception as e:
             logger.exception(e)
             return
@@ -109,8 +114,9 @@ class CozeService:
             message.status=1
             session.commit()
             session_lst = []
+            is_explore = CozeService.is_explore_msg(message)
             from models.session import Session
-            if message.context_id:
+            if is_explore:
                 # 用户探索类型
                 # context_msg = session.query(Message).filter_by(id=message.context_id).first()
                 # ask_msg = msg_explore.replace("${context}", context_msg.content)
@@ -144,7 +150,7 @@ class CozeService:
             if response:
                 logger.warning(f"GOT: {response}")
                 try:
-                    if not message.context_id and not message.session_id:
+                    if not is_explore and not message.session_id:
                         result = json.loads(response)
                         summary = result.get("summary")
                         bible,view = result.get('bible'),result.get('view')
@@ -161,7 +167,7 @@ class CozeService:
                             message.session_id = new_session.id
                 except Exception as e:
                     logger.exception(e)
-                if message.context_id:
+                if is_explore:
                     message.feedback_text = response
                 else:
                     message.feedback = response
@@ -218,6 +224,7 @@ class CozeService:
         all_content = ""
         pos = [0, 0, 0,0]
         logger.info(f"_chat_with_coze: {user_id, msg}")
+        is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
@@ -226,7 +233,7 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if not ori_msg.context_id:
+                if not is_explore:
                     if pos[3]<=0:
                         bible, detail = CozeService._extract_content(all_content,pos)
                         if bible:
