@@ -54,7 +54,7 @@ class MessageService:
 
     @staticmethod
     def get_message(msg_id):
-        return Message.query.get(msg_id)
+        return Message.query.filter_by(public_id=msg_id)
 
     @staticmethod
     def filter_msg_by_context_id(owner_id, session_id, context_id):
