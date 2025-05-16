@@ -19,7 +19,7 @@ class JSONStringField(fields.Field):
         return value
 
 class MessageSchema(Schema):
-    id = fields.Int(dump_only=True)
+    id = fields.Str(dump_only=True,data_key="public_id")
     session_id = fields.Int(dump_only=True)
     context_id = fields.Int(dump_only=True)
     status = fields.Int(dump_only=True)

@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import TIMESTAMP, text
@@ -9,6 +10,7 @@ class Message(db.Model):
     __tablename__ = 'message'
 
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     session_id = db.Column(db.Integer, index=True, nullable=False)
     context_id = db.Column(db.Integer, index=True, nullable=False)
     owner_id = db.Column(db.Integer, index=True, nullable=False)
