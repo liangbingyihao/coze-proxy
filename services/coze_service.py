@@ -166,7 +166,7 @@ class CozeService:
                             topic = result.get("topic2")
                         if topic:
                             result["topic"] = topic
-                            response = json.dumps(result)
+                            response = json.dumps(result,ensure_ascii=False)
                             for session_id, session_name in session_lst:
                                 if topic == session_name:
                                     message.session_id = session_id

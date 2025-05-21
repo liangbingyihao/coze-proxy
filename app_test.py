@@ -60,7 +60,7 @@ def add_message(token):
         "context_id": "2",
     }
     data = {
-        "text": "晚上又对孩子很暴躁了",
+        "text": "今天和邻居打了一架",
     }
     # data = {
     #     "text":1
@@ -138,6 +138,6 @@ def extract_test(text,s):
 
 if __name__ == '__main__':
     token = login("user2")
-    # add_message(token)
-    r = my_session(token)
+    add_message(token)
+    # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
