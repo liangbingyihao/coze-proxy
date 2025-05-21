@@ -1,6 +1,6 @@
 import json
 import os
-from sqlalchemy import create_engine, exc, desc
+from sqlalchemy import create_engine, exc, desc, func
 from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
@@ -43,12 +43,13 @@ DBSession = sessionmaker(bind=engine)
 
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
                 1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
-                2.view:并针对该经文予一段100字左右的内容拓展。
-                3.event:从输入内容里提取出发生的事件，5个字以内。优先选用这些事件：${event}。实在不匹配再新增事件返回
+                2.view:并针对该经文予一段100字左右的内容拓展
+                3.topic1:为输入内容从${event}里选出一个主题分类
+                3.topic2:无法选出topic1时，新增一个6个字以内的主题分类
                 4.tag:对用户输入的内容进行打标签，标签优先使用："感恩，赞美，祈求，认罪，发现，代祷，心情，懊悔"，没有匹配标签可以新增标签
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"event":<event>,"tag":<tag>,"summary":<summary>}
+                7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 以下是用户的输入内容：
                 '''
@@ -152,16 +153,22 @@ class CozeService:
                 try:
                     if not is_explore and not message.session_id:
                         result = json.loads(response)
-                        summary = result.get("summary")
+                        topic = result.get("topic1")
+                        if not topic:
+                            topic = result.get("topic2")
                         bible,view = result.get('bible'),result.get('view')
                         if bible and view:
                             message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
                         for session_id, session_name in session_lst:
-                            if summary == session_name:
+                            if topic == session_name:
                                 message.session_id = session_id
+                                session.query(Session).filter_by(id=session_id).update({
+                                    "updated_at": func.now()
+                                })
+                                session.commit()
                                 break
-                        if not message.session_id and summary:
-                            new_session = Session(summary, user_id, 0)
+                        if not message.session_id and topic:
+                            new_session = Session(topic, user_id, 0)
                             session.add(new_session)
                             session.commit()
                             message.session_id = new_session.id
