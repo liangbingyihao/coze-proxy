@@ -164,19 +164,22 @@ class CozeService:
                         topic = result.get("topic1")
                         if not topic:
                             topic = result.get("topic2")
-                        for session_id, session_name in session_lst:
-                            if topic == session_name:
-                                message.session_id = session_id
-                                session.query(Session).filter_by(id=session_id).update({
-                                    "updated_at": func.now()
-                                })
+                        if topic:
+                            result["topic"] = topic
+                            response = json.dumps(result)
+                            for session_id, session_name in session_lst:
+                                if topic == session_name:
+                                    message.session_id = session_id
+                                    session.query(Session).filter_by(id=session_id).update({
+                                        "updated_at": func.now()
+                                    })
+                                    session.commit()
+                                    break
+                            if not message.session_id and topic:
+                                new_session = Session(topic, user_id, 0)
+                                session.add(new_session)
                                 session.commit()
-                                break
-                        if not message.session_id and topic:
-                            new_session = Session(topic, user_id, 0)
-                            session.add(new_session)
-                            session.commit()
-                            message.session_id = new_session.id
+                                message.session_id = new_session.id
                 except Exception as e:
                     logger.exception(e)
                 message.feedback = response
