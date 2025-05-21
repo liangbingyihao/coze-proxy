@@ -54,7 +54,12 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 以下是用户的输入内容：
                 '''
 
-msg_explore = '''你要在基督教正统教义范围内对下面的输入进行回应，回应内容200字以内:
+msg_explore = '''你要在基督教正统教义范围内对下面的输入进行以下反馈:
+                1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
+                2.view:并针对该经文予一段100字左右的内容拓展
+                3.explore:给出2个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
+                4.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>}
+                5.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                  用户问题:${question}
                 '''
 
@@ -151,14 +156,14 @@ class CozeService:
             if response:
                 logger.warning(f"GOT: {response}")
                 try:
+                    result = json.loads(response)
+                    bible,view = result.get('bible'),result.get('view')
+                    if bible and view:
+                        message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
                     if not is_explore and not message.session_id:
-                        result = json.loads(response)
                         topic = result.get("topic1")
                         if not topic:
                             topic = result.get("topic2")
-                        bible,view = result.get('bible'),result.get('view')
-                        if bible and view:
-                            message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
                         for session_id, session_name in session_lst:
                             if topic == session_name:
                                 message.session_id = session_id
@@ -174,10 +179,7 @@ class CozeService:
                             message.session_id = new_session.id
                 except Exception as e:
                     logger.exception(e)
-                if is_explore:
-                    message.feedback_text = response
-                else:
-                    message.feedback = response
+                message.feedback = response
                 message.status = 2
                 session.commit()
 
@@ -231,7 +233,7 @@ class CozeService:
         all_content = ""
         pos = [0, 0, 0,0]
         logger.info(f"_chat_with_coze: {user_id, msg}")
-        is_explore = CozeService.is_explore_msg(ori_msg)
+        # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
@@ -240,7 +242,7 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if not is_explore:
+                if 1:
                     if pos[3]<=0:
                         bible, detail = CozeService._extract_content(all_content,pos)
                         if bible:
@@ -248,8 +250,8 @@ class CozeService:
                         if detail:
                             detail = f"扩展:{detail}"
                         ori_msg.feedback_text = f"{bible}{detail}"
-                else:
-                    ori_msg.feedback_text = all_content
+                # else:
+                #     ori_msg.feedback_text = all_content
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()
