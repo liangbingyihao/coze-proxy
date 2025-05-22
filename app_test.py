@@ -106,11 +106,10 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/dbb5503e-c8a9-4dd4-a401-e53ecc4c95c3")
-    print(response.text)
-    # r = response.json()
-    # print(r)
-    # return r
+    response = requests.get("http://8.217.172.116:5000/api/message/bb2bd116-1558-475f-b095-a986ee9b3c3c", headers=headers)
+    r = response.json()
+    print(r)
+    return r
 
 
 def _extract_content(content, s):
