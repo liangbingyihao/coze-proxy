@@ -21,7 +21,7 @@ class MessageService:
         return session
 
     @staticmethod
-    def new_message(owner_id, content,context_id):
+    def new_message(owner_id, content, context_id):
         '''
         :param context_id:用户探索的原信息id
         :param owner_id:
@@ -32,7 +32,7 @@ class MessageService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = None
         if content:
-            message = Message(0,owner_id, content,context_id)
+            message = Message(0, owner_id, content, context_id)
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")
@@ -53,8 +53,8 @@ class MessageService:
         return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
 
     @staticmethod
-    def get_message(msg_id):
-        return Message.query.filter_by(public_id=msg_id).one()
+    def get_message(owner_id, msg_id):
+        return Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
 
     @staticmethod
     def filter_msg_by_context_id(owner_id, session_id, context_id):

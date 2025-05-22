@@ -106,7 +106,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/e2961601-4393-449b-884b-89101aac34e5")
+    response = requests.get("http://8.217.172.116:5000/api/message/dbb5503e-c8a9-4dd4-a401-e53ecc4c95c3")
     r = response.json()
     print(r)
     return r
@@ -155,6 +155,6 @@ def extract_test(text, s):
 if __name__ == '__main__':
     token = login("user2")
     # # add_message(token)
-    # get_message(token)
+    get_message("x")
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

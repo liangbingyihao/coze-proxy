@@ -80,9 +80,10 @@ def my_message():
 # 带int类型参数的路由
 @message_bp.route('/<string:msg_id>', methods=['GET'])
 def msg_detail(msg_id):
+    owner_id = get_jwt_identity()
     try:
         logging.warning(f"get_message:{msg_id}")
-        data = MessageService.get_message(msg_id)
+        data = MessageService.get_message(owner_id,msg_id)
         logging.warning(f"get_message:{msg_id} got {data}")
         return jsonify({
             'success': True,
