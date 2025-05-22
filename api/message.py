@@ -91,6 +91,7 @@ def msg_detail(msg_id):
             'data': MessageSchema().dump(data)
         })
     except Exception as e:
+        logging.exception(e)
         return jsonify({
             'success': False,
             'message': str(e)

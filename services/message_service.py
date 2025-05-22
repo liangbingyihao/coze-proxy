@@ -100,11 +100,14 @@ class MessageService:
             return Message.query.filter_by(owner_id=0).one()
         else:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
-            feedback = json.loads(message.feedback)
-            feedback["function"]=[[feedback.get("explore"),MessageService.action_daily_ai],
-                                  ["请把上面的经文内容做成一个可以分享的经文图",MessageService.action_daily_gw],
-                                  ["关于以上内容的祷告和默想建议",MessageService.action_daily_ai]]
-            message.feedback = feedback
+            try:
+                feedback = json.loads(message.feedback)
+                feedback["function"]=[[feedback.get("explore"),MessageService.action_daily_ai],
+                                      ["请把上面的经文内容做成一个可以分享的经文图",MessageService.action_daily_gw],
+                                      ["关于以上内容的祷告和默想建议",MessageService.action_daily_ai]]
+                message.feedback = feedback
+            except Exception as e:
+                pass
             return message
 
     @staticmethod
