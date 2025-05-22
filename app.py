@@ -58,35 +58,8 @@ def register_commands(app):
         ."""
         db.create_all()
 
-        from models.message import Message
-        if not Message.query.filter_by(owner_id=0).first():
-            message = Message(
-                session_id=0, owner_id=0, content="", context_id=0, status=0, action=0
-            )
-            message.feedback_text = '''✨嗨，你好🙌欢迎来到恩语~！
-我可以为你记录你的每一件感恩小事💝、圣灵感动🔥、真实感受，甚至讲道亮光🌟哦，
-帮助你在信仰路上，不断看到上帝的恩典🌈！
-📝文字或🎤语音转文字，就能快速记录，我们会帮你整理⏳~
-每天的记录都是我们跟神互动的印记💌，
-坚持记录，你很快会发现，上帝如何奇妙地与我们同行👣哦！
-快来开始记录吧~🎉  
-'''
-            message.feedback = json.dumps(
-                {"explore": [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", 1],
-                             ["我想看今天的鼓励经文推荐图", 2],
-                             ["我记录当下心情或事件后，你会如何帮我整理", 3, '''假设你语音转文字输入心情：在最近的生活变动和迷茫中，虽然暂时看不到方向，甚至对神的安排产生疑问，但最终选择信靠祂的应许——祂深知你的需要，且预备的恩典远超你的期待。
-我们已经把你的内容记录到【信心功课】，希望这段经文可以鼓励到你：
-“神为爱他的人所预备的，是眼睛未曾看见，耳朵未曾听见，人心也未曾想到的。”（哥林多前书2:9）
-信心的功课不容易，神的预备是每日的功课，不需看清全程，只需信靠每一步。
-我们可以通过以下几点进行操练：
- 1交托祷告 ：写下困惑，向神坦白：“我相信你的预备超乎所想，但求你给我信心。
- 2对抗埋怨 ：当怀疑时，默想这节经文并回顾神过去的信实。
- 3积极等候 ：专注当下责任（如工作、服侍），像约瑟在监狱中仍尽忠。
- 4开阔信心 ：设想神可能带领的多种方式，祷告求祂显明，不局限自己的期待。
- 5寻求支持 ：与属灵同伴分享经文，请他们为你守望。''']]}, ensure_ascii=False)
-            db.session.add(message)
-            db.session.commit()
-            print("Initialized the database with welcome msg.")
+        from services.message_service import MessageService
+        MessageService.init_welcome_msg()
 
     @app.cli.command("create-user")
     @click.argument("username")
