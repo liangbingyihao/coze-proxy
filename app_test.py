@@ -106,7 +106,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/bb2bd116-1558-475f-b095-a986ee9b3c3c", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/0051096b-a609-4b9f-ac04-f922e19e0284", headers=headers)
     r = response.json()
     print(r)
     return r

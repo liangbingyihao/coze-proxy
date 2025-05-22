@@ -33,7 +33,7 @@ class MessageService:
         快来开始记录吧~🎉  
         '''
             message.feedback = json.dumps(
-                {"explore": [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", 1],
+                {"function": [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", 1],
                              ["我想看今天的鼓励经文推荐图", 2],
                              ["我记录当下心情或事件后，你会如何帮我整理", 3, '''假设你语音转文字输入心情：在最近的生活变动和迷茫中，虽然暂时看不到方向，甚至对神的安排产生疑问，但最终选择信靠祂的应许——祂深知你的需要，且预备的恩典远超你的期待。
         我们已经把你的内容记录到【信心功课】，希望这段经文可以鼓励到你：
@@ -101,6 +101,7 @@ class MessageService:
                                   ["请把上面的经文内容做成一个可以分享的经文图",MessageService.action_daily_gw],
                                   ["关于以上内容的祷告和默想建议",MessageService.action_daily_ai]]
             message.feedback = feedback
+            return message
 
     @staticmethod
     def filter_msg_by_context_id(owner_id, session_id, context_id):
