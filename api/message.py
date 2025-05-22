@@ -79,6 +79,7 @@ def my_message():
 
 # 带int类型参数的路由
 @message_bp.route('/<string:msg_id>', methods=['GET'])
+@jwt_required()
 def msg_detail(msg_id):
     owner_id = get_jwt_identity()
     try:

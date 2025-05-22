@@ -54,7 +54,10 @@ class MessageService:
 
     @staticmethod
     def get_message(owner_id, msg_id):
-        return Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        if msg_id=="welcome":
+            return Message.query.filter_by(owner_id=0).one()
+        else:
+            return Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
 
     @staticmethod
     def filter_msg_by_context_id(owner_id, session_id, context_id):
