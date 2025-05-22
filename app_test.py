@@ -1,4 +1,7 @@
+import json
+
 import requests
+
 
 def register():
     url = "http://8.217.172.116:5000/api/auth/register"
@@ -10,6 +13,7 @@ def register():
 
     response = requests.post(url, json=data)
     print(response.text)
+
 
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
@@ -23,6 +27,7 @@ def login(user_name):
     token = response.json().get("data").get("access_token")
     return token
 
+
 def new_session(token):
     headers = {
         "Authorization": f"Bearer {token}"
@@ -32,24 +37,24 @@ def new_session(token):
         "robot_id": "1"
     }
 
-
     response = requests.post("http://8.217.172.116:5000/api/session", headers=headers, json=data)
     print(response.text)
+
 
 def my_session(token):
     headers = {
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "page":1,
-        "limit":50
+        "page": 1,
+        "limit": 50
     }
 
-
-    response = requests.get("http://8.217.172.116:5000/api/session", headers=headers,params=data)
+    response = requests.get("http://8.217.172.116:5000/api/session", headers=headers, params=data)
     sessions = response.json().get("data")
     for s in sessions.get("items"):
         print(s)
+
 
 def add_message(token):
     headers = {
@@ -60,45 +65,54 @@ def add_message(token):
         "context_id": "2",
     }
     data = {
-        "text": "今天和邻居打了一架",
+        "text": '''✨嗨，你好🙌欢迎来到恩语~！
+我可以为你记录你的每一件感恩小事💝、圣灵感动🔥、真实感受，甚至讲道亮光🌟哦，
+帮助你在信仰路上，不断看到上帝的恩典🌈！
+📝文字或🎤语音转文字，就能快速记录，我们会帮你整理⏳~
+每天的记录都是我们跟神互动的印记💌，
+坚持记录，你很快会发现，上帝如何奇妙地与我们同行👣哦！
+快来开始记录吧~🎉  
+''',
     }
     # data = {
     #     "text":1
     # }
 
-    response = requests.post("http://8.217.172.116:5000/api/message", headers=headers,json=data)
+    response = requests.post("http://8.217.172.116:5000/api/message", headers=headers, json=data)
     print(response.text)
+
 
 def my_message(token):
     headers = {
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":12,
+        "session_id": 12,
         # "context_id":21,
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers,params=data)
+    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers, params=data)
     print(response.json())
+
 
 def get_message(token):
     headers = {
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id":2,
-        "context_id":21,
+        "session_id": 2,
+        "context_id": 21,
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/e4001d72-7778-4e8d-a576-bb1f3e46bd15", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/e2961601-4393-449b-884b-89101aac34e5")
     r = response.json()
     print(r)
     return r
 
 
-def _extract_content(content,s):
+def _extract_content(content, s):
     print(content)
     s1, s2, s3 = s
     if not s1:
@@ -107,10 +121,11 @@ def _extract_content(content,s):
         s[1] = s2 = content.find("\"feed")
     if s2 and not s3:
         s[2] = s3 = content.find("\"exp")
-    bible,detail  = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 11:s3 if s3 > 0 else -1]
+    bible, detail = content[s1 + 8:s2 if s2 > 0 else -1], content[s2 + 11:s3 if s3 > 0 else -1]
     return bible, detail
 
-def extract_test(text,s):
+
+def extract_test(text, s):
     import re
     s1, e1, s2, e2 = s
     bible, detail = "", ""
@@ -136,8 +151,10 @@ def extract_test(text,s):
         detail = text[s2:e2 if e2 > 0 else -1]
     return bible, detail
 
+
 if __name__ == '__main__':
     token = login("user2")
-    add_message(token)
+    # # add_message(token)
+    # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
