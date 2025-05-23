@@ -66,6 +66,17 @@ msg_explore = '''你要在基督教正统教义范围内对下面的输入进行
 msg_error = '''我很乐意帮你做大小事情的记录，都会成为你看见上帝恩典的点点滴滴。但这个问题我暂时没有具体的推荐，你有此刻想记录的心情或亮光想记录吗？
 '''
 
+
+# 黄色：信靠，盼望，刚强，光明 #FFFBE8
+# 红色：慈爱，喜乐 #FFF8F7
+# 蓝色：安慰，永恒 #EDF8FF
+# 绿色：平安，恩典 #E8FFFF
+
+color_map = {"#FFFBE8":("信靠","盼望","刚强","光明"),
+             "#FFF8F7":("慈爱","喜乐"),
+             "#EDF8FF":("安慰","永恒"),
+             "#E8FFFF":("平安","恩典")}
+
 class CozeService:
     bot_id = "7481241756508504091"
     executor = ThreadPoolExecutor(3)
@@ -107,16 +118,6 @@ class CozeService:
             return
 
         try:
-
-            # from models.session import Session
-            # coze_session = session.query(Session).filter_by(id=message.session_id).one()
-            # logger.warning(f"start: {user_id, context_id, message, user, coze_session}")
-            # # session_name, conversation_id = thread.session_name, thread.conversation_id
-            # if not coze_session.conversation_id:
-            #     conversation_id = CozeService.create_conversations()
-            #     logger.warning(f"create_conversations: {conversation_id}")
-            #     coze_session.conversation_id = conversation_id
-            #     session.commit()
             message.status=1
             session.commit()
             session_lst = []
@@ -140,18 +141,6 @@ class CozeService:
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 
-            # if message.action == 0:
-            #     from models.session import Session
-            #     session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
-            #         desc(Session.id)).with_entities(Session.id, Session.session_name).limit(50).all()
-            #     names = ""
-            #     for session_id, session_name in session_lst:
-            #         names += f"{session_name},"
-            #     ask_msg = msg_feedback.replace("${event}", names)
-            #     ask_msg += message.content
-            # else:
-            #     ask_msg = message.content
-
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
             if response:
                 logger.warning(f"GOT: {response}")
@@ -160,13 +149,19 @@ class CozeService:
                     bible,view = result.get('bible'),result.get('view')
                     if bible and view:
                         message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
+                    if not is_explore:
+                        tag=result.get("tag")
+                        if tag:
+                            for k,v in color_map.items():
+                                if tag in v:
+                                    result["color_tag"] = k
+                                    break
                     if not is_explore and not message.session_id:
                         topic = result.get("topic1")
                         if not topic:
                             topic = result.get("topic2")
                         if topic:
                             result["topic"] = topic
-                            response = json.dumps(result,ensure_ascii=False)
                             for session_id, session_name in session_lst:
                                 if topic == session_name:
                                     message.session_id = session_id
@@ -180,6 +175,7 @@ class CozeService:
                                 session.add(new_session)
                                 session.commit()
                                 message.session_id = new_session.id
+                    response = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
                     logger.exception(e)
                 message.feedback = response
