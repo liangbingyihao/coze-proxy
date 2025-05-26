@@ -13,6 +13,7 @@ class Message(db.Model):
     public_id = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
     session_id = db.Column(db.Integer, index=True, nullable=False)
     context_id = db.Column(db.String(36), index=True, nullable=False)
+    summary = db.Column(db.String(32))
     owner_id = db.Column(db.Integer, index=True, nullable=False)
     status = db.Column(db.Integer, nullable=False,default=0)# 0 默认状态 1 AI回应中 2 AI回应完毕
     action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 探索问题 2 生成图片

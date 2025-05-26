@@ -22,6 +22,7 @@ class MessageSchema(Schema):
     public_id = fields.Str(dump_only=True,data_key="id")
     session_id = fields.Int(dump_only=True)
     context_id = fields.Str(dump_only=True)
+    summary = fields.Str(dump_only=True)
     status = fields.Int(dump_only=True)
     action = fields.Int(dump_only=True)
     content = fields.Str()

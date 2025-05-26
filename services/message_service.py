@@ -10,10 +10,10 @@ from utils.exceptions import AuthError
 
 
 class MessageService:
-    action_bible_pic=2
-    action_daily_gw=1
-    action_direct_msg=3
-    action_daily_ai=0
+    action_bible_pic = 2
+    action_daily_gw = 1
+    action_direct_msg = 3
+    action_daily_ai = 0
     explore = [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", action_daily_gw],
                ["我想看今天的鼓励经文推荐图", action_bible_pic],
                ["直接客户端回答的问题", action_direct_msg, "对应的答案"]]
@@ -21,7 +21,7 @@ class MessageService:
     @staticmethod
     def init_welcome_msg():
         message = Message.query.filter_by(owner_id=0).first()
-        is_new=False
+        is_new = False
         if not message:
             message = Message(
                 session_id=0, owner_id=0, content="", context_id=0, status=0, action=0
@@ -37,8 +37,8 @@ class MessageService:
     '''
         message.feedback = json.dumps(
             {"function": [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", 1],
-                         ["我想看今天的鼓励经文推荐图", 2],
-                         ["我记录当下心情或事件后，你会如何帮我整理", 3, '''假设你语音转文字输入心情：在最近的生活变动和迷茫中，虽然暂时看不到方向，甚至对神的安排产生疑问，但最终选择信靠祂的应许——祂深知你的需要，且预备的恩典远超你的期待。
+                          ["我想看今天的鼓励经文推荐图", 2],
+                          ["我记录当下心情或事件后，你会如何帮我整理", 3, '''假设你语音转文字输入心情：在最近的生活变动和迷茫中，虽然暂时看不到方向，甚至对神的安排产生疑问，但最终选择信靠祂的应许——祂深知你的需要，且预备的恩典远超你的期待。
     我们已经把你的内容记录到【信心功课】，希望这段经文可以鼓励到你：
     “神为爱他的人所预备的，是眼睛未曾看见，耳朵未曾听见，人心也未曾想到的。”（哥林多前书2:9）
     信心的功课不容易，神的预备是每日的功课，不需看清全程，只需信靠每一步。
@@ -102,10 +102,12 @@ class MessageService:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
             try:
                 feedback = json.loads(message.feedback)
-                feedback["function"]=[[feedback.get("explore"),MessageService.action_daily_ai],
-                                      ["请把上面的经文内容做成一个可以分享的经文图",MessageService.action_daily_gw],
-                                      ["关于以上内容的祷告和默想建议",MessageService.action_daily_ai]]
+                feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
+                                        ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_daily_gw],
+                                        ["关于以上内容的祷告和默想建议", MessageService.action_daily_ai]]
                 message.feedback = feedback
+                if not message.summary:
+                    message.summary = feedback.get("summary")
             except Exception as e:
                 pass
             return message
@@ -116,10 +118,9 @@ class MessageService:
         return Message.query.filter_by(context_id=context_id)
 
     @staticmethod
-    def call_llm():
-        logging.warning("Task #1 start!")
-        try:
-            time.sleep(10)
-        except Exception as e:
-            logging.exception(e)
-        logging.warning("Task #1 is done!")
+    def set_summary(owner_id, msg_id,summary):
+        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        if message:
+            message.summary=summary
+            db.session.commit()
+            return True

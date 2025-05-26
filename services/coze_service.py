@@ -66,23 +66,23 @@ msg_explore = '''你要在基督教正统教义范围内对下面的输入进行
 msg_error = '''我很乐意帮你做大小事情的记录，都会成为你看见上帝恩典的点点滴滴。但这个问题我暂时没有具体的推荐，你有此刻想记录的心情或亮光想记录吗？
 '''
 
-
 # 黄色：信靠，盼望，刚强，光明 #FFFBE8
 # 红色：慈爱，喜乐 #FFEEEB
 # 蓝色：安慰，永恒 #EDF8FF
 # 绿色：平安，恩典 #E8FFFF
 
-color_map = {"#FFFBE8":("信靠","盼望","刚强","光明"),
-             "#FFEEEB":("慈爱","喜乐"),
-             "#EDF8FF":("安慰","永恒"),
-             "#E8FFFF":("平安","恩典")}
+color_map = {"#FFFBE8": ("信靠", "盼望", "刚强", "光明"),
+             "#FFEEEB": ("慈爱", "喜乐"),
+             "#EDF8FF": ("安慰", "永恒"),
+             "#E8FFFF": ("平安", "恩典")}
+
 
 class CozeService:
     bot_id = "7481241756508504091"
     executor = ThreadPoolExecutor(3)
 
     @staticmethod
-    def chat_with_coze_async(user_id,msg_id):
+    def chat_with_coze_async(user_id, msg_id):
         '''
         :param user_id:
         :param msg_id: 1 用户正常记录；其他 用户探索
@@ -94,11 +94,9 @@ class CozeService:
         except Exception as e:
             logger.exception(e)
 
-
     @staticmethod
     def is_explore_msg(message):
-        return len(message.context_id)>5
-
+        return len(message.context_id) > 5
 
     @staticmethod
     def chat_with_coze(user_id, msg_id):
@@ -118,7 +116,7 @@ class CozeService:
             return
 
         try:
-            message.status=1
+            message.status = 1
             session.commit()
             session_lst = []
             is_explore = CozeService.is_explore_msg(message)
@@ -133,11 +131,12 @@ class CozeService:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
                 # session.add(rsp_msg)
                 # session.commit()
-                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
+                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
+                    desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                 names = "["
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
-                names+="]"
+                names += "]"
                 ask_msg = msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 
@@ -146,13 +145,18 @@ class CozeService:
                 logger.warning(f"GOT: {response}")
                 try:
                     result = json.loads(response)
-                    bible,view = result.get('bible'),result.get('view')
+                    bible, view = result.get('bible'), result.get('view')
                     if bible and view:
-                        message.feedback_text=f"经文:{result.get('bible')}\n扩展:{result.get('view')}"
+                        message.feedback_text = f"送你这段经文:{result.get('bible')}\n{result.get('view')}"
+                    else:
+                        message.feedback_text = msg_error
                     if not is_explore:
-                        tag=result.get("tag")
+                        summary = result.get("summary")
+                        if summary:
+                            message.summary = summary
+                        tag = result.get("tag")
                         if tag:
-                            for k,v in color_map.items():
+                            for k, v in color_map.items():
                                 if tag in v:
                                     result["color_tag"] = k
                                     break
@@ -177,6 +181,7 @@ class CozeService:
                                 message.session_id = new_session.id
                     response = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
+                    message.feedback_text = msg_error
                     logger.exception(e)
                 message.feedback = response
                 message.status = 2
@@ -200,10 +205,10 @@ class CozeService:
         return conversation.id
 
     @staticmethod
-    def _extract_content(text,s):
+    def _extract_content(text, s):
         import re
-        s1,e1, s2, e2 = s
-        bible, detail = "",""
+        s1, e1, s2, e2 = s
+        bible, detail = "", ""
 
         if not s1:
             match = re.search(r"(\"bible\"\s*:\s*)", text)
@@ -223,14 +228,13 @@ class CozeService:
         if s1:
             bible = text[s1:e1 if e1 > 0 else -1]
         if s2:
-            detail  = text[s2:e2 if e2 > 0 else -1]
+            detail = text[s2:e2 if e2 > 0 else -1]
         return bible, detail
-
 
     @staticmethod
     def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
-        pos = [0, 0, 0,0]
+        pos = [0, 0, 0, 0]
         logger.info(f"_chat_with_coze: {user_id, msg}")
         # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
@@ -242,10 +246,10 @@ class CozeService:
                 message = event.message
                 all_content += message.content
                 if 1:
-                    if pos[3]<=0:
-                        bible, detail = CozeService._extract_content(all_content,pos)
+                    if pos[3] <= 0:
+                        bible, detail = CozeService._extract_content(all_content, pos)
                         if bible:
-                            bible = f"经文:{bible}\n"
+                            bible = f"送你这段经文:{bible}\n"
                         if detail:
                             detail = f"扩展:{detail}"
                         ori_msg.feedback_text = f"{bible}{detail}"
@@ -254,14 +258,14 @@ class CozeService:
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
                 ori_msg.status = 1
                 session.commit()
-            elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED and event.message.type==MessageType.ANSWER:
+            elif event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED and event.message.type == MessageType.ANSWER:
                 # logger.info(f"CONVERSATION_MESSAGE_COMPLETED: {event.message.content}")
                 return event.message.content
             # elif event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
             #     logger.info(f"CONVERSATION_CHAT_COMPLETED: {event.chat.usage.token_count}")
-                # if event.message.content.startswith("{"):
-                #     continue
-                # msg_list.append(event.message.content)
+            # if event.message.content.startswith("{"):
+            #     continue
+            # msg_list.append(event.message.content)
 
     @staticmethod
     def _summary_by_coze(conversation_id, user_id):
