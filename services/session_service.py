@@ -16,7 +16,7 @@ class SessionService:
         # if not session_name:
         #     session_name = f"{robt_id}_{int(time())}"
         session = Session(session_name=session_name, owner_id=owner_id, robot_id=robot_id)
-        session.conversation_id = CozeService.create_conversations()
+        # session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
         db.session.commit()
         print(f"session.id:{session.id}")

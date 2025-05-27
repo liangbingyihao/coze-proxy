@@ -6,6 +6,7 @@ from models.message import Message
 from extensions import db
 from models.session import Session
 from services.coze_service import CozeService
+from services.session_service import SessionService
 from utils.exceptions import AuthError
 
 
@@ -118,11 +119,14 @@ class MessageService:
         return Message.query.filter_by(context_id=context_id)
 
     @staticmethod
-    def set_summary(owner_id, msg_id,summary,session_id):
+    def set_summary(owner_id, msg_id,summary,session_id,session_name):
         if session_id and session_id>0:
-            cnt_session = Session.query.filter_by(owner_id=owner_id, id=session_id).count()
-            if cnt_session<=0:
+            session = Session.query.filter_by(owner_id=owner_id, id=session_id).one()
+            if not session:
                 return False
+        if session_name:
+            session = SessionService.new_session(session_name, owner_id, 0)
+            session_id = session.id
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
         if message:
             if summary:
@@ -130,7 +134,7 @@ class MessageService:
             if session_id:
                 message.session_id = session_id
             db.session.commit()
-            return True
+            return message.session_id
 
 
     @staticmethod
