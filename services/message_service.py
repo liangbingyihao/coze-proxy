@@ -119,8 +119,8 @@ class MessageService:
 
     @staticmethod
     def set_summary(owner_id, msg_id,summary,session_id):
-        if session_id>0:
-            cnt_session = Session.query.filter_by(owner_id=owner_id, session_id=session_id).count()
+        if session_id and session_id>0:
+            cnt_session = Session.query.filter_by(owner_id=owner_id, id=session_id).count()
             if cnt_session<=0:
                 return False
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
