@@ -105,32 +105,12 @@ def msg_detail(msg_id):
 def set_summary(msg_id):
     data = request.get_json()
     summary = data.get('summary')
-    owner_id = get_jwt_identity()
-    if not summary or len(summary) > 9:
-        return jsonify({"error": "summary max length is 8"}), 400
-    try:
-        data = MessageService.set_summary(owner_id, msg_id,summary)
-        return jsonify({
-            'success': data
-        })
-    except Exception as e:
-        logging.exception(e)
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
-
-# 带msg_id参数的路由
-@message_bp.route('/<string:msg_id>', methods=['POST'])
-@jwt_required()
-def set_session_id(msg_id):
-    data = request.get_json()
     session_id = data.get('session_id')
     owner_id = get_jwt_identity()
-    if not summary or len(summary) > 9:
+    if summary and len(summary) > 9:
         return jsonify({"error": "summary max length is 8"}), 400
     try:
-        data = MessageService.set_summary(owner_id, msg_id,summary)
+        data = MessageService.set_summary(owner_id, msg_id,summary,session_id)
         return jsonify({
             'success': data
         })
