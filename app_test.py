@@ -61,19 +61,19 @@ def add_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "text": "如何以祷告引导孩子改变？",
+        "text": "今天和邻居聊了一个上午，但还没有解开大家的心结",
         "context_id": "2",
     }
-    data = {
-        "text": '''✨嗨，你好🙌欢迎来到恩语~！
-我可以为你记录你的每一件感恩小事💝、圣灵感动🔥、真实感受，甚至讲道亮光🌟哦，
-帮助你在信仰路上，不断看到上帝的恩典🌈！
-📝文字或🎤语音转文字，就能快速记录，我们会帮你整理⏳~
-每天的记录都是我们跟神互动的印记💌，
-坚持记录，你很快会发现，上帝如何奇妙地与我们同行👣哦！
-快来开始记录吧~🎉  
-''',
-    }
+#     data = {
+#         "text": '''✨嗨，你好🙌欢迎来到恩语~！
+# 我可以为你记录你的每一件感恩小事💝、圣灵感动🔥、真实感受，甚至讲道亮光🌟哦，
+# 帮助你在信仰路上，不断看到上帝的恩典🌈！
+# 📝文字或🎤语音转文字，就能快速记录，我们会帮你整理⏳~
+# 每天的记录都是我们跟神互动的印记💌，
+# 坚持记录，你很快会发现，上帝如何奇妙地与我们同行👣哦！
+# 快来开始记录吧~🎉
+# ''',
+#     }
     # data = {
     #     "text":1
     # }
@@ -106,11 +106,22 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/welcome", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/c198b09d-2ac7-4f6a-8f2b-9511d78c7049", headers=headers)
     r = response.json()
     print(r)
     return r
 
+def update_summary(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "summary": "心结难解"
+    }
+    response = requests.post("http://8.217.172.116:5000/api/message/c198b09d-2ac7-4f6a-8f2b-9511d78c7049", headers=headers,json=data)
+    r = response.json()
+    print(r)
+    return r
 
 def _extract_content(content, s):
     print(content)
@@ -154,7 +165,8 @@ def extract_test(text, s):
 
 if __name__ == '__main__':
     token = login("user2")
-    # # add_message(token)
+    # add_message(token)
+    update_summary(token)
     get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
