@@ -1,4 +1,4 @@
-from sqlalchemy import text, TIMESTAMP
+from sqlalchemy import text, TIMESTAMP, Index, UniqueConstraint
 
 from extensions import db
 
@@ -7,9 +7,9 @@ class Session(db.Model):
     __tablename__ = 'sessions'
 
     id = db.Column(db.Integer, primary_key=True)
-    session_name = db.Column(db.String(50), index=True,nullable=False)
+    session_name = db.Column(db.String(50), nullable=False)
     owner_id = db.Column(db.Integer, index=True, nullable=False)
-    robot_id = db.Column(db.Integer, index=True, nullable=False)
+    robot_id = db.Column(db.Integer, nullable=False)
     tags = db.Column(db.String(255))
     conversation_id = db.Column(db.String(255))
     # 创建时间（自动设置）
@@ -25,6 +25,11 @@ class Session(db.Model):
         nullable=False
     )
 
+    __table_args__ = (
+        UniqueConstraint('owner_id', 'session_name', name='uq_user_session'),
+        # 可以添加多个唯一约束
+        # UniqueConstraint('email', name='uq_email')
+    )
 
     # # 更新时间（自动更新）
     # updated_at = db.Column(
