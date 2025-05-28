@@ -21,9 +21,8 @@ class SessionService:
         session = Session(session_name=session_name, owner_id=owner_id, robot_id=robot_id)
         # session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
-        merged_session = db.session.merge(session)
         db.session.commit()
-        print(f"session.id:{merged_session.id}")
+        print(f"session.id:{session.id}")
 
         return session
 
