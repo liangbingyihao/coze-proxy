@@ -25,7 +25,7 @@ class MessageService:
         is_new = False
         if not message:
             message = Message(
-                session_id=0, owner_id=0, content="", context_id=0, status=0, action=0
+                session_id=0, owner_id=0, content="", context_id=0, status=2, action=0
             )
             is_new = True
         message.feedback_text = '''✨嗨，你好🙌欢迎来到恩语~！
@@ -103,9 +103,10 @@ class MessageService:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
             try:
                 feedback = json.loads(message.feedback)
-                feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
-                                        ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_daily_gw],
-                                        ["关于以上内容的祷告和默想建议", MessageService.action_daily_ai]]
+                if feedback.get("explore"):
+                    feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
+                                            ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_daily_gw],
+                                            ["关于以上内容的祷告和默想建议", MessageService.action_daily_ai]]
                 message.feedback = feedback
                 if not message.summary:
                     message.summary = feedback.get("summary")

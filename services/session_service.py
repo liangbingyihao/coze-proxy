@@ -15,7 +15,7 @@ class SessionService:
         # 创建会话
         # if not session_name:
         #     session_name = f"{robt_id}_{int(time())}"
-        session = Session.query.filter_by(owner_id=owner_id,session_name=session_name).one()
+        session = Session.query.filter_by(owner_id=owner_id,session_name=session_name).first()
         if session:
             return session
         session = Session(session_name=session_name, owner_id=owner_id, robot_id=robot_id)

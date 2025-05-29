@@ -33,7 +33,7 @@ def new_session(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_name": "session_name1",
+        "session_name": "session_name2",
         "robot_id": "1"
     }
 
@@ -106,7 +106,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/c198b09d-2ac7-4f6a-8f2b-9511d78c7049", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/welcome", headers=headers)
     r = response.json()
     print(r)
     return r
@@ -166,7 +166,7 @@ def extract_test(text, s):
 if __name__ == '__main__':
     token = login("user2")
     # add_message(token)
-    new_session(token)
-    # get_message(token)
+    # new_session(token)
+    get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
