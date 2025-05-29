@@ -64,7 +64,7 @@ class MessageService:
         return session
 
     @staticmethod
-    def new_message(owner_id, content, context_id):
+    def new_message(owner_id, content, context_id,action):
         '''
         :param context_id:用户探索的原信息id
         :param owner_id:
@@ -75,7 +75,7 @@ class MessageService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = None
         if content:
-            message = Message(0, owner_id, content, context_id)
+            message = Message(0, owner_id, content, context_id,action=action)
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")

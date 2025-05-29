@@ -15,6 +15,7 @@ message_bp = Blueprint('message', __name__)
 def add():
     data = request.get_json()
     content = data.get('text')  # 新增的信息内容
+    action = data.get('action')  # 新增的信息内容
     context_id = data.get('context_id') or 0  # 探索对应的原msg id
     owner_id = get_jwt_identity()
     # session_id = data.get("session_id")
@@ -23,7 +24,7 @@ def add():
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
     try:
-        message_id = MessageService.new_message(owner_id, content, context_id)
+        message_id = MessageService.new_message(owner_id, content, context_id,action)
         return jsonify({
             'success': True,
             'data': {"id": message_id}
