@@ -158,7 +158,8 @@ class CozeService:
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
                 names += "]"
-                ask_msg = custom_prompt.replace("${event}", names) if custom_prompt else msg_feedback.replace("${event}", names)
+                ask_msg = custom_prompt.replace("${event}", names) if custom_prompt else msg_feedback.replace(
+                    "${event}", names)
                 ask_msg += message.content
 
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
@@ -167,10 +168,13 @@ class CozeService:
                 try:
                     result = json.loads(response)
                     bible, view = result.get('bible'), result.get('view')
-                    if bible and view:
-                        message.feedback_text = f"送你这段经文:{result.get('bible')}\n{result.get('view')}"
+                    if view:
+                        feedback_text = ""
+                        if bible:
+                            feedback_text += f"送你这段经文:{bible}\n"
+                        message.feedback_text = feedback_text + view
                     else:
-                        message.feedback_text = msg_error
+                        message.feedback_text = msg_error+",原始回复:"+response
                     if not is_explore:
                         summary = result.get("summary")
                         if summary:
@@ -202,7 +206,7 @@ class CozeService:
                                 message.session_id = new_session.id
                     response = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
-                    message.feedback_text = msg_error
+                    message.feedback_text = msg_error+",原始回复:"+response
                     logger.exception(e)
                 message.feedback = response
                 message.status = 2
