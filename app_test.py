@@ -166,7 +166,7 @@ def extract_test(text, s):
 
 if __name__ == '__main__':
     token = login("user2")
-    # add_message(token)
+    add_message(token)
     # new_session(token)
     # get_message(token)
     # r = my_session(token)

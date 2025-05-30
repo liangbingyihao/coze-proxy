@@ -127,14 +127,14 @@ class CozeService:
             return
 
         from services.message_service import MessageService
-        if message.action==MessageService.action_bible_pic:
+        if message.action == MessageService.action_bible_pic:
             message.status = 2
             message.feedback_text = "(实现中)将会为你生成经文图片"
             session.commit()
             return
 
-
         try:
+            custom_prompt = message.feedback_text
             message.status = 1
             session.commit()
             session_lst = []
@@ -142,11 +142,11 @@ class CozeService:
             from models.session import Session
             if is_explore:
                 # 用户探索类型
-                if message.action==MessageService.action_daily_pray:
+                if message.action == MessageService.action_daily_pray:
                     context_msg = session.query(Message).filter_by(public_id=message.context_id).first()
-                    ask_msg = msg_pray+context_msg.content
+                    ask_msg = (custom_prompt + context_msg.content) if custom_prompt else msg_pray + context_msg.content
                 else:
-                    ask_msg = msg_explore+message.content
+                    ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
             else:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
@@ -158,7 +158,7 @@ class CozeService:
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
                 names += "]"
-                ask_msg = msg_feedback.replace("${event}", names)
+                ask_msg = custom_prompt.replace("${event}", names) if custom_prompt else msg_feedback.replace("${event}", names)
                 ask_msg += message.content
 
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)

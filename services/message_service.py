@@ -79,7 +79,7 @@ class MessageService:
         message = None
         if content:
             message = Message(0, owner_id, content, context_id,action=action)
-            message.feedback_text=prompt
+            message.feedback_text=prompt or ""
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")
