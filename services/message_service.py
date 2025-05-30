@@ -15,6 +15,7 @@ class MessageService:
     action_daily_gw = 2
     action_direct_msg = 3
     action_daily_ai = 0
+    action_daily_pray = 4
     explore = [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", action_daily_gw],
                ["我想看今天的鼓励经文推荐图", action_bible_pic],
                ["直接客户端回答的问题", action_direct_msg, "对应的答案"]]
@@ -106,7 +107,7 @@ class MessageService:
                 if feedback.get("explore"):
                     feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
                                             ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic],
-                                            ["关于以上内容的祷告和默想建议", MessageService.action_daily_ai]]
+                                            ["关于以上内容的祷告和默想建议", MessageService.action_daily_pray]]
                 message.feedback = feedback
                 if not message.summary:
                     message.summary = feedback.get("summary")

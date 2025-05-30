@@ -51,18 +51,29 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 6.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
                 7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
+                9.严格按照用户输入的语言返回。
                 以下是用户的输入内容：
                 '''
 
-msg_explore = '''你要在基督教正统教义范围内对下面的输入进行以下反馈:
+msg_explore = '''你要在基督教正统教义范围内对下面输入进行以下反馈:
                 1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
                 2.view:并针对该经文予一段100字左右的内容拓展
                 3.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
                 4.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>}
                 5.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
-                 用户问题:${question}
+                6.严格按照用户输入的语言返回。
+                 用户问题:
                 '''
 
+msg_pray = '''你要在基督教正统教义范围内对下面输入提供祷告和默想建议:
+                1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
+                2.view:针对用户输入提供祷告和默想建议
+                3.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
+                4.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>}
+                5.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
+                6.严格按照用户输入的语言返回。
+                以下是用户的输入内容：
+                '''
 msg_error = '''我很乐意帮你做大小事情的记录，都会成为你看见上帝恩典的点点滴滴。但这个问题我暂时没有具体的推荐，你有此刻想记录的心情或亮光想记录吗？
 '''
 
@@ -131,9 +142,11 @@ class CozeService:
             from models.session import Session
             if is_explore:
                 # 用户探索类型
-                # context_msg = session.query(Message).filter_by(id=message.context_id).first()
-                # ask_msg = msg_explore.replace("${context}", context_msg.content)
-                ask_msg = msg_explore.replace("${question}", message.content)
+                if message.action==MessageService.action_daily_pray:
+                    context_msg = session.query(Message).filter_by(id=message.context_id).first()
+                    ask_msg = msg_pray+context_msg.content
+                else:
+                    ask_msg = msg_explore+message.content
                 # rsp_msg = message
             else:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
