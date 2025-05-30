@@ -143,7 +143,7 @@ class CozeService:
             if is_explore:
                 # 用户探索类型
                 if message.action==MessageService.action_daily_pray:
-                    context_msg = session.query(Message).filter_by(id=message.context_id).first()
+                    context_msg = session.query(Message).filter_by(public_id=message.context_id).first()
                     ask_msg = msg_pray+context_msg.content
                 else:
                     ask_msg = msg_explore+message.content
