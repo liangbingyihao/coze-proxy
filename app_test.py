@@ -3,6 +3,7 @@ import json
 import requests
 
 
+
 def register():
     url = "http://8.217.172.116:5000/api/auth/register"
     data = {
@@ -167,6 +168,6 @@ if __name__ == '__main__':
     token = login("user2")
     # add_message(token)
     # new_session(token)
-    get_message(token)
+    # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

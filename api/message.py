@@ -17,6 +17,7 @@ def add():
     content = data.get('text')  # 新增的信息内容
     action = data.get('action')  # 新增的信息内容
     context_id = data.get('context_id') or 0  # 探索对应的原msg id
+    prompt = data.get("prompt")
     owner_id = get_jwt_identity()
     # session_id = data.get("session_id")
 
@@ -24,7 +25,7 @@ def add():
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
     try:
-        message_id = MessageService.new_message(owner_id, content, context_id,action)
+        message_id = MessageService.new_message(owner_id, content, context_id,action,prompt)
         return jsonify({
             'success': True,
             'data': {"id": message_id}

@@ -65,8 +65,10 @@ class MessageService:
         return session
 
     @staticmethod
-    def new_message(owner_id, content, context_id,action):
+    def new_message(owner_id, content, context_id,action,prompt):
         '''
+        :param action:
+        :param prompt:
         :param context_id:用户探索的原信息id
         :param owner_id:
         :param content:
@@ -77,6 +79,7 @@ class MessageService:
         message = None
         if content:
             message = Message(0, owner_id, content, context_id,action=action)
+            message.feedback_text=prompt
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")
