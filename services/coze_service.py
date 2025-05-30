@@ -171,7 +171,7 @@ class CozeService:
                     if view:
                         feedback_text = ""
                         if bible:
-                            feedback_text += f"送你这段经文:{bible}\n"
+                            feedback_text += f"{bible}\n"
                         message.feedback_text = feedback_text + view
                     else:
                         message.feedback_text = msg_error+",原始回复:"+response
@@ -274,7 +274,7 @@ class CozeService:
                     if pos[3] <= 0:
                         bible, detail = CozeService._extract_content(all_content, pos)
                         if bible:
-                            bible = f"送你这段经文:{bible}\n"
+                            bible = f"{bible}\n"
                         if detail:
                             detail = f"扩展:{detail}"
                         ori_msg.feedback_text = f"{bible}{detail}"
