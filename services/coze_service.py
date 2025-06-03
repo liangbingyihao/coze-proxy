@@ -52,16 +52,7 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 9.严格按照用户输入的语言返回。
-                示例输出：
-                {
-                  "bible": "“你们要将一切的忧虑卸给神，因为他顾念你们。”（彼得前书 5:7 ）",
-                  "view": "## 安装步骤\n1. 下载 Android Studio\n2. **配置 SDK**\n```java\nSystem.out.println(\"Hello\");\n```",
-                  "topic1": "测试",
-                  "topic1": "",
-                  "tag": "信靠",
-                  "summary": "测试内容",
-                  "explore":"测试的探索内容"
-                }
+                10.字段 `view` 的值必须是 **Markdown 格式的字符串**（支持标题、列表、代码块等语法）。
                 以下是用户的输入内容：
                 '''
 
