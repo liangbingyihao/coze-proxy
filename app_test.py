@@ -1,5 +1,4 @@
 import json
-
 import requests
 
 
@@ -166,9 +165,16 @@ def extract_test(text, s):
 
 
 if __name__ == '__main__':
-    token = login("user2")
+    # token = login("user2")
     # add_message(token)
     # new_session(token)
-    get_message(token)
+    # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
+    text = ''' {"view": "我能感受到你渴望通过读经更加坚定将忧虑交托给神的信心，这是非常美好的追求。\n\n读经能加深我们对神的认识'''
+    import re
+    match = re.search(r"(\"view\"\s*:\s*\")", text)
+    if match:
+        s = s1 = match.end()
+        detail = text[s1: -1]
+        print(detail)

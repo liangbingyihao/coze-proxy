@@ -233,12 +233,12 @@ class CozeService:
         bible, detail = "", ""
 
         if not s1:
-            match = re.search(r"(\"view\"\s*:\s*)", text)
+            match = re.search(r"(\"view\"\s*:\s*\")", text)
             if match:
                 s[0] = s1 = match.end()
 
         if not s2:
-            match = re.search(r"(\"bible\"\s*:\s*)", text)
+            match = re.search(r"(\"bible\"\s*:\s*\")", text)
             if match:
                 s[1] = e1 = match.start()
                 s[2] = s2 = match.end()
