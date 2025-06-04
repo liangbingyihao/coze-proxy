@@ -12,11 +12,13 @@ def init_api(app):
     from .session import session_bp
     from .message import message_bp
     from .docs import docs_bp
+    from .system import system_bp
 
     main_bp.register_blueprint(auth_bp, url_prefix='/api/auth')
     main_bp.register_blueprint(user_bp, url_prefix='/api/user')
     main_bp.register_blueprint(session_bp, url_prefix='/api/session')
     main_bp.register_blueprint(message_bp, url_prefix='/api/message')
+    main_bp.register_blueprint(system_bp, url_prefix='/api/system')
     main_bp.register_blueprint(docs_bp)
 
     # 注册主蓝图

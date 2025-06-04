@@ -13,7 +13,7 @@ class MessageService:
     action_bible_pic = 1
     action_daily_gw = 2
     action_direct_msg = 3
-    action_daily_ai = 0
+    action_daily_talk = 0
     action_daily_pray = 4
     explore = [["我想看包含了今天的经文推荐，实际应用，以及今天大事的“每日恩语”", action_daily_gw],
                ["我想看今天的鼓励经文推荐图", action_bible_pic],
@@ -111,9 +111,9 @@ class MessageService:
                     funcs = []
                     if isinstance(explore,list):
                         for i in explore:
-                            funcs.append([i, MessageService.action_daily_ai])
+                            funcs.append([i, MessageService.action_daily_talk])
                     else:
-                        funcs.append([explore, MessageService.action_daily_ai])
+                        funcs.append([explore, MessageService.action_daily_talk])
                     if feedback.get("bible"):
                         funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
                     if message.action!=MessageService.action_daily_pray:
