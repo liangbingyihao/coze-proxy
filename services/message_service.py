@@ -1,6 +1,5 @@
 import json
 import logging
-import time
 
 from models.message import Message
 from extensions import db
