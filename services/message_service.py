@@ -106,11 +106,18 @@ class MessageService:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
             try:
                 feedback = json.loads(message.feedback)
-                if feedback.get("explore"):
-                    funcs = [[feedback.get("explore"), MessageService.action_daily_ai]]
+                explore = feedback.get("explore")
+                if explore:
+                    funcs = []
+                    if isinstance(explore,list):
+                        for i in explore:
+                            funcs.append([i, MessageService.action_daily_ai])
+                    else:
+                        funcs.append([explore, MessageService.action_daily_ai])
                     if feedback.get("bible"):
                         funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
-                    funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
+                    if message.action!=MessageService.action_daily_pray:
+                        funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
                     feedback["function"] = funcs
                 message.feedback = feedback
                 if not message.summary:
