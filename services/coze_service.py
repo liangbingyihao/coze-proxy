@@ -169,10 +169,7 @@ class CozeService:
                     result = json.loads(response)
                     bible, view = result.get('bible'), result.get('view')
                     if view:
-                        feedback_text = ""
-                        if bible:
-                            feedback_text += f"**{bible}**\n"
-                        message.feedback_text = feedback_text + view
+                        message.feedback_text = view
                     else:
                         message.feedback_text = msg_error + ",原始回复:" + response
                     if not is_explore:
@@ -273,9 +270,7 @@ class CozeService:
                 if 1:
                     if pos[3] <= 0:
                         bible, detail = CozeService._extract_content(all_content, pos)
-                        if bible:
-                            bible = f"**{bible}**\n"
-                        ori_msg.feedback_text = f"{bible}{detail}"
+                        ori_msg.feedback_text = detail
                 # else:
                 #     ori_msg.feedback_text = all_content
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
