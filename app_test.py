@@ -178,3 +178,8 @@ if __name__ == '__main__':
         s = s1 = match.end()
         detail = text[s1: -1]
         print(detail)
+    import json
+    x = "Line1\\n\\nLine2"
+    json_str = {"view": x}
+    result = json.loads(json.dumps(json_str))
+    print(result["view"],result["view"]==x)
