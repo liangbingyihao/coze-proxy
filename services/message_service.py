@@ -111,6 +111,8 @@ class MessageService:
                     feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
                                             ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic],
                                             ["关于以上内容的祷告和默想建议", MessageService.action_daily_pray]]
+                    if feedback.get("bible"):
+                        pass
                 message.feedback = feedback
                 if not message.summary:
                     message.summary = feedback.get("summary")

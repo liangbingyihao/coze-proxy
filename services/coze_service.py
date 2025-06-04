@@ -42,24 +42,24 @@ engine = create_engine(
 DBSession = sessionmaker(bind=engine)
 
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现等信息进行以下反馈:
-                1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
-                2.view:并针对该经文予一段300字左右的内容拓展,必须是 **Markdown 格式的字符串**（支持标题、列表、代码块等语法）
+                1.view:给用户Markdown格式化的完整回应。先用共情的语言回应用户的记录内容，再返回一段基督教新教的圣经中的相关经文进行鼓励。然后针对该经文予一段500字以内的内容拓展，可以说经文的经典人物背景，也可以讲这段经文的实际应用。如果用户是问圣经相关的问题，先回复一段共情用户输入内容的开头，再根据用户的问题进行回答，回答的内容要符合基督教新教的教义，或者基于圣经的常识性问题。如果用户的问题存在不同的观点，那就要列明这些都只是观点，仅供参考。回答的内容在800字以内。如有需要可以分点来回答，便于阅读者来阅读。必须是 **Markdown 格式的字符串**（支持标题、列表、代码块等语法）
+                2.bible:view字段回应中的圣经经文文本。
                 3.topic1:为输入内容从${event}里选出一个主题分类,无法选取则为""
                 3.topic2:无法选出topic1时，新增一个6个字以内的主题分类
                 4.tag:对用户输入的内容返回的圣经经文打标签，标签只能从"信靠，盼望，刚强，光明，慈爱，喜乐，安慰，永恒，平安，恩典"选择最接近的一个。
                 5.summary:给出8个字以内的重点小结
                 6.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                7.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
+                7.严格按json格式返回。{"view":<view>,"bible":<bible>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 9.严格按照用户输入的语言返回。
                 以下是用户的输入内容：
                 '''
 
 msg_explore = '''你要在基督教正统教义范围内对下面输入进行以下反馈:
-                1.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
-                2.view:并针对该经文予一段300字左右的内容拓展。必须是 **Markdown 格式的字符串**（支持标题、列表、代码块等语法）
+                1.view:并针对该经文予一段300字左右的内容拓展。必须是 **Markdown 格式的字符串**（支持标题、列表、代码块等语法）
+                2.bible:返回一段基督教新教的圣经中的相关经文进行鼓励
                 3.explore:给出1个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。
-                4.严格按json格式返回。{"bible":<bible>,"view":<view>,"explore":<explore>}
+                4.严格按json格式返回。{"view":<view>,"bible":<bible>,"explore":<explore>}
                 5.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 6.严格按照用户输入的语言返回。
                  用户问题:
@@ -171,7 +171,7 @@ class CozeService:
                     if view:
                         feedback_text = ""
                         if bible:
-                            feedback_text += f"{bible}\n"
+                            feedback_text += f"**{bible}**\n"
                         message.feedback_text = feedback_text + view
                     else:
                         message.feedback_text = msg_error + ",原始回复:" + response
@@ -236,12 +236,12 @@ class CozeService:
         bible, detail = "", ""
 
         if not s1:
-            match = re.search(r"(\"bible\"\s*:\s*)", text)
+            match = re.search(r"(\"view\"\s*:\s*)", text)
             if match:
                 s[0] = s1 = match.end()
 
         if not s2:
-            match = re.search(r"(\"view\"\s*:\s*)", text)
+            match = re.search(r"(\"bible\"\s*:\s*)", text)
             if match:
                 s[1] = e1 = match.start()
                 s[2] = s2 = match.end()
@@ -251,9 +251,9 @@ class CozeService:
             if match:
                 s[3] = e2 = match.start()
         if s1:
-            bible = text[s1:e1 if e1 > 0 else -1]
+            detail = text[s1:e1 if e1 > 0 else -1]
         if s2:
-            detail = text[s2:e2 if e2 > 0 else -1]
+            bible = text[s2:e2 if e2 > 0 else -1]
         return bible, detail
 
     @staticmethod
@@ -274,9 +274,7 @@ class CozeService:
                     if pos[3] <= 0:
                         bible, detail = CozeService._extract_content(all_content, pos)
                         if bible:
-                            bible = f"{bible}\n"
-                        if detail:
-                            detail = f"扩展:{detail}"
+                            bible = f"**{bible}**\n"
                         ori_msg.feedback_text = f"{bible}{detail}"
                 # else:
                 #     ori_msg.feedback_text = all_content
