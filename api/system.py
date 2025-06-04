@@ -16,8 +16,8 @@ system_bp = Blueprint('system', __name__)
 def get_configure():
     return jsonify({
         'success': True,
-        'data': {"prompt":msg_feedback,
-                 "prompt"+MessageService.action_daily_talk:msg_explore,
-                 "prompt"+MessageService.action_daily_pray:msg_pray}
+        'data': {"record":msg_feedback,
+                 "talk":msg_explore,
+                 "pray":msg_pray}
     })
 

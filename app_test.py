@@ -55,6 +55,20 @@ def my_session(token):
     for s in sessions.get("items"):
         print(s)
 
+def get_conf(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "page": 1,
+        "limit": 50
+    }
+
+    response = requests.get("http://8.217.172.116:5000/api/system/conf", headers=headers, params=data)
+    print(response.text)
+    data = response.json().get("data")
+    print(data)
+
 
 def add_message(token):
     headers = {
@@ -165,21 +179,9 @@ def extract_test(text, s):
 
 
 if __name__ == '__main__':
-    # token = login("user2")
-    # add_message(token)
+    token = login("user2")
+    get_conf(token)
     # new_session(token)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
-    text = ''' {"view": "我能感受到你渴望通过读经更加坚定将忧虑交托给神的信心，这是非常美好的追求。\n\n读经能加深我们对神的认识'''
-    import re
-    match = re.search(r"(\"view\"\s*:\s*\")", text)
-    if match:
-        s = s1 = match.end()
-        detail = text[s1: -1]
-        print(detail)
-    import json
-    x = "Line1\\n\\nLine2"
-    json_str = {"view": x}
-    result = json.loads(json.dumps(json_str))
-    print(result["view"],result["view"]==x)
