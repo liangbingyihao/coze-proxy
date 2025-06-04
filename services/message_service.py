@@ -65,7 +65,7 @@ class MessageService:
         return session
 
     @staticmethod
-    def new_message(owner_id, content, context_id,action,prompt):
+    def new_message(owner_id, content, context_id, action, prompt):
         '''
         :param action:
         :param prompt:
@@ -78,8 +78,8 @@ class MessageService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = None
         if content:
-            message = Message(0, owner_id, content, context_id,action=action)
-            message.feedback_text=prompt or ""
+            message = Message(0, owner_id, content, context_id, action=action)
+            message.feedback_text = prompt or ""
             db.session.add(message)
             db.session.commit()
             logging.warning(f"message.id:{message.id}")
@@ -108,11 +108,11 @@ class MessageService:
             try:
                 feedback = json.loads(message.feedback)
                 if feedback.get("explore"):
-                    feedback["function"] = [[feedback.get("explore"), MessageService.action_daily_ai],
-                                            ["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic],
-                                            ["关于以上内容的祷告和默想建议", MessageService.action_daily_pray]]
+                    funcs = [[feedback.get("explore"), MessageService.action_daily_ai]]
                     if feedback.get("bible"):
-                        pass
+                        funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
+                    funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
+                    feedback["function"] = funcs
                 message.feedback = feedback
                 if not message.summary:
                     message.summary = feedback.get("summary")
@@ -126,8 +126,8 @@ class MessageService:
         return Message.query.filter_by(context_id=context_id)
 
     @staticmethod
-    def set_summary(owner_id, msg_id,summary,session_id,session_name):
-        if session_id and session_id>0:
+    def set_summary(owner_id, msg_id, summary, session_id, session_name):
+        if session_id and session_id > 0:
             session = Session.query.filter_by(owner_id=owner_id, id=session_id).one()
             if not session:
                 return False
@@ -137,21 +137,20 @@ class MessageService:
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
         if message:
             if summary:
-                message.summary=summary
+                message.summary = summary
             if session_id:
                 message.session_id = session_id
             db.session.commit()
             return message.session_id
 
-
     @staticmethod
-    def set_session_id(owner_id, msg_id,session_id):
-        if session_id>0:
+    def set_session_id(owner_id, msg_id, session_id):
+        if session_id > 0:
             cnt_session = Session.query.filter_by(owner_id=owner_id, session_id=session_id).count()
-            if cnt_session<=0:
+            if cnt_session <= 0:
                 return False
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
         if message:
-            message.session_id=session_id
+            message.session_id = session_id
             db.session.commit()
             return True
