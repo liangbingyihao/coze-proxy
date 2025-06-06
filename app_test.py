@@ -18,7 +18,7 @@ def register():
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "guest": "6c6cbd0d-503a-38e1-ba88-252340860c1a",
+        "guest": "81863ba6-abf8-340f-892a-683e6896a23f",
         "password": "123456"
     }
 
@@ -65,7 +65,6 @@ def get_conf(token):
     }
 
     response = requests.get("http://8.217.172.116:5000/api/system/conf", headers=headers, params=data)
-    print(response.text)
     data = response.json().get("data")
     print(data)
 
@@ -121,9 +120,9 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/welcome", headers=headers)
+    response = requests.get("http://8.217.172.116:5000/api/message/57dd5e21-7cbc-4d18-aaa6-3f28f3678331", headers=headers)
     r = response.json()
-    print(r)
+    print(json.dumps(r.get("data"), indent=4,ensure_ascii=False))
     return r
 
 def update_summary(token):
@@ -180,8 +179,8 @@ def extract_test(text, s):
 
 if __name__ == '__main__':
     token = login("user2")
-    get_conf(token)
+    # get_conf(token)
     # new_session(token)
-    # get_message(token)
+    get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

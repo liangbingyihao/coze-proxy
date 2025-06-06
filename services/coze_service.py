@@ -208,18 +208,11 @@ class CozeService:
                 message.feedback = response
                 message.status = 2
                 session.commit()
-
-            # if need_summary:
-            #     summary = CozeService._summary_by_coze(conversation_id, user_id)
-            #     if summary:
-            #         from models.session import Session
-            #         session.query(Session).filter_by(id=message.session_id).update({"session_name": summary})
-            #         session.commit()
         except Exception as e:
             logger.exception(e)
-        # finally:
-        #     if session:
-        #         session.close()  # 重要！清理会话
+        finally:
+            message.status = 2
+            session.commit()
 
     @staticmethod
     def create_conversations():

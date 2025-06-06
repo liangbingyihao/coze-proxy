@@ -4,9 +4,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.user_schema import UserSchema
 from services.coze_service import  msg_feedback,msg_explore,msg_pray
-from services.message_service import MessageService
-from services.user_service import UserService
-from utils.exceptions import AuthError
 
 system_bp = Blueprint('system', __name__)
 
