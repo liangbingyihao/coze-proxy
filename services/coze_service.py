@@ -210,9 +210,14 @@ class CozeService:
                 session.commit()
         except Exception as e:
             logger.exception(e)
-        finally:
-            message.status = 2
-            session.commit()
+            if message and message.status != 2:
+                message.status = 2
+                message.feedback_text = "AI回复异常，请重试"
+                session.commit()
+
+        # finally:
+        #     if session:
+        #         session.close()  # 重要！清理会话
 
     @staticmethod
     def create_conversations():
