@@ -41,6 +41,18 @@ engine = create_engine(
 # 第二步：拿到一个Session类,传入engine
 DBSession = sessionmaker(bind=engine)
 
+msg_json='''
+## 输出格式说明:
+本次输出需要生成一个严格符合 JSON 格式的字符串,不要包含 JSON 之外的任何字符（如注释或说明）。
+其中字段`view`是一段 Markdown 格式的文本（需转义所有 JSON 特殊字符）,确保所有双引号（`"`）、反斜杠（`\`）、换行符（`\n`）等被转义为 `\"`、`\\`、`\\n`。
+字段`view`格式要求：
+1. Markdown 内容需包含标题、代码块和列表。
+2. 确保所有双引号（`"`）、反斜杠（`\`）、换行符（`\n`）等被转义为 `\"`、`\\`、`\\n`。
+
+###以下是任务说明:
+
+'''
+
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现、回答用户关于信仰的问题，请进行以下反馈:
                 1.view: 用户查看的回应文本,必须是**Markdown 格式的字符串**（支持标题、列表、代码块等语法）。详细说明见后面view字段的详细要求。
                 2.bible:view字段回应中主要的一段圣经经文文本。
@@ -185,6 +197,7 @@ class CozeService:
                     "${event}", names)
                 ask_msg += message.content
 
+            ask_msg = msg_json+ask_msg
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
             if response:
                 logger.warning(f"GOT: {response}")
