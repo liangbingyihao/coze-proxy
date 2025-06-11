@@ -87,8 +87,12 @@ def msg_detail(msg_id):
     owner_id = get_jwt_identity()
     try:
         logging.warning(f"get_message:{msg_id}")
+        if msg_id=="welcome":
+            jsonify({
+                'success': True,
+                'data': MessageService.welcome_msg
+            })
         data = MessageService.get_message(owner_id, msg_id)
-        logging.warning(f"get_message:{msg_id} got {data}")
         return jsonify({
             'success': True,
             'data': MessageSchema().dump(data)
