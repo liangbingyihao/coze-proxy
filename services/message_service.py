@@ -182,7 +182,7 @@ class MessageService:
         if session_name:
             session = SessionService.new_session(session_name, owner_id, 0)
             session_id = session.id
-        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).first()
         if message:
             if summary:
                 message.summary = summary
