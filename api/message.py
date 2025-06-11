@@ -88,15 +88,16 @@ def msg_detail(msg_id):
     try:
         logging.warning(f"get_message:{msg_id}")
         if msg_id=="welcome":
-            jsonify({
+            return jsonify({
                 'success': True,
                 'data': MessageService.welcome_msg
             })
-        data = MessageService.get_message(owner_id, msg_id)
-        return jsonify({
-            'success': True,
-            'data': MessageSchema().dump(data)
-        })
+        else:
+            data = MessageService.get_message(owner_id, msg_id)
+            return jsonify({
+                'success': True,
+                'data': MessageSchema().dump(data)
+            })
     except Exception as e:
         logging.exception(e)
         return jsonify({
