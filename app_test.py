@@ -180,10 +180,14 @@ def extract_test(text, s):
         detail = text[s2:e2 if e2 > 0 else -1]
     return bible, detail
 
+
+x='''{"view":"**","bible":"“那仆人若主人回来，看见他这样行，那仆人就有福了。我实在告诉你们，主人必派他管理一切所有的。”（路12:43 - 44）","explore":"如何在生活细节中成为忠心仆人？","topic1":"开心感恩","topic2":"赞美诗感悟","tag":"喜乐","summary":"赞美诗引思考"}
+'''
 if __name__ == '__main__':
-    token = login("user2")
+    print(json.loads(x))
+    # token = login("user2")
     # # get_conf(token)
     # # new_session(token)
-    get_message(token)
+    # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
