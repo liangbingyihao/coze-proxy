@@ -24,6 +24,7 @@ formatter = logging.Formatter(
 )
 file_handler.setFormatter(formatter)
 
+logger.handlers.clear()
 # 添加处理器到日志记录器
 logger.addHandler(file_handler)
 

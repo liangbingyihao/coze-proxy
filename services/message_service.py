@@ -123,6 +123,8 @@ class MessageService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = None
         if content:
+            if prompt:
+                logging.warning("prompt:",owner_id,content,action, prompt)
             message = Message(0, owner_id, content, context_id, action=action)
             message.feedback_text = prompt or ""
             db.session.add(message)
