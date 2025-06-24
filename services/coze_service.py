@@ -193,7 +193,9 @@ class CozeService:
                     context_content = ""
                     if context_msg:
                         context_content = context_msg.content
-                    ask_msg = (custom_prompt + context_msg.content) if custom_prompt else msg_pray + context_content
+                    else:
+                        context_content = message.content
+                    ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
                     ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
