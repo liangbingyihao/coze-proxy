@@ -29,12 +29,12 @@ def rename_and_copy(source_root, target_root, original_pattern, new_name):
                 new_file_name = f"{new_name}{ext}"
                 target_path = target_subdir / new_file_name
 
-                # 处理文件名重复
-                counter = 1
-                while target_path.exists():
-                    new_file_name = f"{new_name}_{counter}{ext}"
-                    target_path = target_subdir / new_file_name
-                    counter += 1
+                # # 处理文件名重复
+                # counter = 1
+                # while target_path.exists():
+                #     new_file_name = f"{new_name}_{counter}{ext}"
+                #     target_path = target_subdir / new_file_name
+                #     counter += 1
 
                 # 复制并重命名文件
                 shutil.copy2(file_path, target_path)
@@ -43,10 +43,10 @@ def rename_and_copy(source_root, target_root, original_pattern, new_name):
 
 if __name__ == "__main__":
     # 参数设置
-    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\组 96_slices"  # 源根目录
+    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\组 91_slices"  # 源根目录
     target_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\res"
     original_pattern = "*.png"  # 匹配所有 .txt 文件
-    new_name = "ic_redo_black"  # 新文件名（不含扩展名）
+    new_name = "ic_play_black"  # 新文件名（不含扩展名）
 
     # 执行操作
     rename_and_copy(source_root, target_root, original_pattern, new_name)

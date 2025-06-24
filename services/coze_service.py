@@ -190,7 +190,10 @@ class CozeService:
                 # 用户探索类型
                 if message.action == MessageService.action_daily_pray:
                     context_msg = session.query(Message).filter_by(public_id=message.context_id).first()
-                    ask_msg = (custom_prompt + context_msg.content) if custom_prompt else msg_pray + context_msg.content
+                    context_content = ""
+                    if context_msg:
+                        context_content = context_msg.content
+                    ask_msg = (custom_prompt + context_msg.content) if custom_prompt else msg_pray + context_content
                 else:
                     ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
