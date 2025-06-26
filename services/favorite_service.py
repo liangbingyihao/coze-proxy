@@ -1,6 +1,7 @@
 import json
 import logging
 
+from flask_sqlalchemy import Pagination
 from sqlalchemy import desc
 
 from models.favorites import Favorites
@@ -74,7 +75,12 @@ class FavoriteService:
 
     @staticmethod
     def get_favorite_by_owner(owner_id, page, limit):
-        return Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)).paginate(page=page, per_page=limit, error_out=False)
+        items = Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)) \
+            .offset((page - 1) * limit) \
+            .limit(limit) \
+            .all()
+        return Pagination(query=None, page=page, per_page=limit, items=items, total=None)
+        # return Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)).paginate(page=page, per_page=limit, error_out=False)
 
 
     @staticmethod

@@ -201,11 +201,24 @@ def del_favorite(token):
     response = requests.post("http://8.217.172.116:5000/api/favorite/rm", headers=headers, json=data)
     print(response.text)
 
+def my_favorite(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        # "session_id": 12,
+        # "context_id":21,
+        "page":1,
+        "limit":2
+    }
+    response = requests.get("http://8.217.172.116:5000/api/favorite", headers=headers, params=data)
+    print(response.json())
+
 
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    del_favorite(token)
+    my_favorite(token)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
