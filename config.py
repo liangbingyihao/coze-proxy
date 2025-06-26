@@ -12,7 +12,7 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))
     SQLALCHEMY_ECHO = False
     SWAGGER = {
-        'title': 'User Auth API',
-        'uiversion': 3,
+        'openapi': '3.0.2',  # 只保留这一个版本声明
+        'title': 'API Docs',
         'specs_route': '/api/docs/'
     }
