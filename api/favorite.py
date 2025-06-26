@@ -11,6 +11,18 @@ favorite_bp = Blueprint('favorite', __name__)
 
 
 @favorite_bp.route('', methods=['POST'])
+@swag_from({
+    'tags': ['Favorites'],
+    'parameters': [
+        {
+            'message_id': '信息id',
+            'content_type': '1:收藏用户信息，2：收藏AI信息'
+        }
+    ],
+    'responses': {
+        200: {'success': "true/false"}
+    }
+})
 @jwt_required()
 def add():
     data = request.get_json()
