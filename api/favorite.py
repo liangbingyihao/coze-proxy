@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from schemas.favorite_schema import FavoriteSchema
 from schemas.session_schema import SessionSchema
 from services.favorite_service import FavoriteService
 from services.session_service import SessionService
@@ -89,19 +90,19 @@ def remove():
     # 类似上面的Swagger定义
 })
 @jwt_required()
-def my_sessions():
+def my_favorites():
     owner_id = get_jwt_identity()
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
 
     try:
-        data = SessionService.get_session_by_owner(owner_id,page=page,
+        data = FavoriteService.get_favorite_by_owner(owner_id,page=page,
                                              limit=limit)
         return jsonify({
             'success': True,
             # 'data': SessionSchema(many=True).dump(data),
             'data': {
-                'items': SessionSchema(many=True).dump(data.items),
+                'items': FavoriteSchema(many=True).dump(data.items),
                 'total': data.total
             }
         })

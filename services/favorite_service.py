@@ -1,6 +1,8 @@
 import json
 import logging
 
+from sqlalchemy import desc
+
 from models.favorites import Favorites
 from models.message import Message
 from extensions import db
@@ -62,19 +64,18 @@ class FavoriteService:
 
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Failed to delete favorite {favorite_id}: {str(e)}", exc_info=True)
+            logging.error(f"Failed to delete favorite {message_id}: {str(e)}", exc_info=True)
             return False
 
     # @staticmethod
     # def get_session_by_id(session_id):
     #     return Session.query.get(session_id)
 
+
     @staticmethod
-    def filter_message(owner_id, session_id, context_id, search, page, limit):
-        session = MessageService.check_permission(session_id, owner_id)
-        if context_id:
-            return Message.query.filter_by(context_id=context_id)
-        return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
+    def get_favorite_by_owner(owner_id, page, limit):
+        return Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)).paginate(page=page, per_page=limit, error_out=False)
+
 
     @staticmethod
     def get_message(owner_id, msg_id):

@@ -189,7 +189,6 @@ def add_favorite(token):
         "content_type": 2
     }
     response = requests.post("http://8.217.172.116:5000/api/favorite", headers=headers, json=data)
-    print(response.text)
 
 def del_favorite(token):
     headers = {
