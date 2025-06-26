@@ -96,14 +96,13 @@ def my_favorites():
     limit = request.args.get('limit', default=10, type=int)
 
     try:
-        data = FavoriteService.get_favorite_by_owner(owner_id,page=page,
+        items = FavoriteService.get_favorite_by_owner(owner_id,page=page,
                                              limit=limit)
         return jsonify({
             'success': True,
             # 'data': SessionSchema(many=True).dump(data),
             'data': {
-                'items': FavoriteSchema(many=True).dump(data.items),
-                'total': data.total
+                'items': FavoriteSchema(many=True).dump(items),
             }
         })
     except AuthError as e:

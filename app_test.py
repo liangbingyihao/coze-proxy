@@ -212,7 +212,7 @@ def my_favorite(token):
         "limit":2
     }
     response = requests.get("http://8.217.172.116:5000/api/favorite", headers=headers, params=data)
-    print(response.json())
+    print(response.text)
 
 
 if __name__ == '__main__':
