@@ -13,10 +13,29 @@ favorite_bp = Blueprint('favorite', __name__)
 @favorite_bp.route('', methods=['POST'])
 @swag_from({
     'tags': ['Favorites'],
+    'description': '增加收藏',
     'parameters': [
         {
-            'message_id': '信息id',
-            'content_type': '1:收藏用户信息，2：收藏AI信息'
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message_id': {
+                        'type': 'integer',
+                        'example': 12345,
+                        'description': '消息的唯一标识ID'
+                    },
+                    'content_type': {
+                        'type': 'integer',
+                        'enum': [1, 2],  # 明确枚举值
+                        'example': 1,
+                        'description': '内容类型: 1-用户信息, 2-AI信息'
+                    }
+                },
+                'required': ['message_id', 'content_type']
+            }
         }
     ],
     'responses': {
