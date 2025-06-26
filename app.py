@@ -1,4 +1,5 @@
 import json
+import logging
 
 import click
 import pymysql
@@ -56,10 +57,14 @@ def register_commands(app):
         flask init-db
         flask run
         ."""
+        try:
+            import models
+        except Exception as e:
+            logging.exception(e)
         db.create_all()
 
-        from services.message_service import MessageService
-        MessageService.init_welcome_msg()
+        # from services.message_service import MessageService
+        # MessageService.init_welcome_msg()
 
     @app.cli.command("create-user")
     @click.argument("username")

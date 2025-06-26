@@ -18,8 +18,7 @@ class Favorites(db.Model):
         nullable=False
     )
     __table_args__ = (
-        UniqueConstraint('message_id', 'content_type', name='uq_msg'),
-        {'extend_existing': True}
+        UniqueConstraint('message_id', 'content_type', name='uq_msg')
         # 可以添加多个唯一约束
         # UniqueConstraint('email', name='uq_email')
     )
