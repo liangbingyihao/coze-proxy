@@ -39,25 +39,25 @@ class FavoriteService:
             return True
 
     @staticmethod
-    def delete_favorite(owner_id, favorite_id, content_type):
+    def delete_favorite(owner_id, message_id, content_type):
         """
         删除指定用户的收藏记录
         :param owner_id: 用户ID（用于权限验证）
-        :param favorite_id: 要删除的收藏ID
+        :param message_id: 要删除的收藏ID
         :return: 成功返回True，失败返回False
         """
         try:
             # 查询并验证收藏记录归属
-            favorite = Favorites.query.filter_by(id=favorite_id, owner_id=owner_id, content_type=content_type).first()
+            favorite = Favorites.query.filter_by(message_id=message_id, owner_id=owner_id, content_type=content_type).first()
 
             if not favorite:
-                logging.warning(f"Favorite not found or permission denied. User: {owner_id}, Favorite: {favorite_id}")
+                logging.warning(f"Favorite not found or permission denied. User: {owner_id}, Favorite: {message_id,content_type}")
                 return False
 
             # 执行删除
             db.session.delete(favorite)
             db.session.commit()
-            logging.info(f"Favorite deleted. ID: {favorite_id}")
+            logging.info(f"Favorite deleted. ID: {favorite.id}")
             return True
 
         except Exception as e:
