@@ -3,25 +3,25 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.session_schema import SessionSchema
+from services.favorite_service import FavoriteService
 from services.session_service import SessionService
 from utils.exceptions import AuthError
 
-session_bp = Blueprint('save', __name__)
+favorite_bp = Blueprint('favorite', __name__)
 
 
-@session_bp.route('', methods=['POST'])
+@favorite_bp.route('', methods=['POST'])
 @jwt_required()
 def add():
     data = request.get_json()
-    session_name = data.get('session_name')
+    message_id = data.get('message_id')
+    content_type = data.get('content_type')
     owner_id = get_jwt_identity()
-    robot_id = data.get('robot_id')
 
     try:
-        session = SessionService.new_session(session_name, owner_id, robot_id)
+        res = FavoriteService.new_favorite(owner_id, message_id, content_type)
         return jsonify({
-            'success': True,
-            'data': SessionSchema().dump(session)
+            'success': res
         }), 201
     except Exception as e:
         return jsonify({
@@ -29,7 +29,29 @@ def add():
             'message': str(e)
         }), 400
 
-@session_bp.route('', methods=['GET'])
+
+@favorite_bp.route('/rm', methods=['POST'])
+@jwt_required()
+def remove():
+    data = request.get_json()
+    message_id = data.get('message_id')
+    content_type = data.get('content_type')
+    owner_id = get_jwt_identity()
+
+    try:
+        res = FavoriteService.delete_favorite(owner_id, message_id, content_type)
+        return jsonify({
+            'success': True,
+            'data': res
+        }), 201
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
+
+
+@favorite_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['Authentication'],
     'description': 'my sessions',

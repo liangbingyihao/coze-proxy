@@ -58,7 +58,7 @@ def register_commands(app):
         flask run
         ."""
         try:
-            import models
+            from models.favorites import Favorites
         except Exception as e:
             logging.exception(e)
         db.create_all()
