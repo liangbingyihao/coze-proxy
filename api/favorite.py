@@ -12,9 +12,29 @@ favorite_bp = Blueprint('favorite', __name__)
 
 
 @favorite_bp.route('', methods=['POST'])
+@jwt_required()
+def add():
+    data = request.get_json()
+    message_id = data.get('message_id')
+    content_type = data.get('content_type')
+    owner_id = get_jwt_identity()
+
+    try:
+        res = FavoriteService.new_favorite(owner_id, message_id, content_type)
+        return jsonify({
+            'success': res
+        }), 201
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
+
+
+@favorite_bp.route('/toggle', methods=['POST'])
 @swag_from({
     'tags': ['Favorites'],
-    'description': '增加收藏',
+    'description': '调转收藏状态（已收藏变未收藏，未收藏变已收藏）',
     'parameters': [
         {
             'name': 'body',
@@ -40,29 +60,9 @@ favorite_bp = Blueprint('favorite', __name__)
         }
     ],
     'responses': {
-        200: {'success': "true/false"}
+        200: {'success': "true/false",'data':"0,不再收藏，1，已收藏，其他：失败"}
     }
 })
-@jwt_required()
-def add():
-    data = request.get_json()
-    message_id = data.get('message_id')
-    content_type = data.get('content_type')
-    owner_id = get_jwt_identity()
-
-    try:
-        res = FavoriteService.new_favorite(owner_id, message_id, content_type)
-        return jsonify({
-            'success': res
-        }), 201
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
-
-
-@favorite_bp.route('/rm', methods=['POST'])
 @jwt_required()
 def remove():
     data = request.get_json()
@@ -71,7 +71,7 @@ def remove():
     owner_id = get_jwt_identity()
 
     try:
-        res = FavoriteService.delete_favorite(owner_id, message_id, content_type)
+        res = FavoriteService.toggle_favorite(owner_id, message_id, content_type)
         return jsonify({
             'success': True,
             'data': res

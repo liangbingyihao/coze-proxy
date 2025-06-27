@@ -42,36 +42,46 @@ class FavoriteService:
             return True
 
     @staticmethod
-    def delete_favorite(owner_id, message_id, content_type):
+    def toggle_favorite(owner_id, message_id, content_type):
         """
-        删除指定用户的收藏记录
+        调转收藏状态
+        :param content_type:
         :param owner_id: 用户ID（用于权限验证）
-        :param message_id: 要删除的收藏ID
-        :return: 成功返回True，失败返回False
+        :param message_id: 要调转的信息ID
+        :return: 0表示不再收藏，1表示已收藏，其他表示失败
         """
         try:
             # 查询并验证收藏记录归属
-            favorite = Favorites.query.filter_by(message_id=message_id, owner_id=owner_id, content_type=content_type).first()
+            favorite = Favorites.query.filter_by(owner_id=owner_id, message_id=message_id,
+                                                 content_type=content_type).first()
 
-            if not favorite:
-                logging.warning(f"Favorite not found or permission denied. User: {owner_id}, Favorite: {message_id,content_type}")
-                return False
+            if favorite:
+                # 执行删除
+                db.session.delete(favorite)
+                db.session.commit()
+                return 0
+            else:
+                message = Message.query.filter_by(public_id=message_id, owner_id=owner_id).one()
+                if message:
+                    if content_type == FavoriteService.content_type_ai:
+                        content = message.feedback_text
+                    else:
+                        content_type = FavoriteService.content_type_user
+                        content = message.content
 
-            # 执行删除
-            db.session.delete(favorite)
-            db.session.commit()
-            logging.info(f"Favorite deleted. ID: {favorite.id}")
-            return True
-
+                    favorite = Favorites(owner_id, message_id, content_type, content)
+                    db.session.add(favorite)
+                    db.session.commit()
+                    return 1
+            return -1
         except Exception as e:
             db.session.rollback()
             logging.error(f"Failed to delete favorite {message_id}: {str(e)}", exc_info=True)
-            return False
+            return -1
 
     # @staticmethod
     # def get_session_by_id(session_id):
     #     return Session.query.get(session_id)
-
 
     @staticmethod
     def get_favorite_by_owner(owner_id, page, limit):
@@ -82,7 +92,6 @@ class FavoriteService:
         return items
         # return Pagination(query=None, page=page, per_page=limit, items=items, total=None)
         # return Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)).paginate(page=page, per_page=limit, error_out=False)
-
 
     @staticmethod
     def get_message(owner_id, msg_id):
