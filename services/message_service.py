@@ -1,6 +1,8 @@
 import json
 import logging
 
+from sqlalchemy import desc
+
 from models.message import Message
 from extensions import db
 from models.session import Session
@@ -98,7 +100,7 @@ class MessageService:
 
     @staticmethod
     def init_welcome_msg():
-        messages = Message.query.filter_by(owner_id=2).filter(Message.id < 1117).limit(5)
+        messages = Message.query.filter_by(owner_id=2).filter(Message.id < 1117).order_by(desc(Message.id)).limit(5)
         for m in messages:
             print(m)
 
