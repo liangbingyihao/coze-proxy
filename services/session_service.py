@@ -1,7 +1,9 @@
+from datetime import datetime
 from time import time
 
 from sqlalchemy import desc
 
+from models.message import Message
 from models.session import Session
 from extensions import db
 from services.coze_service import CozeService
@@ -32,4 +34,16 @@ class SessionService:
 
     @staticmethod
     def get_session_by_owner(owner_id, page, limit):
-        return Session.query.filter_by(owner_id=owner_id,robot_id=0).order_by(desc(Session.id)).paginate(page=page, per_page=limit, error_out=False)
+        return Session.query.filter_by(owner_id=owner_id,robot_id=0).order_by(desc(Session.updated_at)).paginate(page=page, per_page=limit, error_out=False)
+
+
+    @staticmethod
+    def reset_updated_at(session_id):
+        if not session_id:
+            return
+        last_msg = Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).first()
+        update_time = last_msg.created_at if last_msg else datetime(2025, 1, 1)
+        Session.query.filter_by(id=session_id).update({
+            "updated_at": update_time
+        })
+        db.session.commit()

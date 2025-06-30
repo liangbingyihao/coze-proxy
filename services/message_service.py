@@ -183,6 +183,7 @@ class MessageService:
         session = MessageService.check_permission(session_id, owner_id)
         return Message.query.filter_by(context_id=context_id)
 
+
     @staticmethod
     def set_summary(owner_id, msg_id, summary, session_id, session_name):
         if session_id and session_id > 0:
@@ -197,7 +198,9 @@ class MessageService:
             if summary:
                 message.summary = summary
             if session_id:
+                last_session_id = message.session_id
                 message.session_id = session_id
+                SessionService.reset_updated_at(last_session_id)
             db.session.commit()
             return message.session_id
 
@@ -209,6 +212,8 @@ class MessageService:
                 return False
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
         if message:
+            last_session_id=message.session_id
             message.session_id = session_id
             db.session.commit()
+            SessionService.reset_updated_at(last_session_id)
             return True
