@@ -148,7 +148,7 @@ class MessageService:
         session = MessageService.check_permission(session_id, owner_id)
         if context_id:
             return Message.query.filter_by(context_id=context_id)
-        return Message.query.filter_by(session_id=session_id).paginate(page=page, per_page=limit, error_out=False)
+        return Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).paginate(page=page, per_page=limit, error_out=False)
 
     @staticmethod
     def get_message(owner_id, msg_id):
