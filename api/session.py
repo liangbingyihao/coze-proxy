@@ -31,7 +31,7 @@ def add():
 
 @session_bp.route('', methods=['GET'])
 @swag_from({
-    'tags': ['时间轴'],
+    'tags': ['时间轴主题列表'],
     'description': 'my sessions',
     # 类似上面的Swagger定义
 })

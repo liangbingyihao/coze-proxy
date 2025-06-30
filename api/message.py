@@ -5,6 +5,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.message_schema import MessageSchema
+from schemas.session_msg_schema import SessionMsgSchema
 from services.message_service import MessageService
 
 message_bp = Blueprint('message', __name__)
@@ -39,8 +40,8 @@ def add():
 
 @message_bp.route('', methods=['GET'])
 @swag_from({
-    'tags': ['Authentication'],
-    'description': 'my sessions',
+    'tags': ['message'],
+    'description': 'my message',
     # 类似上面的Swagger定义
 })
 @jwt_required()
@@ -62,14 +63,14 @@ def my_message():
             return jsonify({
                 'success': True,
                 'data': {
-                    'items': MessageSchema(many=True).dump(data)
+                    'items': SessionMsgSchema(many=True).dump(data)
                 }
             })
         else:
             return jsonify({
                 'success': True,
                 'data': {
-                    'items': MessageSchema(many=True).dump(data.items),
+                    'items': SessionMsgSchema(many=True).dump(data.items),
                     'total': data.total
                 }
             })
@@ -82,6 +83,11 @@ def my_message():
 
 # 带msg_id参数的路由
 @message_bp.route('/<string:msg_id>', methods=['GET'])
+@swag_from({
+    'tags': ['message'],
+    'description': 'message detail',
+    # 类似上面的Swagger定义
+})
 @jwt_required()
 def msg_detail(msg_id):
     owner_id = get_jwt_identity()
@@ -131,3 +137,4 @@ def set_summary(msg_id):
             'success': False,
             'message': str(e)
         }), 400
+

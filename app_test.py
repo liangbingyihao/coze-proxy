@@ -103,7 +103,7 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id": 12,
+        "session_id": 25,
         # "context_id":21,
         # "page":1,
         # "limit":1
@@ -219,7 +219,7 @@ def my_favorite(token):
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    my_favorite(token)
+    my_message(token)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
