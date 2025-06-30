@@ -92,9 +92,11 @@ D.在段与段之间要空一行。
                 
                 
                 !!!你必须根据用户使用的语言进行回复!!!
-                ###以下是用户的输入内容：
+                ###以下是用户本次的输入内容：
                 '''
 
+msg_context = '''###以下是用户曾经输入的上下文：
+'''
 
 
 msg_explore = '''你要在基督教正统教义范围内对下面输入进行以下反馈:
@@ -190,7 +192,6 @@ class CozeService:
                 # 用户探索类型
                 if message.action == MessageService.action_daily_pray:
                     context_msg = session.query(Message).filter_by(public_id=message.context_id).first()
-                    context_content = ""
                     if context_msg:
                         context_content = context_msg.content
                     else:

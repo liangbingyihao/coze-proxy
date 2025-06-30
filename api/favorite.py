@@ -64,7 +64,7 @@ def add():
     }
 })
 @jwt_required()
-def remove():
+def toggle():
     data = request.get_json()
     message_id = data.get('message_id')
     content_type = data.get('content_type')

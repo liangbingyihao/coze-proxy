@@ -11,6 +11,7 @@ from flask_cors import CORS
 
 from api import init_api
 from config import Config
+from services.message_service import MessageService
 from utils.exceptions import AuthError, handle_auth_error
 from extensions import db
 from utils.security import generate_password_hash
@@ -57,14 +58,10 @@ def register_commands(app):
         flask init-db
         flask run
         ."""
-        try:
-            from models.favorites import Favorites
-        except Exception as e:
-            logging.exception(e)
         db.create_all()
 
         # from services.message_service import MessageService
-        # MessageService.init_welcome_msg()
+        MessageService.init_welcome_msg()
 
     @app.cli.command("create-user")
     @click.argument("username")

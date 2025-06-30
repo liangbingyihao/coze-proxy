@@ -191,7 +191,7 @@ def add_favorite(token):
     response = requests.post("http://8.217.172.116:5000/api/favorite", headers=headers, json=data)
     print(response.text)
 
-def del_favorite(token):
+def toggle_favorite(token):
     headers = {
         "Authorization": f"Bearer {token}"
     }
@@ -199,7 +199,7 @@ def del_favorite(token):
         "message_id": "f6ed0f6e-3026-4729-afc8-cfd016f0fd34",
         "content_type": 2
     }
-    response = requests.post("http://8.217.172.116:5000/api/favorite/rm", headers=headers, json=data)
+    response = requests.post("http://8.217.172.116:5000/api/favorite/toggle", headers=headers, json=data)
     print(response.text)
 
 def my_favorite(token):
@@ -219,7 +219,7 @@ def my_favorite(token):
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    add_favorite(token)
+    toggle_favorite(token)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
