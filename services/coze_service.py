@@ -215,7 +215,7 @@ class CozeService:
                     "${event}", names)
                 ask_msg += message.content
 
-                messages = session.query(Message).filter_by(owner_id=2).filter(Message.id < 1117).order_by(desc(Message.id)).limit(5)
+                messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(desc(Message.id)).limit(5)
                 if messages:
                     elder_input = ""
                     for m in messages:
