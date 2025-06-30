@@ -204,7 +204,8 @@ class CozeService:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
                 # session.add(rsp_msg)
                 # session.commit()
-                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
+                session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
+                    desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                 names = "["
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
@@ -216,10 +217,10 @@ class CozeService:
 
                 messages = session.query(Message).filter_by(owner_id=2).filter(Message.id < 1117).order_by(desc(Message.id)).limit(5)
                 if messages:
-                    desc = ""
+                    elder_input = ""
                     for m in messages:
-                        desc +=f"id:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
-                    ask_msg+=msg_context+desc
+                        elder_input +=f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
+                    ask_msg+=msg_context+elder_input
 
             ask_msg = msg_json+ask_msg
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
