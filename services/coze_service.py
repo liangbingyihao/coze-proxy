@@ -95,7 +95,7 @@ D.在段与段之间要空一行。
                 ###以下是用户本次的输入内容：
                 '''
 
-msg_context = '''###以下是用户曾经输入的上下文：
+msg_context = '''###以下是用户最近几次和AI对话的记录：
 '''
 
 
@@ -210,9 +210,17 @@ class CozeService:
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
                 names += "]"
+
                 ask_msg = custom_prompt.replace("${event}", names) if custom_prompt else msg_feedback.replace(
                     "${event}", names)
                 ask_msg += message.content
+
+                messages = Message.query.filter_by(owner_id=2).filter(Message.id < 1117).order_by(desc(Message.id)).limit(5)
+                if messages:
+                    desc = ""
+                    for m in messages:
+                        desc +=f"id:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
+                    ask_msg+=msg_context+desc
 
             ask_msg = msg_json+ask_msg
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
