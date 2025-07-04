@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from models.user import User
@@ -51,6 +52,7 @@ class AuthService:
             db.session.add(user)
             db.session.commit()
         elif fcm_token:
+            logging.WARN(f"update fcmtoken:{user.id,fcm_token}")
             user.fcm_token = fcm_token
             user.updated_at = datetime.now()
             db.session.commit()
