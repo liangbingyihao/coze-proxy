@@ -11,6 +11,7 @@ import logging
 
 # 创建日志记录器
 logger = logging.getLogger('my_app')
+logger.propagate = False
 logger.setLevel(logging.DEBUG)  # 设置日志级别
 
 # 创建文件处理器
