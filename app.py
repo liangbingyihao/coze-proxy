@@ -37,8 +37,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def create_app():
-    app = Flask(__name__)
+def create_app(app):
     app.config.from_object(Config)
 
     # 初始化扩展
@@ -56,6 +55,8 @@ def create_app():
 
     return app
 
+app = Flask(__name__)
+create_app(app)
 
 # 统一处理400错误
 @app.errorhandler(400)
@@ -170,6 +171,5 @@ def register_commands(app):
 
 
 if __name__ == '__main__':
-    app = create_app()
     # app.logger.setLevel(logging.DEBUG)
     app.run(host="0.0.0.0", debug=True)
