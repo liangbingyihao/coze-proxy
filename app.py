@@ -37,7 +37,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def create_app(app):
+def create_app():
+    app = Flask(__name__)
     app.config.from_object(Config)
 
     # 初始化扩展
@@ -55,33 +56,7 @@ def create_app(app):
 
     return app
 
-app = Flask(__name__)
-create_app(app)
 
-# 统一处理400错误
-@app.errorhandler(400)
-def handle_bad_request(error):
-    # 获取错误堆栈
-    error_stack = traceback.format_exc()
-
-    # 记录业务日志（包含请求信息）
-    logger.error(
-        f"400 Bad Request\n"
-        f"URL: {request.url}\n"
-        f"Method: {request.method}\n"
-        f"Headers: {dict(request.headers)}\n"
-        f"Body: {request.get_data(as_text=True)}\n"
-        f"Error: {str(error)}\n"
-        f"Stack Trace:\n{error_stack}"
-    )
-
-    # 返回标准化错误响应
-    return jsonify({
-        "status": "error",
-        "code": 400,
-        "message": str(error),
-        "stack_trace": error_stack if app.debug else None  # 调试模式下显示堆栈
-    }), 400
 
 def register_commands(app):
     @app.cli.command("init-db")
@@ -114,6 +89,31 @@ def register_commands(app):
         db.session.add(user)
         db.session.commit()
         print(f"User {username} created.")
+
+    # 统一处理400错误
+    @app.errorhandler(400)
+    def handle_bad_request(error):
+        # 获取错误堆栈
+        error_stack = traceback.format_exc()
+
+        # 记录业务日志（包含请求信息）
+        logger.error(
+            f"400 Bad Request\n"
+            f"URL: {request.url}\n"
+            f"Method: {request.method}\n"
+            f"Headers: {dict(request.headers)}\n"
+            f"Body: {request.get_data(as_text=True)}\n"
+            f"Error: {str(error)}\n"
+            f"Stack Trace:\n{error_stack}"
+        )
+
+        # 返回标准化错误响应
+        return jsonify({
+            "status": "error",
+            "code": 400,
+            "message": str(error),
+            "stack_trace": error_stack if app.debug else None  # 调试模式下显示堆栈
+        }), 400
 
 
 #
@@ -172,4 +172,5 @@ def register_commands(app):
 
 if __name__ == '__main__':
     # app.logger.setLevel(logging.DEBUG)
+    app = create_app()
     app.run(host="0.0.0.0", debug=True)
