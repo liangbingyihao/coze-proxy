@@ -1,9 +1,10 @@
 import json
 import logging
+import traceback
 
 import click
 import pymysql
-from flask import Flask
+from flask import Flask, app, request, jsonify
 from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate, migrate
@@ -28,6 +29,13 @@ pymysql.install_as_MySQLdb()
 # jwt = JWTManager(app)
 # CORS(app)
 
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='app.log'
+)
+logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
@@ -48,6 +56,31 @@ def create_app():
 
     return app
 
+
+# 统一处理400错误
+@app.errorhandler(400)
+def handle_bad_request(error):
+    # 获取错误堆栈
+    error_stack = traceback.format_exc()
+
+    # 记录业务日志（包含请求信息）
+    logger.error(
+        f"400 Bad Request\n"
+        f"URL: {request.url}\n"
+        f"Method: {request.method}\n"
+        f"Headers: {dict(request.headers)}\n"
+        f"Body: {request.get_data(as_text=True)}\n"
+        f"Error: {str(error)}\n"
+        f"Stack Trace:\n{error_stack}"
+    )
+
+    # 返回标准化错误响应
+    return jsonify({
+        "status": "error",
+        "code": 400,
+        "message": str(error),
+        "stack_trace": error_stack if app.debug else None  # 调试模式下显示堆栈
+    }), 400
 
 def register_commands(app):
     @app.cli.command("init-db")
