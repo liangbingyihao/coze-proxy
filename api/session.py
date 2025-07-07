@@ -62,7 +62,7 @@ def my_sessions():
     except Exception as e:
         raise AuthError(str(e), 500)
 
-@session_bp.route('', methods=['POST'])
+@session_bp.route('del', methods=['POST'])
 @swag_from({
     'tags': ['时间轴主题列表'],
     'description': '删除主题',
