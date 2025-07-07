@@ -1,7 +1,7 @@
 from datetime import datetime
 from time import time
 
-from sqlalchemy import desc
+from sqlalchemy import desc, update, and_
 
 from models.message import Message
 from models.session import Session
@@ -46,4 +46,24 @@ class SessionService:
         Session.query.filter_by(id=session_id).update({
             "updated_at": update_time
         })
+        db.session.commit()
+
+    @staticmethod
+    def del_session(owner_id,session_id):
+        exits_session = Session.query.filter_by(id=session_id,owner_id=owner_id).first()
+
+        if exits_session:
+            # 执行删除
+            db.session.delete(exits_session)
+            db.session.commit()
+
+        update_stmt = (
+            update(Message)
+            .where(
+                and_(Message.owner_id == owner_id) &
+                (Message.session_id == session_id)
+            )
+            .values(session_id=-1)
+        )
+        db.session.execute(update_stmt)
         db.session.commit()

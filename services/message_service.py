@@ -217,3 +217,23 @@ class MessageService:
             db.session.commit()
             SessionService.reset_updated_at(last_session_id)
             return True
+
+    @staticmethod
+    def unset_session_id(owner_id, old_session_id):
+        '''
+        清除该session_id下全部信息
+        :param owner_id:
+        :param old_session_id:
+        :return:
+        '''
+        if session_id > 0:
+            cnt_session = Session.query.filter_by(owner_id=owner_id, session_id=session_id).count()
+            if cnt_session <= 0:
+                return False
+        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        if message:
+            last_session_id=message.session_id
+            message.session_id = session_id
+            db.session.commit()
+            SessionService.reset_updated_at(last_session_id)
+            return True

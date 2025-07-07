@@ -10,6 +10,11 @@ session_bp = Blueprint('session', __name__)
 
 
 @session_bp.route('', methods=['POST'])
+@swag_from({
+    'tags': ['时间轴主题列表'],
+    'description': '增加主题',
+    # 类似上面的Swagger定义
+})
 @jwt_required()
 def add():
     data = request.get_json()
@@ -56,3 +61,26 @@ def my_sessions():
         raise e
     except Exception as e:
         raise AuthError(str(e), 500)
+
+@session_bp.route('', methods=['POST'])
+@swag_from({
+    'tags': ['时间轴主题列表'],
+    'description': '删除主题',
+    # 类似上面的Swagger定义
+})
+@jwt_required()
+def del_session():
+    data = request.get_json()
+    session_id = data.get('session_id')
+    owner_id = get_jwt_identity()
+
+    try:
+        session = SessionService.del_session(owner_id, session_id)
+        return jsonify({
+            'success': True
+        }), 201
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
