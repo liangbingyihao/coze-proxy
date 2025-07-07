@@ -63,13 +63,17 @@ class FavoriteService:
             else:
                 message = Message.query.filter_by(public_id=message_id, owner_id=owner_id).one()
                 if message:
+                    session_name = ""
                     if content_type == FavoriteService.content_type_ai:
                         content = message.feedback_text
                     else:
                         content_type = FavoriteService.content_type_user
                         content = message.content
+                        session = Session.query.filter_by(id=message.session_id).first()
+                        if session:
+                            session_name = session.session_name
 
-                    favorite = Favorites(owner_id, message_id, content_type, content)
+                    favorite = Favorites(owner_id, message_id, content_type, content, session_name)
                     db.session.add(favorite)
                     db.session.commit()
                     return 1

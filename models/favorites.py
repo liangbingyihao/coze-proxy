@@ -10,6 +10,7 @@ class Favorites(db.Model):
     owner_id = db.Column(db.Integer, index=True, nullable=False)
     message_id = db.Column(db.String(36), index=True, nullable=False)
     content_type = db.Column(db.Integer, index=True, nullable=False)
+    session_name = db.Column(db.String(50))
     content = db.Column(db.UnicodeText, nullable=False)
     # 创建时间（自动设置）
     created_at = db.Column(
@@ -23,11 +24,12 @@ class Favorites(db.Model):
         # UniqueConstraint('email', name='uq_email')
     )
 
-    def __init__(self,owner_id, message_id,  content_type,content):
+    def __init__(self,owner_id, message_id,  content_type,content,session_name=""):
         self.owner_id = owner_id
         self.message_id = message_id
         self.content_type = content_type
         self.content = content
+        self.session_name = session_name
 
     def __repr__(self):
         return f'<favorites {self.message_id} {self.content_type}>'

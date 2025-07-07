@@ -57,6 +57,18 @@ def my_session(token):
     for s in sessions.get("items"):
         print(s)
 
+def del_session(token,session_id):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "session_id": session_id
+    }
+
+    response = requests.post("http://8.217.172.116:5000/api/session/del", headers=headers, json=data)
+    sessions = response.json()
+    print(sessions)
+
 def get_conf(token):
     headers = {
         "Authorization": f"Bearer {token}"
@@ -219,7 +231,8 @@ def my_favorite(token):
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    my_message(token)
+    my_session(token)
+    del_session(token,38)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
