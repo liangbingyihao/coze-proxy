@@ -231,8 +231,7 @@ def my_favorite(token):
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    my_session(token)
-    del_session(token,38)
+    my_favorite(token)
     # get_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

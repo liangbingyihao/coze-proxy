@@ -5,6 +5,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from schemas.message_schema import MessageSchema
+from schemas.search_msg_schema import SearchMsgSchema
 from schemas.session_msg_schema import SessionMsgSchema
 from services.message_service import MessageService
 
@@ -26,7 +27,7 @@ def add():
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
     try:
-        message_id = MessageService.new_message(owner_id, content, context_id,action,prompt)
+        message_id = MessageService.new_message(owner_id, content, context_id, action, prompt)
         return jsonify({
             'success': True,
             'data': {"id": message_id}
@@ -50,13 +51,11 @@ def my_message():
     # 获取特定参数（带默认值）
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
-    search = request.args.get('search', default='', type=str)
     session_id = request.args.get("session_id", default='', type=str)
     context_id = request.args.get("context_id", default='', type=str)
 
     try:
-        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id,
-                                             search=search, page=page,
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id, page=page,
                                              limit=limit)
         import flask_sqlalchemy
         if isinstance(data, flask_sqlalchemy.BaseQuery):
@@ -93,7 +92,7 @@ def msg_detail(msg_id):
     owner_id = get_jwt_identity()
     try:
         logging.warning(f"get_message:{msg_id}")
-        if msg_id=="welcome":
+        if msg_id == "welcome":
             return jsonify({
                 'success': True,
                 'data': MessageService.welcome_msg
@@ -124,11 +123,11 @@ def set_summary(msg_id):
     if summary and len(summary) > 9:
         return jsonify({"error": "summary max length is 8"}), 400
     try:
-        session_id = MessageService.set_summary(owner_id, msg_id,summary,session_id,session_name)
+        session_id = MessageService.set_summary(owner_id, msg_id, summary, session_id, session_name)
         return jsonify({
             'success': True,
             'data': {
-                "session_id":session_id
+                "session_id": session_id
             }
         })
     except Exception as e:
@@ -138,3 +137,30 @@ def set_summary(msg_id):
             'message': str(e)
         }), 400
 
+
+@message_bp.route('filter', methods=['GET'])
+@swag_from({
+    'tags': ['message'],
+    'description': 'filter message',
+    # 类似上面的Swagger定义
+})
+@jwt_required()
+def search_message():
+    owner_id = get_jwt_identity()
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    search = request.args.get('search', default='', type=str)
+
+    try:
+        data = MessageService.search_message(owner_id=owner_id, search=search, page=page, limit=limit)
+        return jsonify({
+            'success': True,
+            'data': {
+                'items': SearchMsgSchema(many=True).dump(data.items)
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400

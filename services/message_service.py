@@ -1,7 +1,7 @@
 import json
 import logging
 
-from sqlalchemy import desc
+from sqlalchemy import desc, or_, and_
 
 from models.message import Message
 from extensions import db
@@ -128,7 +128,7 @@ class MessageService:
         message = None
         if content:
             if prompt:
-                logging.warning(f"prompt:{owner_id,content,action, prompt}")
+                logging.warning(f"prompt:{owner_id, content, action, prompt}")
             message = Message(0, owner_id, content, context_id, action=action)
             message.feedback_text = prompt or ""
             db.session.add(message)
@@ -144,11 +144,31 @@ class MessageService:
     #     return Session.query.get(session_id)
 
     @staticmethod
-    def filter_message(owner_id, session_id, context_id, search, page, limit):
+    def filter_message(owner_id, session_id, context_id, page, limit):
         session = MessageService.check_permission(session_id, owner_id)
         if context_id:
             return Message.query.filter_by(context_id=context_id)
-        return Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).paginate(page=page, per_page=limit, error_out=False)
+        return Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).paginate(page=page,
+                                                                                                  per_page=limit,
+                                                                                                  error_out=False)
+
+    @staticmethod
+    def search_message(owner_id, search, page, limit):
+        query = Message.query.filter(
+            and_(
+                Message.owner_id == owner_id,
+                or_(
+                    Message.content.contains(search),
+                    Message.feedback.contains(search)
+                )
+            )
+        )
+
+        return query.order_by(desc(Message.id)) \
+            .offset((page - 1) * limit) \
+            .limit(limit) \
+            .all()
+        # messages = query.paginate(page=page, per_page=limit, error_out=False)
 
     @staticmethod
     def get_message(owner_id, msg_id):
@@ -183,7 +203,6 @@ class MessageService:
         session = MessageService.check_permission(session_id, owner_id)
         return Message.query.filter_by(context_id=context_id)
 
-
     @staticmethod
     def set_summary(owner_id, msg_id, summary, session_id, session_name):
         if session_id and session_id > 0:
@@ -212,28 +231,10 @@ class MessageService:
                 return False
         message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
         if message:
-            last_session_id=message.session_id
+            last_session_id = message.session_id
             message.session_id = session_id
             db.session.commit()
             SessionService.reset_updated_at(last_session_id)
             return True
 
-    @staticmethod
-    def unset_session_id(owner_id, old_session_id):
-        '''
-        清除该session_id下全部信息
-        :param owner_id:
-        :param old_session_id:
-        :return:
-        '''
-        if session_id > 0:
-            cnt_session = Session.query.filter_by(owner_id=owner_id, session_id=session_id).count()
-            if cnt_session <= 0:
-                return False
-        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
-        if message:
-            last_session_id=message.session_id
-            message.session_id = session_id
-            db.session.commit()
-            SessionService.reset_updated_at(last_session_id)
-            return True
+
