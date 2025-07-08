@@ -115,12 +115,12 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_id": 25,
+        "search": "心情",
         # "context_id":21,
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers, params=data)
+    response = requests.get("http://8.217.172.116:5000/api/message/filter", headers=headers, params=data)
     print(response.json())
 
 
@@ -231,7 +231,7 @@ def my_favorite(token):
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    my_favorite(token)
-    # get_message(token)
+    # my_favorite(token)
+    my_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

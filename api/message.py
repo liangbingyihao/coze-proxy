@@ -156,7 +156,7 @@ def search_message():
         return jsonify({
             'success': True,
             'data': {
-                'items': SearchMsgSchema(many=True).dump(data.items)
+                'items': SearchMsgSchema(many=True).dump(data)
             }
         })
     except Exception as e:
