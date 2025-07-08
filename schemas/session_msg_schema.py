@@ -38,8 +38,9 @@ class SessionMsgSchema(Schema):
     summary = fields.Str(dump_only=True)
     # action = fields.Int(dump_only=True)
     feedback = FilteredJSONStringField(
-        allowed_keys=["color_tag", "tag","view","topic"],
+        allowed_keys=["color_tag", "tag","topic"],
         dump_only=True
     )
     content = fields.Str()
+    feedback_text = fields.Str()
     created_at = fields.DateTime()
