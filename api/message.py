@@ -70,8 +70,7 @@ def my_message():
         return jsonify({
             'success': True,
             'data': {
-                'items': SessionMsgSchema(many=True).dump(data.items),
-                'total': data.total
+                'items': SessionMsgSchema(many=True).dump(data)
             }
         })
     except Exception as e:

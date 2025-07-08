@@ -117,12 +117,12 @@ def my_message(token):
     }
     data = {
         "search": "天主教",
-        "source":3
+        # "source":3
         # "context_id":21,
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message/filter", headers=headers, params=data)
+    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers, params=data)
     items = response.json().get("data").get("items")
     for i in items:
         print(i)
@@ -232,7 +232,8 @@ def my_favorite(token):
         # "session_id": 12,
         # "context_id":21,
         "page": 1,
-        "limit": 2
+        "limit": 2,
+        "search":"英文"
     }
     response = requests.get("http://8.217.172.116:5000/api/favorite", headers=headers, params=data)
     print(response.json())
