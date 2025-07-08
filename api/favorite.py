@@ -60,7 +60,7 @@ def add():
         }
     ],
     'responses': {
-        200: {'success': "true/false",'data':"0,不再收藏，1，已收藏，其他：失败"}
+        200: {'success': "true/false", 'data': "0,不再收藏，1，已收藏，其他：失败"}
     }
 })
 @jwt_required()
@@ -92,12 +92,13 @@ def toggle():
 @jwt_required()
 def my_favorites():
     owner_id = get_jwt_identity()
+    search = request.args.get('search', default="", type=str)
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
 
     try:
-        items = FavoriteService.get_favorite_by_owner(owner_id,page=page,
-                                             limit=limit)
+        items = FavoriteService.get_favorite_by_owner(owner_id, page=page,
+                                                      limit=limit, search=search)
         return jsonify({
             'success': True,
             # 'data': SessionSchema(many=True).dump(data),

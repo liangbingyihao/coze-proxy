@@ -116,7 +116,8 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "search": "低落",
+        "search": "天主教",
+        "source":3
         # "context_id":21,
         # "page":1,
         # "limit":1

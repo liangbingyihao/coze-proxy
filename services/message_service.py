@@ -144,13 +144,25 @@ class MessageService:
     #     return Session.query.get(session_id)
 
     @staticmethod
-    def filter_message(owner_id, session_id, context_id, page, limit):
-        session = MessageService.check_permission(session_id, owner_id)
-        if context_id:
-            return Message.query.filter_by(context_id=context_id)
-        return Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).paginate(page=page,
-                                                                                                  per_page=limit,
-                                                                                                  error_out=False)
+    def filter_message(owner_id, session_id, search, page, limit):
+        conditions = [Message.owner_id == owner_id]
+        if session_id:
+            if isinstance(session_id, int):
+                conditions.append(Message.session_id == session_id)
+            elif session_id == ">0":
+                conditions.append(Message.session_id > 0)
+        if search and search.strip():
+            conditions.append(or_(
+                Message.content.contains(search),
+                Message.feedback.contains(search)
+            ))
+        query = Message.query.filter(
+            and_(*conditions)
+        )
+        return query.order_by(desc(Message.id)) \
+            .offset((page - 1) * limit) \
+            .limit(limit) \
+            .all()
 
     @staticmethod
     def search_message(owner_id, source, search, page, limit):

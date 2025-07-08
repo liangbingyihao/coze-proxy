@@ -52,27 +52,28 @@ def my_message():
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     session_id = request.args.get("session_id", default='', type=str)
-    context_id = request.args.get("context_id", default='', type=str)
+    search = request.args.get('search', default='', type=str)
 
     try:
-        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, context_id=context_id, page=page,
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,
+                                             search=search, page=page,
                                              limit=limit)
-        import flask_sqlalchemy
-        if isinstance(data, flask_sqlalchemy.BaseQuery):
-            return jsonify({
-                'success': True,
-                'data': {
-                    'items': SessionMsgSchema(many=True).dump(data)
-                }
-            })
-        else:
-            return jsonify({
-                'success': True,
-                'data': {
-                    'items': SessionMsgSchema(many=True).dump(data.items),
-                    'total': data.total
-                }
-            })
+        # import flask_sqlalchemy
+        # if isinstance(data, flask_sqlalchemy.BaseQuery):
+        #     return jsonify({
+        #         'success': True,
+        #         'data': {
+        #             'items': SessionMsgSchema(many=True).dump(data)
+        #         }
+        #     })
+        # else:
+        return jsonify({
+            'success': True,
+            'data': {
+                'items': SessionMsgSchema(many=True).dump(data.items),
+                'total': data.total
+            }
+        })
     except Exception as e:
         return jsonify({
             'success': False,
@@ -137,31 +138,31 @@ def set_summary(msg_id):
             'message': str(e)
         }), 400
 
-
-@message_bp.route('filter', methods=['GET'])
-@swag_from({
-    'tags': ['message'],
-    'description': 'filter message',
-    # 类似上面的Swagger定义
-})
-@jwt_required()
-def search_message():
-    owner_id = get_jwt_identity()
-    page = request.args.get('page', default=1, type=int)
-    limit = request.args.get('limit', default=10, type=int)
-    source = request.args.get('source', default=1, type=int)  # 1:会话，2：时间轴，3：信仰问答，4：收藏
-    search = request.args.get('search', default='', type=str)
-
-    try:
-        data = MessageService.search_message(owner_id=owner_id,source=source, search=search, page=page, limit=limit)
-        return jsonify({
-            'success': True,
-            'data': {
-                'items': SearchMsgSchema(many=True).dump(data)
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+#
+# @message_bp.route('filter', methods=['GET'])
+# @swag_from({
+#     'tags': ['message'],
+#     'description': 'filter message',
+#     # 类似上面的Swagger定义
+# })
+# @jwt_required()
+# def search_message():
+#     owner_id = get_jwt_identity()
+#     page = request.args.get('page', default=1, type=int)
+#     limit = request.args.get('limit', default=10, type=int)
+#     source = request.args.get('source', default=1, type=int)  # 1:会话，2：时间轴，3：信仰问答，4：收藏
+#     search = request.args.get('search', default='', type=str)
+#
+#     try:
+#         data = MessageService.search_message(owner_id=owner_id, source=source, search=search, page=page, limit=limit)
+#         return jsonify({
+#             'success': True,
+#             'data': {
+#                 'items': SearchMsgSchema(many=True).dump(data)
+#             }
+#         })
+#     except Exception as e:
+#         return jsonify({
+#             'success': False,
+#             'message': str(e)
+#         }), 400

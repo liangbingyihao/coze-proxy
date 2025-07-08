@@ -88,74 +88,15 @@ class FavoriteService:
     #     return Session.query.get(session_id)
 
     @staticmethod
-    def get_favorite_by_owner(owner_id, page, limit):
-        items = Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)) \
+    def get_favorite_by_owner(owner_id, page, limit, search):
+        query = Favorites.query.filter_by(owner_id=owner_id)
+        if search and search.strip():
+            query = query.filter(Favorites.content.ilike(f'%{search}%'))
+
+        items = query.order_by(desc(Favorites.id)) \
             .offset((page - 1) * limit) \
             .limit(limit) \
             .all()
         return items
         # return Pagination(query=None, page=page, per_page=limit, items=items, total=None)
         # return Favorites.query.filter_by(owner_id=owner_id).order_by(desc(Favorites.id)).paginate(page=page, per_page=limit, error_out=False)
-
-    @staticmethod
-    def get_message(owner_id, msg_id):
-        if msg_id == "welcome":
-            return MessageService.welcome_msg
-        else:
-            message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
-            try:
-                feedback = json.loads(message.feedback)
-                explore = feedback.get("explore")
-                if explore:
-                    funcs = []
-                    if isinstance(explore, list):
-                        for i in explore:
-                            funcs.append([i, MessageService.action_daily_talk])
-                    else:
-                        funcs.append([explore, MessageService.action_daily_talk])
-                    if feedback.get("bible"):
-                        funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
-                    if message.action != MessageService.action_daily_pray:
-                        funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
-                    feedback["function"] = funcs
-                message.feedback = feedback
-                if not message.summary:
-                    message.summary = feedback.get("summary")
-            except Exception as e:
-                pass
-            return message
-
-    @staticmethod
-    def filter_msg_by_context_id(owner_id, session_id, context_id):
-        session = MessageService.check_permission(session_id, owner_id)
-        return Message.query.filter_by(context_id=context_id)
-
-    @staticmethod
-    def set_summary(owner_id, msg_id, summary, session_id, session_name):
-        if session_id and session_id > 0:
-            session = Session.query.filter_by(owner_id=owner_id, id=session_id).one()
-            if not session:
-                return False
-        if session_name:
-            session = SessionService.new_session(session_name, owner_id, 0)
-            session_id = session.id
-        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).first()
-        if message:
-            if summary:
-                message.summary = summary
-            if session_id:
-                message.session_id = session_id
-            db.session.commit()
-            return message.session_id
-
-    @staticmethod
-    def set_session_id(owner_id, msg_id, session_id):
-        if session_id > 0:
-            cnt_session = Session.query.filter_by(owner_id=owner_id, session_id=session_id).count()
-            if cnt_session <= 0:
-                return False
-        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
-        if message:
-            message.session_id = session_id
-            db.session.commit()
-            return True
