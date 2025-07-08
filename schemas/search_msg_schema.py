@@ -35,7 +35,6 @@ class FilteredJSONStringField(fields.Field):
 class SearchMsgSchema(Schema):
     public_id = fields.Str(dump_only=True,data_key="id")
     session_id = fields.Int(dump_only=True)
-    action = fields.Int(dump_only=True)
     feedback = FilteredJSONStringField(
         allowed_keys=["topic"],
         dump_only=True

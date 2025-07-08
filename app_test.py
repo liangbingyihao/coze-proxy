@@ -121,7 +121,9 @@ def my_message(token):
         # "limit":1
     }
     response = requests.get("http://8.217.172.116:5000/api/message/filter", headers=headers, params=data)
-    print(response.json())
+    items = response.json().get("data").get("items")
+    for i in items:
+        print(i)
 
 
 def get_message(token):
