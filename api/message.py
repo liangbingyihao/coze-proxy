@@ -149,10 +149,11 @@ def search_message():
     owner_id = get_jwt_identity()
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
+    source = request.args.get('source', default=1, type=int)  # 1:会话，2：时间轴，3：信仰问答，4：收藏
     search = request.args.get('search', default='', type=str)
 
     try:
-        data = MessageService.search_message(owner_id=owner_id, search=search, page=page, limit=limit)
+        data = MessageService.search_message(owner_id=owner_id,source=source, search=search, page=page, limit=limit)
         return jsonify({
             'success': True,
             'data': {

@@ -153,15 +153,25 @@ class MessageService:
                                                                                                   error_out=False)
 
     @staticmethod
-    def search_message(owner_id, search, page, limit):
+    def search_message(owner_id, source, search, page, limit):
+        # 1:会话，2：时间轴，3：信仰问答，4：收藏
+        conditions = [Message.owner_id == owner_id]
+        if source == 2:
+            conditions.append(Message.session_id > 0)
+        elif source == 3:
+            session = Session.query.filter_by(owner_id=owner_id, session_name="信仰问答").first()
+            if session:
+                conditions.append(Message.session_id == session.id)
+            else:
+                return []
+        elif source == 4:
+            pass
+        conditions.append(or_(
+            Message.content.contains(search),
+            Message.feedback.contains(search)
+        ))
         query = Message.query.filter(
-            and_(
-                Message.owner_id == owner_id,
-                or_(
-                    Message.content.contains(search),
-                    Message.feedback.contains(search)
-                )
-            )
+            and_(*conditions)
         )
 
         return query.order_by(desc(Message.id)) \
@@ -236,5 +246,3 @@ class MessageService:
             db.session.commit()
             SessionService.reset_updated_at(last_session_id)
             return True
-
-
