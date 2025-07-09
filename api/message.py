@@ -7,6 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from schemas.message_schema import MessageSchema
 from schemas.search_msg_schema import SearchMsgSchema
 from schemas.session_msg_schema import SessionMsgSchema
+from services.favorite_service import FavoriteService
 from services.message_service import MessageService
 
 message_bp = Blueprint('message', __name__)
@@ -56,9 +57,13 @@ def my_message():
     search = request.args.get('search', default='', type=str)
 
     try:
-        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,session_type=session_type,
-                                             search=search, page=page,
-                                             limit=limit)
+        if session_type=="favorite":
+            data =  FavoriteService.get_favorite_by_owner(owner_id, page=page,
+                                                      limit=limit, search=search)
+        else:
+            data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,session_type=session_type,
+                                                 search=search, page=page,
+                                                 limit=limit)
         # import flask_sqlalchemy
         # if isinstance(data, flask_sqlalchemy.BaseQuery):
         #     return jsonify({
