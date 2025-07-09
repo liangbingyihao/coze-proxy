@@ -51,11 +51,12 @@ def my_message():
     # 获取特定参数（带默认值）
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
-    session_id = request.args.get("session_id", default='', type=str)
+    session_id = request.args.get("session_id", default=0, type=int)
+    session_type = request.args.get("session_type", default='', type=str)#"topic", "question"
     search = request.args.get('search', default='', type=str)
 
     try:
-        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,session_type=session_type,
                                              search=search, page=page,
                                              limit=limit)
         # import flask_sqlalchemy
