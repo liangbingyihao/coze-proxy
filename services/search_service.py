@@ -3,11 +3,25 @@ from sqlalchemy.orm import load_only
 
 from models.message import Message
 from models.session import Session
-from extensions import db
 from services.favorite_service import FavoriteService
 
 
 class SearchService:
+
+    @staticmethod
+    def _extract_snippet(text, keyword, context_len=50):
+        pos = text.find(keyword)
+        if pos == -1:
+            return None
+        start = max(0, pos - context_len)
+        end = min(len(text), pos + len(keyword) + context_len)
+        return text[start:end]
+
+    @staticmethod
+    def handle_snippet(messages, search):
+        for msg in messages:
+            msg["content"] = SearchService._extract_snippet(msg["content"], search)
+        return messages
 
     @staticmethod
     def filter_message(owner_id, session_id, session_type, search, page, limit):
@@ -24,8 +38,9 @@ class SearchService:
             return []
 
         if session_type == "favorite":
-            return FavoriteService.get_favorite_by_owner(owner_id, page=page,
-                                                         limit=limit, search=search)
+            return SearchService.handle_snippet(FavoriteService.get_favorite_by_owner(owner_id, page=page,
+                                                                                      limit=limit, search=search),
+                                                search)
         conditions = [Message.owner_id == owner_id]
         if session_id and isinstance(session_id, int):
             conditions.append(Message.session_id == session_id)

@@ -117,7 +117,7 @@ def my_message(token):
     }
     data = {
         "search": "心情",
-        "session_type":"topic"
+        "session_type":"question"
         # "source":3
         # "context_id":21,
         # "page":1,
