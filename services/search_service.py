@@ -36,13 +36,13 @@ class SearchService:
                 # 高亮关键词（保留原大小写）
                 highlighted = re.sub(
                     f'({escaped_search})',
-                    r'<font color="red">\1</font>',
+                    r"<span style='color:red'>\1</span>",
                     sentence,
                     flags=re.IGNORECASE
                 )
                 highlighted_sentences.append(highlighted)
 
-        return "...".join(highlighted_sentences)
+        return "...".join(highlighted_sentences)+"..."
 
     @staticmethod
     def handle_snippet(messages, search):
@@ -56,7 +56,6 @@ class SearchService:
             msg = {
                 'message_id': row.message_id,
                 'content': content,
-                'feedback_text': row.feedback_text,
                 'created_at': row.created_at
             }
             res.append(msg)
