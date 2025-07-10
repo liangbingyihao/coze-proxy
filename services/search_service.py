@@ -19,9 +19,20 @@ class SearchService:
 
     @staticmethod
     def handle_snippet(messages, search):
+        processed = []
         for msg in messages:
-            msg["content"] = SearchService._extract_snippet(msg["content"], search)
-        return messages
+            # msg["content"] = SearchService._extract_snippet(msg["content"], search)
+                # message_id,
+                # Message.content,
+                # Message.feedback_text,
+                # Message.created_at
+            processed.append({
+                'message_id': msg.message_id,
+                'content': SearchService._extract_snippet(msg.content, search),
+                'content_type': msg.content_type,
+                'created_at': msg.created_at.strftime('%Y-%m-%d %H:%M')
+            })
+        return processed
 
     @staticmethod
     def filter_message(owner_id, session_id, session_type, search, page, limit):
