@@ -162,18 +162,18 @@ def search_message():
     search = request.args.get('search', default='', type=str)
     owner_id = get_jwt_identity()
 
-    try:
-        data = SearchService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
-                                            search=search, page=page,
-                                            limit=limit)
-        return jsonify({
-            'success': True,
-            'data': {
-                'items': FavoriteSchema(many=True).dump(data)
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+    # try:
+    data = SearchService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
+                                        search=search, page=page,
+                                        limit=limit)
+    return jsonify({
+        'success': True,
+        'data': {
+            'items': FavoriteSchema(many=True).dump(data)
+        }
+    })
+    # except Exception as e:
+    #     return jsonify({
+    #         'success': False,
+    #         'message': str(e)
+    #     }), 400

@@ -9,6 +9,7 @@ from flask.cli import with_appcontext
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate, migrate
 from flask_cors import CORS
+from werkzeug.exceptions import HTTPException
 
 from api import init_api
 from config import Config
@@ -113,6 +114,24 @@ def register_commands(app):
             "code": 400,
             "message": str(error),
             "stack_trace": error_stack if app.debug else None  # 调试模式下显示堆栈
+        }), 400
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # 记录错误日志
+        logger.error(f"Error occurred: {str(e)}", exc_info=True)
+
+        # 如果是HTTP异常，保留原始状态码和描述
+        if isinstance(e, HTTPException):
+            return jsonify({
+                'success': False,
+                'message': e.description
+            }), e.code
+
+        # 其他异常统一返回400
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while processing your request'
         }), 400
 
 
