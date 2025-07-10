@@ -39,20 +39,32 @@ class SearchService:
                 else:
                     return []
 
+        message_id = Message.public_id.label('message_id')
         if session_type == "topic":
             conditions.append(Message.content.contains(search))
-            query = Message.query.options(load_only(Message.public_id, Message.content, Message.created_at)).filter(
-                and_(*conditions)
+            query = (Message.query.options(load_only(Message.public_id, Message.content, Message.created_at))
+            .add_columns(
+                message_id,
+                Message.content,
+                Message.created_at
             )
+            .filter(
+                and_(*conditions)
+            ))
         else:
             conditions.append(or_(
                 Message.content.contains(search),
                 Message.feedback_text.contains(search)
             ))
-            message_id = Message.public_id.label('message_id')
             query = (Message.query.options(
                 load_only(Message.public_id, Message.content, Message.feedback_text, Message.created_at))
-            .add_columns(message_id).filter(
+            .add_columns(
+                message_id,
+                Message.content,
+                Message.feedback_text,
+                Message.created_at
+            )
+            .filter(
                 and_(*conditions)
             ))
         return query.order_by(desc(Message.id)) \

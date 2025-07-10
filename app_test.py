@@ -116,14 +116,14 @@ def my_message(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "search": "避难所",
-        "session_type":"favorite"
+        "search": "心情",
+        "session_type":"topic"
         # "source":3
         # "context_id":21,
         # "page":1,
         # "limit":1
     }
-    response = requests.get("http://8.217.172.116:5000/api/message", headers=headers, params=data)
+    response = requests.get("http://8.217.172.116:5000/api/message/filter", headers=headers, params=data)
     items = response.json().get("data").get("items")
     for i in items:
         print(i)
