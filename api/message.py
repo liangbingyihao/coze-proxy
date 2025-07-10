@@ -169,7 +169,7 @@ def search_message():
     return jsonify({
         'success': True,
         'data': {
-            'items': FavoriteSchema(many=True).dump(data)
+            'items': data
         }
     })
     # except Exception as e:
