@@ -1,3 +1,6 @@
+import re
+from typing import List
+
 from sqlalchemy import desc, or_, and_
 from sqlalchemy.orm import load_only
 
@@ -9,30 +12,46 @@ from services.favorite_service import FavoriteService
 class SearchService:
 
     @staticmethod
-    def _extract_snippet(text, keyword, context_len=50):
-        pos = text.find(keyword)
-        if pos == -1:
-            return None
-        start = max(0, pos - context_len)
-        end = min(len(text), pos + len(keyword) + context_len)
-        return text[start:end]
+    def highlight_keyword_sentences(text: str, search: str) -> str:
+        """
+        查找文本中包含关键词的所有句子，并将关键词标记为红色
+
+        :param text: 原始文本
+        :param search: 要搜索的关键词
+        :return: 包含高亮关键词的句子列表
+        """
+        if not text or not search:
+            return []
+
+        # 转义正则特殊字符
+        escaped_search = re.escape(search)
+
+        # 分割句子（简单按句号、问号、感叹号分割）
+        sentences = re.split(r'(?<=[.!?。，])\s+', text)
+
+        # 筛选并高亮包含关键词的句子
+        highlighted_sentences = []
+        for sentence in sentences:
+            if re.search(escaped_search, sentence, re.IGNORECASE):
+                # 高亮关键词（保留原大小写）
+                highlighted = re.sub(
+                    f'({escaped_search})',
+                    r'<font color="red">\1</font>',
+                    sentence,
+                    flags=re.IGNORECASE
+                )
+                highlighted_sentences.append(highlighted)
+
+        return "...".join(highlighted_sentences)
 
     @staticmethod
     def handle_snippet(messages, search):
-        processed = []
-        for msg in messages:
-            # msg["content"] = SearchService._extract_snippet(msg["content"], search)
-                # message_id,
-                # Message.content,
-                # Message.feedback_text,
-                # Message.created_at
-            processed.append({
-                'message_id': msg.message_id,
-                'content': SearchService._extract_snippet(msg.content, search),
-                'content_type': msg.content_type,
-                'created_at': msg.created_at.strftime('%Y-%m-%d %H:%M')
-            })
-        return processed
+        for message in messages:
+            if search and search in message.content:
+                message.content = SearchService.highlight_keyword_sentences(message.content, search)
+            if search and hasattr(message, 'feedback_text') and search in message.feedback_text:
+                message.feedback_text = SearchService.highlight_keyword_sentences(message.feedback_text, search)
+        return messages
 
     @staticmethod
     def filter_message(owner_id, session_id, session_type, search, page, limit):
@@ -93,7 +112,7 @@ class SearchService:
             .filter(
                 and_(*conditions)
             ))
-        return query.order_by(desc(Message.id)) \
-            .offset((page - 1) * limit) \
-            .limit(limit) \
-            .all()
+        return SearchService.handle_snippet(query.order_by(desc(Message.id)) \
+                                            .offset((page - 1) * limit) \
+                                            .limit(limit) \
+                                            .all(), search)
