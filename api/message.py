@@ -4,11 +4,13 @@ from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from schemas.favorite_schema import FavoriteSchema
 from schemas.message_schema import MessageSchema
 from schemas.search_msg_schema import SearchMsgSchema
 from schemas.session_msg_schema import SessionMsgSchema
 from services.favorite_service import FavoriteService
 from services.message_service import MessageService
+from services.search_service import SearchService
 
 message_bp = Blueprint('message', __name__)
 
@@ -48,20 +50,21 @@ def add():
 })
 @jwt_required()
 def my_message():
+    # FIXME 下个版本仅获取message，不搜索
     owner_id = get_jwt_identity()
     # 获取特定参数（带默认值）
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     session_id = request.args.get("session_id", default=0, type=int)
-    session_type = request.args.get("session_type", default='', type=str)#"topic", "question"
+    session_type = request.args.get("session_type", default='', type=str)  # "topic", "question"
     search = request.args.get('search', default='', type=str)
 
     try:
-        if session_type=="favorite":
-            data =  FavoriteService.get_favorite_by_owner(owner_id, page=page,
-                                                      limit=limit, search=search)
+        if session_type == "favorite":
+            data = FavoriteService.get_favorite_by_owner(owner_id, page=page,
+                                                         limit=limit, search=search)
         else:
-            data = MessageService.filter_message(owner_id=owner_id, session_id=session_id,session_type=session_type,
+            data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
                                                  search=search, page=page,
                                                  limit=limit)
         # import flask_sqlalchemy
@@ -143,31 +146,34 @@ def set_summary(msg_id):
             'message': str(e)
         }), 400
 
-#
-# @message_bp.route('filter', methods=['GET'])
-# @swag_from({
-#     'tags': ['message'],
-#     'description': 'filter message',
-#     # 类似上面的Swagger定义
-# })
-# @jwt_required()
-# def search_message():
-#     owner_id = get_jwt_identity()
-#     page = request.args.get('page', default=1, type=int)
-#     limit = request.args.get('limit', default=10, type=int)
-#     source = request.args.get('source', default=1, type=int)  # 1:会话，2：时间轴，3：信仰问答，4：收藏
-#     search = request.args.get('search', default='', type=str)
-#
-#     try:
-#         data = MessageService.search_message(owner_id=owner_id, source=source, search=search, page=page, limit=limit)
-#         return jsonify({
-#             'success': True,
-#             'data': {
-#                 'items': SearchMsgSchema(many=True).dump(data)
-#             }
-#         })
-#     except Exception as e:
-#         return jsonify({
-#             'success': False,
-#             'message': str(e)
-#         }), 400
+
+@message_bp.route('filter', methods=['GET'])
+@swag_from({
+    'tags': ['message'],
+    'description': 'filter message',
+    # 类似上面的Swagger定义
+})
+@jwt_required()
+def search_message():
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    session_id = request.args.get("session_id", default=0, type=int)
+    session_type = request.args.get("session_type", default='', type=str)  # "topic", "question"
+    search = request.args.get('search', default='', type=str)
+    owner_id = get_jwt_identity()
+
+    try:
+        data = SearchService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
+                                            search=search, page=page,
+                                            limit=limit)
+        return jsonify({
+            'success': True,
+            'data': {
+                'items': FavoriteSchema(many=True).dump(data)
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 400
