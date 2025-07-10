@@ -46,12 +46,21 @@ class SearchService:
 
     @staticmethod
     def handle_snippet(messages, search):
-        for message in messages:
-            if search and search in message.content:
-                message.content = SearchService.highlight_keyword_sentences(message.content, search)
-            if search and hasattr(message, 'feedback_text') and search in message.feedback_text:
-                message.feedback_text = SearchService.highlight_keyword_sentences(message.feedback_text, search)
-        return messages
+        res = []
+        for row in messages:
+            content = ""
+            if search and search in row.content:
+                content = SearchService.highlight_keyword_sentences(row.content, search)
+            if search and hasattr(row, 'feedback_text') and search in row.feedback_text:
+                content += SearchService.highlight_keyword_sentences(row.feedback_text, search)
+            msg = {
+                'message_id': row.message_id,
+                'content': content,
+                'feedback_text': row.feedback_text,
+                'created_at': row.created_at
+            }
+            res.append(msg)
+        return res
 
     @staticmethod
     def filter_message(owner_id, session_id, session_type, search, page, limit):
