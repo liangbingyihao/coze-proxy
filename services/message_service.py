@@ -17,6 +17,8 @@ class MessageService:
     action_direct_msg = 3
     action_daily_talk = 0
     action_daily_pray = 4
+    content_type_user = 1
+    content_type_ai = 2
     explore = [["我想看今天的【每日恩语】", action_daily_gw],
                ["我想把上面的经文做成“经文图”，分享给身边的弟兄姊妹，一起思想神的话语！", action_bible_pic],
                ["我记录当下心情或事件后，你会如何帮我整理", action_direct_msg, "对应的答案"]]
@@ -114,7 +116,7 @@ class MessageService:
         return session
 
     @staticmethod
-    def renew(owner_id, msg_id,prompt):
+    def renew(owner_id, msg_id, prompt):
         '''
         :param msg_id:
         :param prompt:
@@ -129,6 +131,30 @@ class MessageService:
             message.feedback_text = prompt or ""
             db.session.commit()
             CozeService.chat_with_coze_async(owner_id, message.id)
+            return message.public_id
+
+    @staticmethod
+    def del_msg(owner_id, msg_id, content_type):
+        '''
+        :param msg_id:
+        :param content_type:
+        :param owner_id:
+        :return:
+        '''
+        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        if message:
+            if content_type == MessageService.content_type_user:
+                SessionService.reset_updated_at(message.session_id)
+                message.content = ""
+                message.session_id = -1
+            elif content_type == MessageService.content_type_ai:
+                message.feedback_text = ""
+            else:
+                return None
+
+            if not message.content:
+                message.status = 0
+            db.session.commit()
             return message.public_id
 
     @staticmethod
@@ -162,7 +188,7 @@ class MessageService:
     #     return Session.query.get(session_id)
 
     @staticmethod
-    def filter_message(owner_id, session_id,session_type, search, page, limit):
+    def filter_message(owner_id, session_id, session_type, search, page, limit):
         '''
         :param owner_id:
         :param session_id:
@@ -176,9 +202,9 @@ class MessageService:
         if session_id and isinstance(session_id, int):
             conditions.append(Message.session_id == session_id)
         elif session_type:
-            if session_type=="topic":
-                conditions.append(Message.session_id >0)
-            elif session_type=="question":
+            if session_type == "topic":
+                conditions.append(Message.session_id > 0)
+            elif session_type == "question":
                 session = Session.query.filter_by(owner_id=owner_id, session_name="信仰问答").first()
                 if session:
                     conditions.append(Message.session_id == session.id)

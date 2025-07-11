@@ -17,7 +17,7 @@ class SessionService:
         # 创建会话
         # if not session_name:
         #     session_name = f"{robt_id}_{int(time())}"
-        session = Session.query.filter_by(owner_id=owner_id,session_name=session_name).first()
+        session = Session.query.filter_by(owner_id=owner_id, session_name=session_name).first()
         if session:
             return session
         session = Session(session_name=session_name, owner_id=owner_id, robot_id=robot_id)
@@ -34,12 +34,12 @@ class SessionService:
 
     @staticmethod
     def get_session_by_owner(owner_id, page, limit):
-        return Session.query.filter_by(owner_id=owner_id,robot_id=0).order_by(desc(Session.updated_at)).paginate(page=page, per_page=limit, error_out=False)
-
+        return Session.query.filter_by(owner_id=owner_id, robot_id=0).order_by(desc(Session.updated_at)).paginate(
+            page=page, per_page=limit, error_out=False)
 
     @staticmethod
     def reset_updated_at(session_id):
-        if not session_id:
+        if not session_id or session_id <= 0:
             return
         last_msg = Message.query.filter_by(session_id=session_id).order_by(desc(Message.id)).first()
         update_time = last_msg.created_at if last_msg else datetime(2025, 1, 1)
@@ -49,8 +49,8 @@ class SessionService:
         db.session.commit()
 
     @staticmethod
-    def del_session(owner_id,session_id):
-        exits_session = Session.query.filter_by(id=session_id,owner_id=owner_id).first()
+    def del_session(owner_id, session_id):
+        exits_session = Session.query.filter_by(id=session_id, owner_id=owner_id).first()
 
         if exits_session:
             # 执行删除

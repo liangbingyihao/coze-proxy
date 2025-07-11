@@ -15,8 +15,6 @@ from utils.exceptions import AuthError
 
 
 class FavoriteService:
-    content_type_user = 1
-    content_type_ai = 2
 
     @staticmethod
     def new_favorite(owner_id, message_id, content_type):
@@ -30,10 +28,10 @@ class FavoriteService:
         # logging.debug(f"session:{session_owner, session_name}")
         message = Message.query.filter_by(public_id=message_id, owner_id=owner_id).one()
         if message:
-            if content_type == FavoriteService.content_type_ai:
+            if content_type == MessageService.content_type_ai:
                 content = message.feedback_text
             else:
-                content_type = FavoriteService.content_type_user
+                content_type = MessageService.content_type_user
                 content = message.content
 
             favorite = Favorites(owner_id, message_id, content_type, content)
@@ -64,10 +62,10 @@ class FavoriteService:
                 message = Message.query.filter_by(public_id=message_id, owner_id=owner_id).one()
                 if message:
                     session_name = ""
-                    if content_type == FavoriteService.content_type_ai:
+                    if content_type == MessageService.content_type_ai:
                         content = message.feedback_text
                     else:
-                        content_type = FavoriteService.content_type_user
+                        content_type = MessageService.content_type_user
                         content = message.content
                         session = Session.query.filter_by(id=message.session_id).first()
                         if session:

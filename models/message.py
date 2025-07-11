@@ -15,7 +15,7 @@ class Message(db.Model):
     context_id = db.Column(db.String(36), index=True, nullable=False)
     summary = db.Column(db.String(32))
     owner_id = db.Column(db.Integer, index=True, nullable=False)
-    status = db.Column(db.Integer, nullable=False,default=0)# 0 默认状态 1 AI回应中 2 AI回应完毕
+    status = db.Column(db.Integer, nullable=False,default=0)# 0 默认状态 1 AI回应中 2 AI回应完毕 3 已删除
     action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 探索问题 2 生成图片
     content = db.Column(db.UnicodeText, nullable=False)
     feedback = db.Column(db.UnicodeText, nullable=False)

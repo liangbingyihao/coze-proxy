@@ -58,6 +58,23 @@ def renew():
     }), 201
 
 
+@message_bp.route('/del', methods=['POST'])
+@jwt_required()
+def del_msg():
+    owner_id = get_jwt_identity()
+    data = request.get_json()
+    content_type = data.get("content_type")
+    msg_id = data.get("message_id")
+    logging.warning(f"del message:{content_type}")
+    # session_id = data.get("session_id")
+
+    message_id = MessageService.del_msg(owner_id, msg_id, content_type)
+    return jsonify({
+        'success': message_id==msg_id,
+        'data': {"id": message_id}
+    }), 200
+
+
 @message_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['message'],
