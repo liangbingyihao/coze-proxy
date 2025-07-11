@@ -152,8 +152,8 @@ class MessageService:
             else:
                 return None
 
-            if not message.content:
-                message.status = 0
+            if not message.content and not message.feedback_text:
+                message.status = 3
             db.session.commit()
             return message.public_id
 
