@@ -128,10 +128,8 @@ class MessageService:
             message.status = 0
             message.feedback_text = prompt or ""
             db.session.commit()
-
-        CozeService.chat_with_coze_async(owner_id, message.id)
-
-        return message.public_id
+            CozeService.chat_with_coze_async(owner_id, message.id)
+            return message.public_id
 
     @staticmethod
     def new_message(owner_id, content, context_id, action, prompt):
