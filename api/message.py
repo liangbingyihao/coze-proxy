@@ -53,7 +53,7 @@ def renew():
 
     message_id = MessageService.renew(owner_id, msg_id, prompt)
     return jsonify({
-        'success': True,
+        'success': message_id==msg_id,
         'data': {"id": message_id}
     }), 201
 

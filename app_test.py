@@ -129,6 +129,19 @@ def my_message(token):
     for i in items:
         print(i)
 
+def renew_message(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "message_id":"dca17748-42ee-4a3b-9162-953219133c34"
+        # "source":3
+        # "context_id":21,
+        # "page":1,
+        # "limit":1
+    }
+    response = requests.post("http://8.217.172.116:5000/api/message/renew", headers=headers, json=data)
+    print(response.text)
 
 def get_message(token):
     headers = {
@@ -245,6 +258,6 @@ if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
     # my_favorite(token)
-    my_message(token)
+    renew_message(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
