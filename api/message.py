@@ -41,6 +41,22 @@ def add():
             'message': str(e)
         }), 400
 
+@message_bp.route('/renew', methods=['POST'])
+@jwt_required()
+def renew():
+    owner_id = get_jwt_identity()
+    data = request.get_json()
+    prompt = data.get("prompt")
+    msg_id = data.get("message_id")
+    logging.warning(f"renew message:{msg_id}")
+    # session_id = data.get("session_id")
+
+    message_id = MessageService.renew(owner_id, msg_id, prompt)
+    return jsonify({
+        'success': True,
+        'data': {"id": message_id}
+    }), 201
+
 
 @message_bp.route('', methods=['GET'])
 @swag_from({

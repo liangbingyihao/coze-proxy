@@ -114,6 +114,26 @@ class MessageService:
         return session
 
     @staticmethod
+    def renew(owner_id, msg_id,prompt):
+        '''
+        :param msg_id:
+        :param prompt:
+        :param owner_id:
+        :return:
+        '''
+        # session_owner, session_name, conversation_id = MessageService.check_permission(session_id, owner_id)
+        # logging.debug(f"session:{session_owner, session_name}")
+        message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+        if message:
+            message.status = 0
+            message.feedback_text = prompt or ""
+            db.session.commit()
+
+        CozeService.chat_with_coze_async(owner_id, message.id)
+
+        return message.public_id
+
+    @staticmethod
     def new_message(owner_id, content, context_id, action, prompt):
         '''
         :param action:

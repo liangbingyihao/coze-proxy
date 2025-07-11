@@ -43,10 +43,10 @@ def rename_and_copy(source_root, target_root, original_pattern, new_name):
 
 if __name__ == "__main__":
     # 参数设置
-    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\组 33_slices"  # 源根目录
+    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\组 19083_slices"  # 源根目录
     target_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\res"
-    original_pattern = "*.png"  # 匹配所有 .txt 文件
-    new_name = "ic_del_search"  # 新文件名（不含扩展名）
+    original_pattern = "*.webp"  # 匹配所有 .txt 文件
+    new_name = "ic_intro_3"  # 新文件名（不含扩展名）
 
     # 执行操作
     rename_and_copy(source_root, target_root, original_pattern, new_name)
