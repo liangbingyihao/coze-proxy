@@ -34,6 +34,7 @@ def add():
             'message': str(e)
         }), 400
 
+
 @session_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['时间轴主题列表'],
@@ -47,8 +48,8 @@ def my_sessions():
     limit = request.args.get('limit', default=10, type=int)
 
     try:
-        data = SessionService.get_session_by_owner(owner_id,page=page,
-                                             limit=limit)
+        data = SessionService.get_session_by_owner(owner_id, page=page,
+                                                   limit=limit)
         return jsonify({
             'success': True,
             # 'data': SessionSchema(many=True).dump(data),
@@ -62,6 +63,7 @@ def my_sessions():
     except Exception as e:
         raise AuthError(str(e), 500)
 
+
 @session_bp.route('del', methods=['POST'])
 @swag_from({
     'tags': ['时间轴主题列表'],
@@ -74,13 +76,22 @@ def del_session():
     session_id = data.get('session_id')
     owner_id = get_jwt_identity()
 
-    try:
-        session = SessionService.del_session(owner_id, session_id)
-        return jsonify({
-            'success': True
-        }), 201
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+    session = SessionService.del_session(owner_id, session_id)
+    return jsonify({
+        'success': True
+    }), 201
+
+
+# 带msg_id参数的路由
+@session_bp.route('/<string:session_id>', methods=['POST'])
+@jwt_required()
+def set_topic(session_id):
+    data = request.get_json()
+    session_name = data.get('session_name')
+    owner_id = get_jwt_identity()
+    if session_name and len(session_name) > 9:
+        return jsonify({"error": "session_name max length is 8"}), 400
+    ret = SessionService.set_session_name(owner_id, session_id, session_name)
+    return jsonify({
+        'success': ret
+    })

@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 
-def rename_and_copy(source_root, target_root, original_pattern, new_name):
+def rename_and_copy(source_root, target_root, original_pattern, new_name, sub_dirs=None):
     """
     遍历源文件夹的子文件夹，重命名文件后复制到目标文件夹的同名子文件夹
 
@@ -16,6 +16,8 @@ def rename_and_copy(source_root, target_root, original_pattern, new_name):
     for subdir in Path(source_root).iterdir():
         if subdir.is_dir():
             subdir_name = subdir.name  # 子文件夹名（如 "B1"）
+            if sub_dirs and subdir_name not in sub_dirs:
+                continue
             target_subdir = Path(target_root) / subdir_name
 
             # 创建目标子文件夹（如果不存在）
@@ -47,7 +49,8 @@ if __name__ == "__main__":
     target_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\res"
     original_pattern = "*.webp"  # 匹配所有 .txt 文件
     new_name = "ic_intro_3"  # 新文件名（不含扩展名）
+    sub_dirs = ["mipmap-xxhdpi","mipmap-xxxhdpi"]
 
     # 执行操作
-    rename_and_copy(source_root, target_root, original_pattern, new_name)
+    rename_and_copy(source_root, target_root, original_pattern, new_name,sub_dirs)
     print("操作完成！")
