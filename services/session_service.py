@@ -72,7 +72,7 @@ class SessionService:
     def set_session_name(owner_id,session_id,session_name):
         if not session_id or session_id <= 0:
             return
-        session = Session.query.filter_by(session_id=session_id, owner_id=owner_id).first()
+        session = Session.query.filter_by(id=session_id, owner_id=owner_id).first()
         if session:
             session.session_name = session_name
             db.session.commit()

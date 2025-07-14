@@ -28,6 +28,17 @@ def login(user_name):
     token = response.json().get("data").get("access_token")
     return token
 
+def me(token):
+    url = "http://8.217.172.116:5000/api/auth/me"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+    print(response.text)
+    return token
+
+
 
 def new_session(token):
     headers = {
@@ -174,6 +185,19 @@ def update_summary(token):
     print(r)
     return r
 
+def update_session(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "session_name": "天路历程1"
+    }
+    response = requests.post("http://8.217.172.116:5000/api/session/64",
+                             headers=headers, json=data)
+    r = response.json()
+    print(r)
+    return r
+
 
 def _extract_content(content, s):
     print(content)
@@ -258,6 +282,6 @@ if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
     # my_favorite(token)
-    renew_message(token)
+    me(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

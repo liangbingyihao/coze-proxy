@@ -83,7 +83,7 @@ def del_session():
 
 
 # 带msg_id参数的路由
-@session_bp.route('/<string:session_id>', methods=['POST'])
+@session_bp.route('/<int:session_id>', methods=['POST'])
 @jwt_required()
 def set_topic(session_id):
     data = request.get_json()
