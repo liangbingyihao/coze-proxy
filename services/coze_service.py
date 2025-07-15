@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, exc, desc, func
 from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
+from models.session import Session
+
 coze_api_token = os.getenv("COZE_API_TOKEN")
 from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL, MessageType  # noqa
 
@@ -46,7 +48,7 @@ engine = create_engine(
 # 第二步：拿到一个Session类,传入engine
 DBSession = sessionmaker(bind=engine)
 
-msg_json='''
+msg_json = '''
 !!!你必须根据用户使用的语言进行回复!!!
 
 ### 输出格式说明:
@@ -125,7 +127,6 @@ D.在段与段之间要空一行。
 
 msg_context = '''###以下是用户最近几次和AI对话的记录：
 '''
-
 
 msg_explore = '''你要在基督教正统教义范围内对下面输入进行以下反馈:
                 1.view:用户查看的回应文本,必须是**Markdown 格式的字符串**（支持标题、列表、代码块等语法），圣经经文要高亮显示，要合理分段方便在手机查看，段落要分明。先回复一段共情用户输入内容的开头，再根据用户的问题进行回答，回答的内容要符合基督教新教的教义，或者基于圣经的常识性问题。如果用户的问题存在不同的观点，那就要列明这些都只是观点，仅供参考。可以根据回复的内容，给出一些符合圣经原则的实际应用的建议。
@@ -243,15 +244,37 @@ class CozeService:
                     "${event}", names)
                 ask_msg += message.content
 
-                messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(desc(Message.id)).limit(5)
+                messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(
+                    desc(Message.id)).limit(5)
                 if messages:
                     elder_input = ""
                     for m in messages:
-                        elder_input +=f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
-                    ask_msg+=msg_context+elder_input
+                        elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
+                    ask_msg += msg_context + elder_input
 
-            ask_msg = msg_json+ask_msg
-            response = CozeService._chat_with_coze(session, message, user_id, ask_msg)
+            ask_msg = msg_json + ask_msg
+
+            def _set_topics(topics):
+                if not is_explore and len(topics) == 2:
+                    topic = topics[0] or topics[1]
+                    if topic:
+                        if not message.session_id:
+                            for s_id, s_name in session_lst:
+                                if topic == s_name:
+                                    message.session_id = s_id
+                                    session.query(Session).filter_by(id=session_id).update({
+                                        "updated_at": func.now()
+                                    })
+                                    session.commit()
+                                    break
+                            if not message.session_id and topic:
+                                new_session = Session(topic, user_id, 0)
+                                session.add(new_session)
+                                session.commit()
+                                message.session_id = new_session.id
+                    return topic
+
+            response = CozeService._chat_with_coze(session, message, user_id, ask_msg, _set_topics)
             if response:
                 logger.warning(f"GOT: {response}")
                 try:
@@ -271,25 +294,28 @@ class CozeService:
                                 if tag in v:
                                     result["color_tag"] = k
                                     break
-                    if not is_explore and not message.session_id:
-                        topic = result.get("topic1")
-                        if not topic:
-                            topic = result.get("topic2")
-                        if topic:
-                            result["topic"] = topic
-                            for session_id, session_name in session_lst:
-                                if topic == session_name:
-                                    message.session_id = session_id
-                                    session.query(Session).filter_by(id=session_id).update({
-                                        "updated_at": func.now()
-                                    })
-                                    session.commit()
-                                    break
-                            if not message.session_id and topic:
-                                new_session = Session(topic, user_id, 0)
-                                session.add(new_session)
-                                session.commit()
-                                message.session_id = new_session.id
+                    topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
+                    if topic_name:
+                        result["topic"] = topic_name
+                    # if not is_explore and not message.session_id:
+                    #     topic = result.get("topic1")
+                    #     if not topic:
+                    #         topic = result.get("topic2")
+                    #     if topic:
+                    #         result["topic"] = topic
+                    #         for session_id, session_name in session_lst:
+                    #             if topic == session_name:
+                    #                 message.session_id = session_id
+                    #                 session.query(Session).filter_by(id=session_id).update({
+                    #                     "updated_at": func.now()
+                    #                 })
+                    #                 session.commit()
+                    #                 break
+                    #         if not message.session_id and topic:
+                    #             new_session = Session(topic, user_id, 0)
+                    #             session.add(new_session)
+                    #             session.commit()
+                    #             message.session_id = new_session.id
                     response = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
                     message.feedback_text = msg_error + ",原始回复:" + response
@@ -314,31 +340,24 @@ class CozeService:
         return conversation.id
 
     @staticmethod
-    def _extract_topic(text, s):
-        import re
-        s1, e1, s2, e2 = s
-        topic1, topic2 = "", ""
-
-        if not s1:
-            match = re.search(r"(\"topic1\"\s*:\s*\")", text)
-            if match:
-                s[0] = s1 = match.end()
-
-        if not s2:
-            match = re.search(r"(\"topic2\"\s*:\s*\")", text)
-            if match:
-                s[1] = e1 = match.start()
-                s[2] = s2 = match.end()
-
-        if not e2:
-            match = re.search(r"(\"view\"\s*:\s*)", text)
-            if match:
-                s[3] = e2 = match.start()
-        if s1:
-            topic1 = text[s1:e1 if e1 > 0 else -1]
-        if s2:
-            topic2 = text[s2:e2 if e2 > 0 else -1]
-        return topic1, topic2
+    def _set_topics(session, message, topic):
+        is_explore = CozeService.is_explore_msg(message)
+        if not is_explore and not message.session_id:
+            if topic:
+                result["topic"] = topic
+                for session_id, session_name in session_lst:
+                    if topic == session_name:
+                        message.session_id = session_id
+                        session.query(Session).filter_by(id=session_id).update({
+                            "updated_at": func.now()
+                        })
+                        session.commit()
+                        break
+                if not message.session_id and topic:
+                    new_session = Session(topic, user_id, 0)
+                    session.add(new_session)
+                    session.commit()
+                    message.session_id = new_session.id
 
     @staticmethod
     def _extract_content(text, s):
@@ -368,7 +387,7 @@ class CozeService:
         return bible, detail
 
     @staticmethod
-    def _chat_with_coze(session, ori_msg, user_id, msg):
+    def _chat_with_coze(session, ori_msg, user_id, msg, f_set_topics=None):
         all_content = ""
         pos = [0, 0, 0, 0]
         topics = []
@@ -382,9 +401,11 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if len(topics)<=1:
+                if f_set_topics and len(topics) <= 1:
                     topics = re.findall(r'"topic\d":\s*"([^"]*)"\s*,', all_content)
-                    logger.warning(f"topic1, topic2: {topics}")
+                    if len(topics) == 2 and f_set_topics:
+                        logger.warning(f"topic1, topic2: {topics}")
+                        f_set_topics(topics)
 
                 if pos[3] <= 0:
                     bible, detail = CozeService._extract_content(all_content, pos)
