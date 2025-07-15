@@ -1,5 +1,7 @@
 import json
 import os
+import re
+
 from sqlalchemy import create_engine, exc, desc, func
 from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
@@ -369,7 +371,7 @@ class CozeService:
     def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
         pos = [0, 0, 0, 0]
-        pos_topic = [0, 0, 0, 0]
+        topics = []
         logger.info(f"_chat_with_coze: {user_id, msg}")
         # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
@@ -380,9 +382,9 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if pos_topic[3]<0:
-                    topic1, topic2 = CozeService._extract_topic(all_content, pos_topic)
-                    logger.warning(f"topic1, topic2: {topic1, topic2}")
+                if len(topics)<=1:
+                    topics = re.findall(r'"topic\d":\s*"([^"]*)"\s*,', all_content)
+                    logger.warning(f"topic1, topic2: {topics}")
 
                 if pos[3] <= 0:
                     bible, detail = CozeService._extract_content(all_content, pos)
