@@ -255,8 +255,10 @@ class CozeService:
             ask_msg = msg_json + ask_msg
 
             def _set_topics(topics):
-                if not is_explore and len(topics) == 2:
-                    topic = topics[0] or topics[1]
+                if not is_explore and len(topics) > 0:
+                    topic = topics[0]
+                    if not topic and len(topics) > 1:
+                        topic = topics[1]
                     if topic:
                         if not message.session_id:
                             for s_id, s_name in session_lst:
@@ -339,25 +341,25 @@ class CozeService:
         conversation = coze.conversations.create()
         return conversation.id
 
-    @staticmethod
-    def _set_topics(session, message, topic):
-        is_explore = CozeService.is_explore_msg(message)
-        if not is_explore and not message.session_id:
-            if topic:
-                result["topic"] = topic
-                for session_id, session_name in session_lst:
-                    if topic == session_name:
-                        message.session_id = session_id
-                        session.query(Session).filter_by(id=session_id).update({
-                            "updated_at": func.now()
-                        })
-                        session.commit()
-                        break
-                if not message.session_id and topic:
-                    new_session = Session(topic, user_id, 0)
-                    session.add(new_session)
-                    session.commit()
-                    message.session_id = new_session.id
+    # @staticmethod
+    # def _set_topics(session, message, topic):
+    #     is_explore = CozeService.is_explore_msg(message)
+    #     if not is_explore and not message.session_id:
+    #         if topic:
+    #             result["topic"] = topic
+    #             for session_id, session_name in session_lst:
+    #                 if topic == session_name:
+    #                     message.session_id = session_id
+    #                     session.query(Session).filter_by(id=session_id).update({
+    #                         "updated_at": func.now()
+    #                     })
+    #                     session.commit()
+    #                     break
+    #             if not message.session_id and topic:
+    #                 new_session = Session(topic, user_id, 0)
+    #                 session.add(new_session)
+    #                 session.commit()
+    #                 message.session_id = new_session.id
 
     @staticmethod
     def _extract_content(text, s):
@@ -390,7 +392,7 @@ class CozeService:
     def _chat_with_coze(session, ori_msg, user_id, msg, f_set_topics=None):
         all_content = ""
         pos = [0, 0, 0, 0]
-        topics = []
+        topic_name = None
         logger.info(f"_chat_with_coze: {user_id, msg}")
         # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
@@ -401,11 +403,10 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if f_set_topics and len(topics) <= 1:
+                if f_set_topics and not topic_name:
                     topics = re.findall(r'"topic\d":\s*"([^"]*)"\s*,', all_content)
-                    if len(topics) == 2 and f_set_topics:
-                        logger.warning(f"topic1, topic2: {topics}")
-                        f_set_topics(topics)
+                    topic_name = f_set_topics(topics)
+                    logger.warning(f"topic1, topic2: {topics}")
 
                 if pos[3] <= 0:
                     bible, detail = CozeService._extract_content(all_content, pos)
