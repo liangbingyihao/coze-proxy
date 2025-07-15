@@ -190,9 +190,9 @@ def update_session(token):
         "Authorization": f"Bearer {token}"
     }
     data = {
-        "session_name": "天路历程1"
+        "session_name": "Q&A"
     }
-    response = requests.post("http://8.217.172.116:5000/api/session/64",
+    response = requests.post("http://8.217.172.116:5000/api/session/57",
                              headers=headers, json=data)
     r = response.json()
     print(r)
@@ -282,6 +282,6 @@ if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
     # my_favorite(token)
-    me(token)
+    update_session(token)
     # r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))

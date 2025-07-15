@@ -12,11 +12,12 @@ from utils.exceptions import AuthError
 
 
 class MessageService:
+    action_daily_talk = 0
     action_bible_pic = 1
     action_daily_gw = 2
     action_direct_msg = 3
-    action_daily_talk = 0
     action_daily_pray = 4
+
     content_type_user = 1
     content_type_ai = 2
     explore = [["我想看今天的【每日恩语】", action_daily_gw],

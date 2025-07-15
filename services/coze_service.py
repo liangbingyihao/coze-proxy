@@ -81,7 +81,7 @@ msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感�
                 4.tag:对用户输入的内容返回的圣经经文打标签，标签只能从"信靠，盼望，刚强，光明，慈爱，喜乐，安慰，永恒，平安，恩典"选择最接近的一个。
                 5.summary:给出8个字以内的重点小结
                 6.explore:字符串数组形式给出3个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。但不能给反问用户感受的问句。
-                7.严格按json格式返回。{"view":<view>,"bible":<bible>,"explore":<explore>,"topic1":<topic1>,"topic2":<topic2>,"tag":<tag>,"summary":<summary>}
+                7.严格按json格式返回。{"topic1":<topic1>,"topic2":<topic2>,"view":<view>,"bible":<bible>,"explore":<explore>,"tag":<tag>,"summary":<summary>}
                 8.对于跟信仰，圣经无关任何输入，如吃喝玩乐推荐、或者毫无意义的文本，只需要回复""。
                 9.严格按照用户输入的语言返回。
                 
@@ -312,6 +312,33 @@ class CozeService:
         return conversation.id
 
     @staticmethod
+    def _extract_topic(text, s):
+        import re
+        s1, e1, s2, e2 = s
+        topic1, topic2 = "", ""
+
+        if not s1:
+            match = re.search(r"(\"topic1\"\s*:\s*\")", text)
+            if match:
+                s[0] = s1 = match.end()
+
+        if not s2:
+            match = re.search(r"(\"topic2\"\s*:\s*\")", text)
+            if match:
+                s[1] = e1 = match.start()
+                s[2] = s2 = match.end()
+
+        if not e2:
+            match = re.search(r"(\"view\"\s*:\s*)", text)
+            if match:
+                s[3] = e2 = match.start()
+        if s1:
+            topic1 = text[s1:e1 if e1 > 0 else -1]
+        if s2:
+            topic2 = text[s2:e2 if e2 > 0 else -1]
+        return topic1, topic2
+
+    @staticmethod
     def _extract_content(text, s):
         import re
         s1, e1, s2, e2 = s
@@ -342,6 +369,7 @@ class CozeService:
     def _chat_with_coze(session, ori_msg, user_id, msg):
         all_content = ""
         pos = [0, 0, 0, 0]
+        pos_topic = [0, 0, 0, 0]
         logger.info(f"_chat_with_coze: {user_id, msg}")
         # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
@@ -352,10 +380,13 @@ class CozeService:
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message
                 all_content += message.content
-                if 1:
-                    if pos[3] <= 0:
-                        bible, detail = CozeService._extract_content(all_content, pos)
-                        ori_msg.feedback_text = detail.replace(r'\n', '\n')
+                if pos_topic[3]<0:
+                    topic1, topic2 = CozeService._extract_topic(all_content, pos_topic)
+                    logger.warning(f"topic1, topic2: {topic1, topic2}")
+
+                if pos[3] <= 0:
+                    bible, detail = CozeService._extract_content(all_content, pos)
+                    ori_msg.feedback_text = detail.replace(r'\n', '\n')
                 # else:
                 #     ori_msg.feedback_text = all_content
                 # logger.info(f"CONVERSATION_MESSAGE_DELTA: {ori_msg.feedback}")
