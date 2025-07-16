@@ -272,6 +272,7 @@ class CozeService:
                             if not message.session_id and topic:
                                 new_session = Session(topic, user_id, 0)
                                 session.add(new_session)
+                                session.commit()
                                 message.session_id = new_session.id
                                 if not message.feedback:
                                     message.feedback = json.dumps({"topic": topic}, ensure_ascii=False)
