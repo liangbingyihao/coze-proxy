@@ -264,7 +264,7 @@ class CozeService:
                             for s_id, s_name in session_lst:
                                 if topic == s_name:
                                     message.session_id = s_id
-                                    session.query(Session).filter_by(id=session_id).update({
+                                    session.query(Session).filter_by(id=s_id).update({
                                         "updated_at": func.now()
                                     })
                                     session.commit()
@@ -272,8 +272,10 @@ class CozeService:
                             if not message.session_id and topic:
                                 new_session = Session(topic, user_id, 0)
                                 session.add(new_session)
-                                session.commit()
                                 message.session_id = new_session.id
+                                if not message.feedback:
+                                    message.feedback = json.dumps({"topic": topic}, ensure_ascii=False)
+                                session.commit()
                     return topic
 
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg, _set_topics)
@@ -299,25 +301,6 @@ class CozeService:
                     topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
                     if topic_name:
                         result["topic"] = topic_name
-                    # if not is_explore and not message.session_id:
-                    #     topic = result.get("topic1")
-                    #     if not topic:
-                    #         topic = result.get("topic2")
-                    #     if topic:
-                    #         result["topic"] = topic
-                    #         for session_id, session_name in session_lst:
-                    #             if topic == session_name:
-                    #                 message.session_id = session_id
-                    #                 session.query(Session).filter_by(id=session_id).update({
-                    #                     "updated_at": func.now()
-                    #                 })
-                    #                 session.commit()
-                    #                 break
-                    #         if not message.session_id and topic:
-                    #             new_session = Session(topic, user_id, 0)
-                    #             session.add(new_session)
-                    #             session.commit()
-                    #             message.session_id = new_session.id
                     response = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
                     message.feedback_text = msg_error + ",原始回复:" + response
@@ -406,7 +389,6 @@ class CozeService:
                 if f_set_topics and not topic_name:
                     topics = re.findall(r'"topic\d":\s*"([^"]*)"\s*,', all_content)
                     topic_name = f_set_topics(topics)
-                    logger.warning(f"topic1, topic2: {topics}")
 
                 if pos[3] <= 0:
                     bible, detail = CozeService._extract_content(all_content, pos)

@@ -282,6 +282,6 @@ if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
     # my_favorite(token)
-    update_session(token)
-    # r = my_session(token)
+    # update_session(token)
+    r = my_session(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
