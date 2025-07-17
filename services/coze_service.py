@@ -256,7 +256,7 @@ class CozeService:
                             bible_study.append(m.content)
                         elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
                     if bible_study:
-                        ask_msg = ask_msg.replace("${bible_study}",f'如果用户输入是关于内容${bible_study}的灵修默想，则返回"我的灵修"。')
+                        ask_msg = ask_msg.replace("${bible_study}",f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
                     else:
                         ask_msg = ask_msg.replace("${bible_study}","")
                     ask_msg += msg_context + elder_input
