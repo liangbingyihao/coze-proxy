@@ -80,7 +80,7 @@ msg_json = '''
 msg_feedback = '''你要帮助基督徒用户记录的感恩小事，圣灵感动，亮光发现、回答用户关于信仰的问题，请进行以下反馈:
                 1.view: 用户查看的回应文本,必须是**Markdown 格式的字符串**（支持标题、列表、代码块等语法）。详细说明见后面view字段的详细要求。
                 2.bible:view字段回应包含的最主要的一节圣经经文，要包括经文全文和出处。例如“你们要将一切的忧虑卸给神，因为他顾念你们。”（彼前5:7）
-                3.topic1:如果用户输入是关于信仰的问题，返回"信仰问答"，否则从${event}里选出一个主题分类,无法选取则为""
+                3.topic1:如果用户输入是关于信仰的问题，返回"信仰问答"，${bible_study}否则从${event}里选出一个主题分类,无法选取则为""
                 3.topic2:无法选出topic1时，新增一个6个字以内的主题分类
                 4.tag:对用户输入的内容返回的圣经经文打标签，标签只能从"信靠，盼望，刚强，光明，慈爱，喜乐，安慰，永恒，平安，恩典"选择最接近的一个。
                 5.summary:给出8个字以内的重点小结
@@ -111,6 +111,7 @@ D.在段与段之间要空一行。
 比如:【在“xx情况下”，你是如何“xxx”的呢？可以试着记录下来哦，说不定，不久的将来你回看的时候，就有新发现！】
 在用户同类的事情，尽量不要用同一句经文进行回复。
 要做到给予用户的20句经文中不会有重复的经文出现。
+四，如果
 如果用户的问题涉及到政治，自杀，黄赌毒等敏感话题，温馨告知这类问题无法回答，可以帮他记录下来到一个新的时间轴主题中，并给予一段积极正面的经文作为鼓励，让他知道无论经历多难的事情，上帝依然爱他，对他的生命有一个美好的计划。
 如果用户是记录内容，不是问问题，无论是感恩小事，圣灵感动，亮光发现，讲道笔记等信息，先用共情的语言回应用户的记录内容，再返回一段基督教新教的圣经中的相关经文进行鼓励。
 然后针对该经文予一段500字以内的内容拓展，可以说经文的经典人物背景，也可以讲这段经文的实际应用。
@@ -249,8 +250,15 @@ class CozeService:
                     desc(Message.id)).limit(5)
                 if messages:
                     elder_input = ""
+                    bible_study = []
                     for m in messages:
+                        if m.action == MessageService.action_daily_pray:
+                            bible_study.append(m.content)
                         elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
+                    if bible_study:
+                        ask_msg = ask_msg.replace("${bible_study}",f'如果用户输入是关于内容${bible_study}的灵修默想，则返回"我的灵修"。')
+                    else:
+                        ask_msg = ask_msg.replace("${bible_study}","")
                     ask_msg += msg_context + elder_input
 
             ask_msg = msg_json + ask_msg
