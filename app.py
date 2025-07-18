@@ -131,7 +131,7 @@ def register_commands(app):
         # 其他异常统一返回400
         return jsonify({
             'success': False,
-            'message': 'An error occurred while processing your request'
+            'message': str(e)
         }), 400
 
 

@@ -272,10 +272,10 @@ class MessageService:
                             funcs.append([i, MessageService.action_daily_talk])
                     else:
                         funcs.append([explore, MessageService.action_daily_talk])
-                    if feedback.get("bible"):
-                        funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
-                    if message.action != MessageService.action_daily_pray:
-                        funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
+                    # if feedback.get("bible"):
+                    #     funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
+                    # if message.action != MessageService.action_daily_pray:
+                    #     funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
                     feedback["function"] = funcs
                 message.feedback = feedback
                 if not message.summary:
