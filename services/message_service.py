@@ -294,7 +294,7 @@ class MessageService:
         if session_id and session_id > 0:
             session = Session.query.filter_by(owner_id=owner_id, id=session_id).one()
             if not session:
-                return False
+                raise Exception("no session")
         if session_name:
             session = SessionService.new_session(session_name, owner_id, 0)
             session_id = session.id

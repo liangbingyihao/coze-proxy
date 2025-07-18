@@ -89,7 +89,7 @@ def set_topic(session_id):
     data = request.get_json()
     session_name = data.get('session_name')
     owner_id = get_jwt_identity()
-    if session_name and len(session_name) > 9:
+    if session_name and len(session_name) > 20:
         return jsonify({"error": "session_name max length is 8"}), 400
     ret = SessionService.set_session_name(owner_id, session_id, session_name)
     return jsonify({
