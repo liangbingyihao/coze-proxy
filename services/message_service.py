@@ -17,6 +17,7 @@ class MessageService:
     action_daily_gw = 2
     action_direct_msg = 3
     action_daily_pray = 4
+    action_input_prompt = 5
 
     content_type_user = 1
     content_type_ai = 2
@@ -264,9 +265,9 @@ class MessageService:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
             try:
                 feedback = json.loads(message.feedback)
+                funcs = []
                 explore = feedback.get("explore")
                 if explore:
-                    funcs = []
                     if isinstance(explore, list):
                         for i in explore:
                             funcs.append([i, MessageService.action_daily_talk])
@@ -276,8 +277,19 @@ class MessageService:
                     #     funcs.append(["请把上面的经文内容做成一个可以分享的经文图", MessageService.action_bible_pic])
                     # if message.action != MessageService.action_daily_pray:
                     #     funcs.append(["关于以上内容的祷告和默想建议", MessageService.action_daily_pray])
+
+                explore = feedback.get("prompt")
+                if explore:
+                    if isinstance(explore, list):
+                        for i in explore:
+                            funcs.append([i, MessageService.action_input_prompt])
+                    else:
+                        funcs.append([explore, MessageService.action_input_prompt])
+
+                if funcs:
                     feedback["function"] = funcs
                 message.feedback = feedback
+
                 if not message.summary:
                     message.summary = feedback.get("summary")
             except Exception as e:
