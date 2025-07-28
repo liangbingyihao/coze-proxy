@@ -36,7 +36,7 @@ def send_to_device(device_token, title, body, data=None):
 
 
 # 使用示例
-device_token = "deL9dDVVTwSOAUm7-gy3TA:APA91bEWd-C-i_ufIOQ437I9-cRBajwZgiygzDEEz_AwO_BV96zoGeybiMPW0ZOUFOjn6b8hZw8ajvXg2DVgKff7hLvPSGZAhXFl9CE4epucNWh5RCwFNcs"  # 替换为实际的设备令牌
+device_token = "dycab1Y2R3aXiplENq0gAy:APA91bGh5axQA5-gmdSr3btLi8yovpUCroaCBfAKZSO1j4bjbcizc2CMKPfHVyK0YMz5A_ze56htVjKbq8upsq8MEXISb-HamVo7dTnThZItiNOpewDEp4k"  # 替换为实际的设备令牌
 send_to_device(
     device_token,
     title="新消息通知",
