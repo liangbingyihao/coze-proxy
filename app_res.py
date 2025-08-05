@@ -45,10 +45,10 @@ def rename_and_copy(source_root, target_root, original_pattern, new_name, sub_di
 
 if __name__ == "__main__":
     # 参数设置
-    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\加载中-copy_slices"  # 源根目录
+    source_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\蒙版组 20_slices"  # 源根目录
     target_root = r"D:\work\huoguo\chat-sdk-android\app-demo\src\main\res"
-    original_pattern = "*.png"  # 匹配所有 .txt 文件
-    new_name = "ic_loading"  # 新文件名（不含扩展名）
+    original_pattern = "*.webp"  # 匹配所有 .txt 文件
+    new_name = "ic_placeholder_task"  # 新文件名（不含扩展名）
     sub_dirs = ["mipmap-xxhdpi","mipmap-xxxhdpi"]
     sub_dirs = None
 

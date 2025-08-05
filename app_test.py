@@ -287,10 +287,30 @@ def unlock_story(token):
     response = requests.post("https://api-test.kolacdn.xyz/api/v1/app/story/unlock", headers=headers, json=data)
     print(response.status_code)
 
+def story_process(token):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    data = {
+        "tz": "Asia/Shanghai",
+    }
+    response = requests.get("https://api-test.kolacdn.xyz/api/v1/app/story/progress", headers=headers)
+    print(response.json())
+
+def story_history(token):
+    headers = {
+        "Authorization": f"Bearer {token}1"
+    }
+    data = {
+        "start_month": "2025-07",
+    }
+    response = requests.get("https://api-test.kolacdn.xyz/api/v1/app/story/history", headers=headers,params=data)
+    print(response.status_code,response.json())
+
 if __name__ == '__main__':
     token = login("user2")
     # # get_conf(token)
-    my_favorite(token)
+    # my_favorite(token)
     # update_session(token)
-    # r = unlock_story(token)
+    r = story_history(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
