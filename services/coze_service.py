@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from sqlalchemy import create_engine, exc, desc, func
+from sqlalchemy import create_engine, exc, desc, func, not_
 from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
@@ -213,13 +213,13 @@ class CozeService:
         from models.message import Message
         try:
             session = DBSession()
-            message = session.query(Message).filter_by(id=msg_id, status=0).first()
+            message = session.query(Message).filter_by(id=msg_id).filter(Message.status.ne(1)).first()
         except exc.OperationalError as e:
             session.rollback()
             logger.exception(e)
             engine.dispose()
             session = DBSession()
-            message = session.query(Message).filter_by(id=msg_id, status=0).first()
+            message = session.query(Message).filter_by(id=msg_id).first()
         except Exception as e:
             logger.exception(e)
             return
@@ -348,7 +348,7 @@ class CozeService:
         except Exception as e:
             logger.exception(e)
             if message and message.status != 2:
-                message.status = 1
+                message.status = 3
                 message.feedback_text = "AI回复异常，请重试"
                 session.commit()
 
