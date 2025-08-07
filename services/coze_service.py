@@ -236,6 +236,7 @@ class CozeService:
             message.status = 1
             session.commit()
             session_lst = []
+            auto_session = None
             is_explore = CozeService.is_explore_msg(message)
             from models.session import Session
             if is_explore:
@@ -248,6 +249,7 @@ class CozeService:
                         context_content = message.content
                     ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
+                    auto_session=["信仰问答"]
                     ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
             else:
@@ -283,7 +285,7 @@ class CozeService:
             ask_msg = msg_json + ask_msg
 
             def _set_topics(topics):
-                if not is_explore and len(topics) > 0:
+                if len(topics) > 0:
                     topic = topics[0]
                     if not topic and len(topics) > 1:
                         topic = topics[1]
@@ -307,7 +309,8 @@ class CozeService:
                                 session.commit()
                     return topic
 
-            response = CozeService._chat_with_coze(session, message, user_id, ask_msg, _set_topics)
+            _set_topics(auto_session)
+            response = CozeService._chat_with_coze(session, message, user_id, ask_msg, _set_topics if not is_explore else None)
             if response:
                 logger.warning(f"GOT: {response}")
                 try:
@@ -327,7 +330,10 @@ class CozeService:
                                 if tag in v:
                                     result["color_tag"] = k
                                     break
-                    topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
+                    if auto_session:
+                        topic_name = _set_topics(auto_session)
+                    else:
+                        topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
                     if topic_name:
                         result["topic"] = topic_name
                     response = json.dumps(result, ensure_ascii=False)

@@ -299,13 +299,16 @@ def story_process(token):
 
 def story_history(token):
     headers = {
-        "Authorization": f"Bearer {token}1"
+        "Authorization": f"Bearer {token}"
     }
     data = {
         "start_month": "2025-07",
     }
     response = requests.get("https://api-test.kolacdn.xyz/api/v1/app/story/history", headers=headers,params=data)
-    print(response.status_code,response.json())
+    hs = response.json().get("data").get("history")
+    for h in hs:
+        print(h.get("html_content"),"\n")
+    # print(response.status_code,response.json())
 
 if __name__ == '__main__':
     token = login("user2")
