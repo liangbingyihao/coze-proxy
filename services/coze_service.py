@@ -348,7 +348,7 @@ class CozeService:
         except Exception as e:
             logger.exception(e)
             if message and message.status != 2:
-                message.status = 2
+                message.status = 1
                 message.feedback_text = "AI回复异常，请重试"
                 session.commit()
 
