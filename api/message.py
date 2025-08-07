@@ -132,6 +132,7 @@ def my_message():
 @jwt_required()
 def msg_detail(msg_id):
     owner_id = get_jwt_identity()
+    retry = request.args.get('retry', default=0, type=int)
     try:
         logging.warning(f"get_message:{msg_id}")
         if msg_id == "welcome":
@@ -140,7 +141,7 @@ def msg_detail(msg_id):
                 'data': MessageService.welcome_msg
             })
         else:
-            data = MessageService.get_message(owner_id, msg_id)
+            data = MessageService.get_message(owner_id, msg_id,retry)
             return jsonify({
                 'success': True,
                 'data': MessageSchema().dump(data)

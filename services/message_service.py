@@ -258,11 +258,14 @@ class MessageService:
         # messages = query.paginate(page=page, per_page=limit, error_out=False)
 
     @staticmethod
-    def get_message(owner_id, msg_id):
+    def get_message(owner_id, msg_id,retry):
         if msg_id == "welcome":
             return MessageService.welcome_msg
         else:
             message = Message.query.filter_by(public_id=msg_id, owner_id=owner_id).one()
+            if retry==1 and message.status not in (1, 2):
+                CozeService.chat_with_coze_async(owner_id, message.id)
+                message.status=1
             try:
                 feedback = json.loads(message.feedback)
                 funcs = []

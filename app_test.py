@@ -19,7 +19,7 @@ def register():
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "guest": "81863ba6-abf8-340f-892a-683e6896a23f",
+        "guest": "1c3f2293-46d7-3d1b-b434-ae006db8b08f",
         "password": "123456"
     }
 
@@ -164,7 +164,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    msg_id = "dd147a2d-cb8d-45ba-8042-06ef28a7a6b8"
+    msg_id = "99ae3165-9a55-426f-a98d-1b8d27c353cd"
     msg_id = "welcome"
     response = requests.get(f"http://8.217.172.116:5000/api/message/{msg_id}", headers=headers)
     r = response.json()
@@ -315,5 +315,5 @@ if __name__ == '__main__':
     # # get_conf(token)
     # my_favorite(token)
     # update_session(token)
-    r = story_history(token)
+    r = get_message(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
