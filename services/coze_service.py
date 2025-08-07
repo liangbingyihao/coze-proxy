@@ -250,6 +250,7 @@ class CozeService:
                     ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
                     auto_session=["信仰问答"]
+                    message.summary = "信仰探索"
                     session_lst = session.query(Session).filter_by(owner_id=user_id,session_name="信仰问答").order_by(
                         desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                     ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
