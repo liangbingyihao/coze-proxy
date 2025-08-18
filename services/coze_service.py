@@ -153,9 +153,10 @@ msg_context = '''###以下是用户最近几次和AI对话的记录：
 msg_explore = '''你要在基督教正统教义范围内对下面输入进行以下反馈:
                 1.view:用户查看的回应文本,必须是**Markdown 格式的字符串**（支持标题、列表、代码块等语法）,标题只能是h3~h6，不允许为h1、h2，圣经经文要高亮显示，要合理分段方便在手机查看，段落要分明。先回复一段共情用户输入内容的开头，再根据用户的问题进行回答，回答的内容要符合基督教新教的教义，或者基于圣经的常识性问题。如果用户的问题存在不同的观点，那就要列明这些都只是观点，仅供参考。可以根据回复的内容，给出一些符合圣经原则的实际应用的建议。
                 2.bible:view字段回应包含的最主要的一节圣经经文，要包括经文全文和出处。例如“你们要将一切的忧虑卸给神，因为他顾念你们。”（彼前5:7）
-                3.explore:给出3个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。但不能给反问用户感受的问句。
-                4.严格按json格式返回。{"view":<view>,"bible":<bible>,"explore":<explore>}
-                5.严格按照用户输入的语言返回上面的view、bible、explore字段。用户可能输入简体中文、繁体中文、英文等，需要返回用户输入的语言。
+                3.explore:字符串数组形式给出给出3个和用户输入内容密切相关的，引导基督教新教教义范围内进一步展开讨论的话题，话题的形式可以是问题或者指令。但不能给反问用户感受的问句。
+                4.summary:给出8个字以内的重点小结
+                5.严格按json格式返回。{"view":<view>,"bible":<bible>,"explore":<explore>,"summary":<summary>}
+                6.严格按照用户输入的语言返回上面的view、bible、explore字段。用户可能输入简体中文、繁体中文、英文等，需要返回用户输入的语言。
                 
                 !!!你必须根据用户使用的语言进行回复!!!
                  用户问题:
@@ -208,6 +209,27 @@ class CozeService:
         return len(message.context_id) > 5
 
     @staticmethod
+    def _rsp_without_ai(session, message):
+        '''1.<对于用户内容同理心的回应（如：你的这个观点很值得探讨）>
+        2.恩语是一个能帮你持续记录每一件感恩小事，圣灵感动，亮光发现等信息的信仰助手，并且我也努力学习圣经，期待能借助上帝的话语来鼓励你，帮助你在信仰之路上，不断看到上帝持续的工作和恩典哦。你以上的内容我暂时无法直接找到对应的信仰相关参考，但我已经帮你记录下来了。
+        3.我想用这句圣经的话语来共勉：<给予一段鼓励经文>(如：以赛亚书 40:31说：“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”）
+        4.如果这个事情对你来说重要，请持续把这个事情在恩语中记录吧，每天打开恩语来回顾，说不定很快就能看到上帝给到你新的发现，以及上帝每一步的保守与恩典哦。'''
+        default_rsp = {
+            "view": "你的这个观点很值得探讨。恩语是一个能帮你持续记录每一件感恩小事，圣灵感动，亮光发现等信息的信仰助手，并且我也努力学习圣经，期待能借助上帝的话语来鼓励你，帮助你在信仰之路上，不断看到上帝持续的工作和恩典哦。"
+                    "你以上的内容我暂时无法直接找到对应的信仰相关参考，但我已经帮你记录下来了。"
+                    "我想用这句圣经的话语来共勉： **“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”（以赛亚书 40:31）** "
+                    "如果这个事情对你来说重要，请持续把这个事情在恩语中记录吧，每天打开恩语来回顾，说不定很快就能看到上帝给到你新的发现，以及上帝每一步的保守与恩典哦。",
+            "bible": "“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”（以赛亚书 40:31）",
+            "topic": "其他话题"}
+        view = default_rsp.get('view')
+        if view:
+            message.feedback_text = view
+        response = json.dumps(default_rsp, ensure_ascii=False)
+        message.feedback = response
+        message.status = 2
+        session.commit()
+
+    @staticmethod
     def chat_with_coze(user_id, msg_id):
         session = None
         from models.message import Message
@@ -231,14 +253,14 @@ class CozeService:
             session.commit()
             return
 
+        custom_prompt = message.feedback_text
+        session_lst = []
+        auto_session = None
+        from models.session import Session
+        is_explore = CozeService.is_explore_msg(message)
         try:
-            custom_prompt = message.feedback_text
-            message.status = 1
-            session.commit()
-            session_lst = []
-            auto_session = None
-            is_explore = CozeService.is_explore_msg(message)
-            from models.session import Session
+            if message.content == "test":
+                raise Exception("test error")
             if is_explore:
                 # 用户探索类型
                 if message.action == MessageService.action_daily_pray:
@@ -249,9 +271,8 @@ class CozeService:
                         context_content = message.content
                     ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
-                    auto_session=["信仰问答"]
-                    message.summary = "信仰探索"
-                    session_lst = session.query(Session).filter_by(owner_id=user_id,session_name="信仰问答").order_by(
+                    auto_session = ["信仰问答"]
+                    session_lst = session.query(Session).filter_by(owner_id=user_id, session_name="信仰问答").order_by(
                         desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                     ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
@@ -280,13 +301,18 @@ class CozeService:
                             bible_study.append(m.content)
                         elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
                     if bible_study:
-                        ask_msg = ask_msg.replace("${bible_study}",f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
+                        ask_msg = ask_msg.replace("${bible_study}",
+                                                  f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
                     else:
-                        ask_msg = ask_msg.replace("${bible_study}","")
+                        ask_msg = ask_msg.replace("${bible_study}", "")
                     ask_msg += msg_context + elder_input
+        except Exception as e:
+            logger.error("error in ask msg")
+            logger.exception(e)
+            CozeService._rsp_without_ai(session, message)
+            return
 
-            ask_msg = msg_json + ask_msg
-
+        try:
             def _set_topics(topics):
                 if topics and len(topics) > 0:
                     topic = topics[0]
@@ -312,8 +338,12 @@ class CozeService:
                                 session.commit()
                     return topic
 
+            message.status = 1
+            session.commit()
             _set_topics(auto_session)
-            response = CozeService._chat_with_coze(session, message, user_id, ask_msg, _set_topics if not is_explore else None)
+            ask_msg = msg_json + ask_msg
+            response = CozeService._chat_with_coze(session, message, user_id, ask_msg,
+                                                   _set_topics if not is_explore else None)
             if response:
                 logger.warning(f"GOT: {response}")
                 try:
@@ -323,10 +353,10 @@ class CozeService:
                         message.feedback_text = view
                     else:
                         message.feedback_text = msg_error + ",原始回复:" + response
+                    summary = result.get("summary")
+                    if summary:
+                        message.summary = summary
                     if not is_explore:
-                        summary = result.get("summary")
-                        if summary:
-                            message.summary = summary
                         tag = result.get("tag")
                         if tag:
                             for k, v in color_map.items():
@@ -347,11 +377,9 @@ class CozeService:
                 message.status = 2
                 session.commit()
         except Exception as e:
+            logger.error("error in chat")
             logger.exception(e)
-            if message and message.status != 2:
-                message.status = 3
-                message.feedback_text = "AI回复异常，请重试"
-                session.commit()
+            CozeService._rsp_without_ai(session, message)
 
         # finally:
         #     if session:
