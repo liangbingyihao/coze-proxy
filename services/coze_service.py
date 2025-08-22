@@ -209,7 +209,7 @@ class CozeService:
         return len(message.context_id) > 5
 
     @staticmethod
-    def _rsp_without_ai(session, message):
+    def _fix_ai_response(message,ai_response):
         '''1.<对于用户内容同理心的回应（如：你的这个观点很值得探讨）>
         2.恩语是一个能帮你持续记录每一件感恩小事，圣灵感动，亮光发现等信息的信仰助手，并且我也努力学习圣经，期待能借助上帝的话语来鼓励你，帮助你在信仰之路上，不断看到上帝持续的工作和恩典哦。你以上的内容我暂时无法直接找到对应的信仰相关参考，但我已经帮你记录下来了。
         3.我想用这句圣经的话语来共勉：<给予一段鼓励经文>(如：以赛亚书 40:31说：“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”）
@@ -221,13 +221,13 @@ class CozeService:
                     "如果这个事情对你来说重要，请持续把这个事情在恩语中记录吧，每天打开恩语来回顾，说不定很快就能看到上帝给到你新的发现，以及上帝每一步的保守与恩典哦。",
             "bible": "“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”（以赛亚书 40:31）",
             "topic": "其他话题"}
-        view = default_rsp.get('view')
-        if view:
-            message.feedback_text = view
-        response = json.dumps(default_rsp, ensure_ascii=False)
-        message.feedback = response
-        message.status = 2
-        session.commit()
+        #FIXME
+        message.feedback = json.dumps(default_rsp, ensure_ascii=False)
+        # if not ai_response:
+        #     response = json.dumps(default_rsp, ensure_ascii=False)
+        #     message.feedback = response
+        # else:
+        #     result = json.loads(ai_response)
 
     @staticmethod
     def chat_with_coze(user_id, msg_id):
@@ -248,7 +248,7 @@ class CozeService:
 
         from services.message_service import MessageService
         if message.action == MessageService.action_bible_pic:
-            message.status = 2
+            message.status = MessageService.status_success
             message.feedback_text = "(实现中)将会为你生成经文图片"
             session.commit()
             return
@@ -307,11 +307,15 @@ class CozeService:
                         ask_msg = ask_msg.replace("${bible_study}", "")
                     ask_msg += msg_context + elder_input
         except Exception as e:
-            logger.error("error in ask msg")
+            logger.error("ai.error in ask msg: "+message.id)
             logger.exception(e)
-            CozeService._rsp_without_ai(session, message)
+            message.status = MessageService.status_err
+            message.feedback_text = str(e)
+            CozeService._fix_ai_response(message,None)
+            session.commit()
             return
 
+        response = ""
         try:
             def _set_topics(topics):
                 if topics and len(topics) > 0:
@@ -338,48 +342,46 @@ class CozeService:
                                 session.commit()
                     return topic
 
-            message.status = 1
+            message.status = MessageService.status_pending
             session.commit()
+
             _set_topics(auto_session)
             ask_msg = msg_json + ask_msg
             response = CozeService._chat_with_coze(session, message, user_id, ask_msg,
                                                    _set_topics if not is_explore else None)
-            if response:
-                logger.warning(f"GOT: {response}")
-                try:
-                    result = json.loads(response)
-                    bible, view = result.get('bible'), result.get('view')
-                    if view:
-                        message.feedback_text = view
-                    else:
-                        message.feedback_text = msg_error + ",原始回复:" + response
-                    summary = result.get("summary")
-                    if summary:
-                        message.summary = summary
-                    if not is_explore:
-                        tag = result.get("tag")
-                        if tag:
-                            for k, v in color_map.items():
-                                if tag in v:
-                                    result["color_tag"] = k
-                                    break
-                    if auto_session:
-                        topic_name = _set_topics(auto_session)
-                    else:
-                        topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
-                    if topic_name:
-                        result["topic"] = topic_name
-                    response = json.dumps(result, ensure_ascii=False)
-                except Exception as e:
-                    message.feedback_text = msg_error + ",原始回复:" + response
-                    logger.exception(e)
-                message.feedback = response
-                message.status = 2
-                session.commit()
+
+            logger.warning(f"GOT: {response}")
+            result = json.loads(response)
+            bible, view = result.get('bible'), result.get('view')
+            if view:
+                message.feedback_text = view
+            summary = result.get("summary")
+            if summary:
+                message.summary = summary
+            if not is_explore:
+                tag = result.get("tag")
+                if tag:
+                    for k, v in color_map.items():
+                        if tag in v:
+                            result["color_tag"] = k
+                            break
+            if auto_session:
+                topic_name = _set_topics(auto_session)
+            else:
+                topic_name = _set_topics([result.get("topic1"), result.get("topic2")])
+            if topic_name:
+                result["topic"] = topic_name
+            response = json.dumps(result, ensure_ascii=False)
+            message.feedback = response
+            message.status = MessageService.status_success
+            session.commit()
         except Exception as e:
-            logger.error("error in chat")
+            logger.error("ai.error in chat: "+message.id)
             logger.exception(e)
-            CozeService._rsp_without_ai(session, message)
+            message.status = MessageService.status_err
+            message.feedback_text = str(e)
+            CozeService._fix_ai_response(message,response)
+            session.commit()
 
         # finally:
         #     if session:

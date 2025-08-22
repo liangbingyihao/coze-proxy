@@ -74,7 +74,6 @@ def del_msg():
         'data': {"id": message_id}
     }), 200
 
-
 @message_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ['message'],
@@ -133,6 +132,7 @@ def my_message():
 def msg_detail(msg_id):
     owner_id = get_jwt_identity()
     retry = request.args.get('retry', default=0, type=int)
+    stop = request.args.get('stop', default=0, type=int)
     try:
         logging.warning(f"get_message:{msg_id}")
         if msg_id == "welcome":
@@ -141,7 +141,7 @@ def msg_detail(msg_id):
                 'data': MessageService.welcome_msg
             })
         else:
-            data = MessageService.get_message(owner_id, msg_id,retry)
+            data = MessageService.get_message(owner_id, msg_id,retry,stop)
             return jsonify({
                 'success': True,
                 'data': MessageSchema().dump(data)
