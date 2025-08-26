@@ -222,6 +222,7 @@ class CozeService:
             "bible": "“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”（以赛亚书 40:31）",
             "topic": "其他话题"}
         #FIXME
+        message.feedback_text = default_rsp.get("view")
         message.feedback = json.dumps(default_rsp, ensure_ascii=False)
         # if not ai_response:
         #     response = json.dumps(default_rsp, ensure_ascii=False)
@@ -307,10 +308,10 @@ class CozeService:
                         ask_msg = ask_msg.replace("${bible_study}", "")
                     ask_msg += msg_context + elder_input
         except Exception as e:
-            logger.error("ai.error in ask msg: "+message.id)
+            logger.error("ai.error in ask msg")
             logger.exception(e)
             message.status = MessageService.status_err
-            message.feedback_text = str(e)
+            # message.feedback_text = str(e)
             CozeService._fix_ai_response(message,None)
             session.commit()
             return
@@ -376,10 +377,10 @@ class CozeService:
             message.status = MessageService.status_success
             session.commit()
         except Exception as e:
-            logger.error("ai.error in chat: "+message.id)
+            logger.error("ai.error in chat")
             logger.exception(e)
             message.status = MessageService.status_err
-            message.feedback_text = str(e)
+            # message.feedback_text = str(e)
             CozeService._fix_ai_response(message,response)
             session.commit()
 

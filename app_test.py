@@ -19,7 +19,7 @@ def register():
 def login(user_name):
     url = "http://8.217.172.116:5000/api/auth/login"
     data = {
-        "guest": "1c3f2293-46d7-3d1b-b434-ae006db8b08f",
+        "guest": "b73d55ee-d0af-39b9-b5be-788c851e37d4",
         "password": "123456"
     }
 
@@ -164,8 +164,8 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    msg_id = "99ae3165-9a55-426f-a98d-1b8d27c353cd"
-    msg_id = "welcome"
+    msg_id = "b9c9f72c-9810-4c11-a026-f9f8c00cc6c7"
+    # msg_id = "welcome"
     response = requests.get(f"http://8.217.172.116:5000/api/message/{msg_id}", headers=headers)
     r = response.json()
     print(json.dumps(r.get("data"), indent=4, ensure_ascii=False))
