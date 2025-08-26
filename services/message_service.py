@@ -42,7 +42,7 @@ class MessageService:
             "bible": "我的心你要称颂耶和华，不可忘记他的恩惠。（诗篇 103:2）",
             "function": [
                 [
-                    "最近发生的事情现在未必能明白上帝的心意是什么，以前可能等某一天过了也就过了，现在有了恩语，正好快速把它记下来，看看未来上帝会如何通过各种渠道，无论是事情的新发展，出现新的帮助，还是让我有新想法，来让我更知道祂的美意。",
+                    "最近发生的事情现在未必能明白上帝的心意是什么，现在有了恩语，正好快速把它记下来:",
                     action_input_prompt
                 ],
                 [
@@ -252,7 +252,7 @@ class MessageService:
                 CozeService.chat_with_coze_async(owner_id, message.id)
                 message.status = MessageService.status_pending
 
-            if stop and message.status!=MessageService.status_success:
+            if stop and message.status != MessageService.status_success:
                 message.status = MessageService.status_cancel
                 db.session.commit()
 
