@@ -145,8 +145,9 @@ class MessageService:
             return message.public_id
 
     @staticmethod
-    def new_message(owner_id, content, context_id, action, prompt):
+    def new_message(owner_id, content, context_id, action, prompt,reply):
         '''
+        :param reply:
         :param action:
         :param prompt:
         :param context_id:用户探索的原信息id
@@ -160,7 +161,7 @@ class MessageService:
         if content:
             if prompt:
                 logging.warning(f"prompt:{owner_id, content, action, prompt}")
-            message = Message(0, owner_id, content, context_id, action=action)
+            message = Message(0, owner_id, content, context_id, action=action,reply=reply)
             message.feedback_text = prompt or ""
             db.session.add(message)
             db.session.commit()

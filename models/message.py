@@ -18,6 +18,7 @@ class Message(db.Model):
     status = db.Column(db.Integer, nullable=False,default=0)# 0 默认状态 1 AI回应中 2 AI回应完毕 3 已删除
     action = db.Column(db.Integer, nullable=False,default=0)#0 用户输入的 1 探索问题 2 生成图片
     content = db.Column(db.UnicodeText, nullable=False)
+    reply = db.Column(db.UnicodeText)
     feedback = db.Column(db.UnicodeText, nullable=False)
     feedback_text = db.Column(db.UnicodeText, nullable=False)
     created_at = db.Column(
@@ -27,7 +28,7 @@ class Message(db.Model):
     )
     # updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
-    def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0):
+    def __init__(self, session_id,owner_id, content,context_id=0,status=0,action=0,reply=""):
         self.session_id = session_id
         self.owner_id = owner_id
         self.content = content
@@ -36,6 +37,7 @@ class Message(db.Model):
         self.action = action
         self.feedback = ""
         self.feedback_text = ""
+        self.reply = reply
 
     def __repr__(self):
         return f'<message {self.id}>'

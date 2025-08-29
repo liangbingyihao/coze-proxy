@@ -23,6 +23,7 @@ def add():
     action = data.get('action')  # 新增的信息内容
     context_id = data.get('context_id') or 0  # 探索对应的原msg id
     prompt = data.get("prompt")
+    reply = data.get("reply")
     owner_id = get_jwt_identity()
     # session_id = data.get("session_id")
 

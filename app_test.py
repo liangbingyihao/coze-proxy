@@ -312,8 +312,8 @@ def story_history(token):
 
 if __name__ == '__main__':
     token = login("user2")
-    # # get_conf(token)
+    get_conf(token)
     # my_favorite(token)
     # update_session(token)
-    r = get_message(token)
+    # r = get_message(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
