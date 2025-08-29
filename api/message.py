@@ -30,7 +30,7 @@ def add():
     if not content:
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
-    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt)
+    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt,reply)
     return jsonify({
         'success': True,
         'data': {"id": message_id}
