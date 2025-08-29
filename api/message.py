@@ -30,17 +30,11 @@ def add():
     if not content:
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
-    try:
-        message_id = MessageService.new_message(owner_id, content, context_id, action, prompt)
-        return jsonify({
-            'success': True,
-            'data': {"id": message_id}
-        }), 201
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt)
+    return jsonify({
+        'success': True,
+        'data': {"id": message_id}
+    }), 201
 
 @message_bp.route('/renew', methods=['POST'])
 @jwt_required()
