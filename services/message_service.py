@@ -43,7 +43,8 @@ class MessageService:
             "function": [
                 [
                     "最近发生的事情现在未必能明白上帝的心意是什么，现在有了恩语，正好快速把它记下来:",
-                    action_input_prompt
+                    action_input_prompt,
+                    "今天觉得好感恩"
                 ],
                 [
                     "我想看今天的【每日恩语】",
