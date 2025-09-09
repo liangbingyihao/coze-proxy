@@ -2,6 +2,7 @@ import json
 import os
 import re
 
+import cozepy
 from sqlalchemy import create_engine, exc, desc, func, not_
 from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
@@ -188,7 +189,7 @@ color_map = {"#FFFBE8": ("信靠", "盼望", "刚强", "光明"),
 
 
 class CozeService:
-    bot_id = "7481241756508504091"
+    bot_id = "7547552285878960168"
     executor = ThreadPoolExecutor(3)
 
     @staticmethod
@@ -209,7 +210,7 @@ class CozeService:
         return len(message.context_id) > 5
 
     @staticmethod
-    def _fix_ai_response(message,ai_response):
+    def _fix_ai_response(message, ai_response):
         '''1.<对于用户内容同理心的回应（如：你的这个观点很值得探讨）>
         2.恩语是一个能帮你持续记录每一件感恩小事，圣灵感动，亮光发现等信息的信仰助手，并且我也努力学习圣经，期待能借助上帝的话语来鼓励你，帮助你在信仰之路上，不断看到上帝持续的工作和恩典哦。你以上的内容我暂时无法直接找到对应的信仰相关参考，但我已经帮你记录下来了。
         3.我想用这句圣经的话语来共勉：<给予一段鼓励经文>(如：以赛亚书 40:31说：“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”）
@@ -221,7 +222,7 @@ class CozeService:
                     "如果这个事情对你来说重要，请持续把这个事情在恩语中记录吧，每天打开恩语来回顾，说不定很快就能看到上帝给到你新的发现，以及上帝每一步的保守与恩典哦。",
             "bible": "“但那等候耶和华的，必从新得力，他们必如鹰展翅上腾，他们奔跑却不困倦，行走却不疲乏。”（以赛亚书 40:31）",
             "topic": "其他话题"}
-        #FIXME
+        # FIXME
         message.feedback_text = default_rsp.get("view")
         message.feedback = json.dumps(default_rsp, ensure_ascii=False)
         # if not ai_response:
@@ -254,10 +255,12 @@ class CozeService:
             session.commit()
             return
 
-        custom_prompt = message.feedback_text
+        # custom_prompt = message.feedback_text
         session_lst = []
         auto_session = None
         from models.session import Session
+        custom_variables = {}
+        additional_messages = []
         is_explore = CozeService.is_explore_msg(message)
         try:
             if message.content == "test":
@@ -270,49 +273,53 @@ class CozeService:
                         context_content = context_msg.content
                     else:
                         context_content = message.content
-                    ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
+                    custom_variables["target"] = "pray"
+                    additional_messages.append(cozepy.Message.build_user_question_text(context_content))
+                    # ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
                     auto_session = ["信仰问答"]
+                    custom_variables["target"] = "explore"
+                    additional_messages.append(cozepy.Message.build_user_question_text(message.content))
                     session_lst = session.query(Session).filter_by(owner_id=user_id, session_name="信仰问答").order_by(
                         desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
-                    ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
+                    # ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
             else:
                 # rsp_msg = Message(0, user_id, "", context_id, 1)
                 # session.add(rsp_msg)
                 # session.commit()
+                custom_variables["target"] = "record"
                 session_lst = session.query(Session).filter_by(owner_id=user_id).order_by(
                     desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
                 names = "["
                 for session_id, session_name in session_lst:
                     names += f"\"{session_name}\","
                 names += "]"
-
-                ask_msg = custom_prompt.replace("${event}", names) if custom_prompt else msg_feedback.replace(
-                    "${event}", names)
-                ask_msg += message.content
-
+                custom_variables["user_topics"] = names
+                # ask_msg += message.content
                 messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(
                     desc(Message.id)).limit(5)
                 if messages:
                     elder_input = ""
                     bible_study = []
                     for m in messages:
-                        if m.action == MessageService.action_daily_pray:
-                            bible_study.append(m.content)
-                        elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
-                    if bible_study:
-                        ask_msg = ask_msg.replace("${bible_study}",
-                                                  f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
-                    else:
-                        ask_msg = ask_msg.replace("${bible_study}", "")
-                    ask_msg += msg_context + elder_input
+                        additional_messages.append(cozepy.Message.build_user_question_text(m.content))
+                        additional_messages.append(cozepy.Message.build_assistant_answer(m.feedback))
+                        # if m.action == MessageService.action_daily_pray:
+                        #     bible_study.append(m.content)
+                        # elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
+                    # if bible_study:
+                    #     ask_msg = ask_msg.replace("${bible_study}",
+                    #                               f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
+                    # else:
+                    #     ask_msg = ask_msg.replace("${bible_study}", "")
+                additional_messages.append(cozepy.Message.build_user_question_text(message.content))
         except Exception as e:
             logger.error("ai.error in ask msg")
             logger.exception(e)
             message.status = MessageService.status_err
             # message.feedback_text = str(e)
-            CozeService._fix_ai_response(message,None)
+            CozeService._fix_ai_response(message, None)
             session.commit()
             return
 
@@ -347,8 +354,8 @@ class CozeService:
             session.commit()
 
             _set_topics(auto_session)
-            ask_msg = msg_json + ask_msg
-            response = CozeService._chat_with_coze(session, message, user_id, ask_msg,
+            # ask_msg = msg_json + ask_msg
+            response = CozeService._chat_with_coze(session, message, user_id, custom_variables, additional_messages,
                                                    _set_topics if not is_explore else None)
 
             logger.warning(f"GOT: {response}")
@@ -381,7 +388,7 @@ class CozeService:
             logger.exception(e)
             message.status = MessageService.status_err
             # message.feedback_text = str(e)
-            CozeService._fix_ai_response(message,response)
+            CozeService._fix_ai_response(message, response)
             session.commit()
 
         # finally:
@@ -441,16 +448,17 @@ class CozeService:
         return bible, detail
 
     @staticmethod
-    def _chat_with_coze(session, ori_msg, user_id, msg, f_set_topics=None):
+    def _chat_with_coze(session, ori_msg, user_id, custom_variables, additional_messages, f_set_topics=None):
         all_content = ""
         pos = [0, 0, 0, 0]
         topic_name = None
-        logger.info(f"_chat_with_coze: {user_id, msg}")
+        logger.info(f"_chat_with_coze: {user_id, custom_variables, additional_messages}")
         # is_explore = CozeService.is_explore_msg(ori_msg)
         for event in coze.chat.stream(
                 bot_id=CozeService.bot_id,
                 user_id=str(user_id),
-                additional_messages=[Message.build_user_question_text(msg)],
+                custom_variables=custom_variables,
+                additional_messages=additional_messages,
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
                 message = event.message

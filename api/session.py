@@ -47,21 +47,16 @@ def my_sessions():
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
 
-    try:
-        data = SessionService.get_session_by_owner(owner_id, page=page,
-                                                   limit=limit)
-        return jsonify({
-            'success': True,
-            # 'data': SessionSchema(many=True).dump(data),
-            'data': {
-                'items': SessionSchema(many=True).dump(data.items),
-                'total': data.total
-            }
-        })
-    except AuthError as e:
-        raise e
-    except Exception as e:
-        raise AuthError(str(e), 500)
+    data = SessionService.get_session_by_owner(owner_id, page=page,
+                                               limit=limit)
+    return jsonify({
+        'success': True,
+        # 'data': SessionSchema(many=True).dump(data),
+        'data': {
+            'items': SessionSchema(many=True).dump(data.items),
+            'total': data.total
+        }
+    })
 
 
 @session_bp.route('del', methods=['POST'])
