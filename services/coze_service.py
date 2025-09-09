@@ -298,10 +298,8 @@ class CozeService:
                 custom_variables["user_topics"] = names
                 # ask_msg += message.content
                 messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(
-                    desc(Message.id)).limit(5)
+                    desc(Message.id)).limit(5).all()
                 if messages:
-                    elder_input = ""
-                    bible_study = []
                     for m in reversed(messages):
                         additional_messages.append(cozepy.Message.build_user_question_text(m.content))
                         additional_messages.append(cozepy.Message.build_assistant_answer(m.feedback))
