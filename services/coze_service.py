@@ -302,7 +302,7 @@ class CozeService:
                 if messages:
                     elder_input = ""
                     bible_study = []
-                    for m in messages:
+                    for m in reversed(messages):
                         additional_messages.append(cozepy.Message.build_user_question_text(m.content))
                         additional_messages.append(cozepy.Message.build_assistant_answer(m.feedback))
                         # if m.action == MessageService.action_daily_pray:
