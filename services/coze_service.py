@@ -311,7 +311,8 @@ class CozeService:
                     #                               f'如果用户输入是关于内容${bible_study}的灵修默想祷告，则返回"我的灵修"。')
                     # else:
                     #     ask_msg = ask_msg.replace("${bible_study}", "")
-                additional_messages.append(cozepy.Message.build_user_question_text(message.content))
+                reply = message.reply + "\n" if message.reply else ""
+                additional_messages.append(cozepy.Message.build_user_question_text(reply + message.content))
         except Exception as e:
             logger.error("ai.error in ask msg")
             logger.exception(e)
@@ -322,32 +323,36 @@ class CozeService:
             return
 
         response = ""
-        try:
-            def _set_topics(topics):
-                if topics and len(topics) > 0:
-                    topic = topics[0]
-                    if not topic and len(topics) > 1:
-                        topic = topics[1]
-                    if topic:
-                        if not message.session_id:
-                            for s_id, s_name in session_lst:
-                                if topic == s_name:
-                                    message.session_id = s_id
-                                    session.query(Session).filter_by(id=s_id).update({
-                                        "updated_at": func.now()
-                                    })
-                                    session.commit()
-                                    break
-                            if not message.session_id and topic:
-                                new_session = Session(topic, user_id, 0)
-                                session.add(new_session)
-                                session.commit()
-                                message.session_id = new_session.id
-                                if not message.feedback:
-                                    message.feedback = json.dumps({"topic": topic}, ensure_ascii=False)
-                                session.commit()
-                    return topic
 
+        def _set_topics(topics):
+            if topics and len(topics) > 0:
+                topic = topics[0]
+                if not topic and len(topics) > 1:
+                    topic = topics[1]
+                if topic:
+                    question_topics = ["信仰问答", "Faith Q&A", "信仰問答"]
+                    if topic in question_topics:
+                        topic = question_topics[0]
+                    if not message.session_id:
+                        for s_id, s_name in session_lst:
+                            if topic == s_name:
+                                message.session_id = s_id
+                                session.query(Session).filter_by(id=s_id).update({
+                                    "updated_at": func.now()
+                                })
+                                session.commit()
+                                break
+                        if not message.session_id and topic:
+                            new_session = Session(topic, user_id, 0)
+                            session.add(new_session)
+                            session.commit()
+                            message.session_id = new_session.id
+                            if not message.feedback:
+                                message.feedback = json.dumps({"topic": topic}, ensure_ascii=False)
+                            session.commit()
+                return topic
+
+        try:
             message.status = MessageService.status_pending
             session.commit()
 

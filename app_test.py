@@ -164,7 +164,7 @@ def get_message(token):
         # "page":1,
         # "limit":1
     }
-    msg_id = "b9c9f72c-9810-4c11-a026-f9f8c00cc6c7"
+    msg_id = "cd8a92a9-bacd-400a-8558-e29d82477417"
     # msg_id = "welcome"
     response = requests.get(f"http://8.217.172.116:5000/api/message/{msg_id}", headers=headers)
     r = response.json()
@@ -312,8 +312,8 @@ def story_history(token):
 
 if __name__ == '__main__':
     token = login("user2")
-    get_conf(token)
+    # get_conf(token)
     # my_favorite(token)
     # update_session(token)
-    # r = get_message(token)
+    r = get_message(token)
     # print(extract_test(r.get("data").get("feedback")[0:200],[0,0,0,0]))
