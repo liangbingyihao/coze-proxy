@@ -211,10 +211,14 @@ class MessageService:
         query = Message.query.filter(
             and_(*conditions)
         )
-        return query.order_by(desc(Message.id)) \
+        data = query.order_by(desc(Message.id)) \
             .offset((page - 1) * limit) \
             .limit(limit) \
             .all()
+
+        for msg in data:
+            msg.created_at = msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        return data
 
     @staticmethod
     def search_message(owner_id, source, search, page, limit):

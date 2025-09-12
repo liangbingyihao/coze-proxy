@@ -24,7 +24,6 @@ class SessionService:
         # session.conversation_id = CozeService.create_conversations()
         db.session.add(session)
         db.session.commit()
-        print(f"session.id:{session.id}")
 
         return session
 
