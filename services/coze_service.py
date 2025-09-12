@@ -191,6 +191,7 @@ color_map = {"#FFFBE8": ("信靠", "盼望", "刚强", "光明"),
 class CozeService:
     bot_id = "7547552285878960168"
     executor = ThreadPoolExecutor(3)
+    global_sessions = []
 
     @staticmethod
     def chat_with_coze_async(user_id, msg_id):
@@ -259,6 +260,10 @@ class CozeService:
         session_lst = []
         auto_session = None
         from models.session import Session
+        if not CozeService.global_sessions:
+            CozeService.global_sessions = session.query(Session).filter_by(owner_id=0).order_by(
+                        desc(Session.id)).with_entities(Session.id, Session.session_name).all()
+            logger.error(f"global_sessions:{CozeService.global_sessions}")
         custom_variables = {}
         additional_messages = []
         is_explore = CozeService.is_explore_msg(message)
