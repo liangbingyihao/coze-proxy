@@ -56,7 +56,7 @@ class SearchService:
             msg = {
                 'message_id': row.message_id,
                 'content': content,
-                'created_at': row.created_at
+                'created_at': row.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
             res.append(msg)
         return res
