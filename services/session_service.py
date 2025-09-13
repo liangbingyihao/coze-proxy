@@ -14,7 +14,7 @@ class SessionService:
 
     @staticmethod
     def init_session(owner_id):
-        SessionService.new_session(SessionService.session_qa, owner_id, 0)
+        SessionService.new_session(SessionService.session_qa[0], owner_id, 0)
 
     @staticmethod
     def new_session(session_name, owner_id, robot_id):
