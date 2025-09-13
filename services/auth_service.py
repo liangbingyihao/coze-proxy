@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 from models.user import User
-from services.session_service import SessionService
 from utils.security import generate_jwt_token
 from utils.exceptions import AuthError
 from extensions import db
@@ -24,6 +23,7 @@ class AuthService:
         db.session.add(user)
         db.session.commit()
 
+        from services.session_service import SessionService
         SessionService.init_session(user.id)
 
         return user
