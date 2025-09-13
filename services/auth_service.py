@@ -54,6 +54,8 @@ class AuthService:
             user = User(username=guest, email=guest, password="",fcm_token=fcm_token)
             db.session.add(user)
             db.session.commit()
+            from services.session_service import SessionService
+            SessionService.init_session(user.id)
         elif fcm_token:
             logging.warning(f"update fcmtoken:{user.id,fcm_token}")
             user.fcm_token = fcm_token
