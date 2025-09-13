@@ -30,11 +30,12 @@ def add():
     if not content:
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
-    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt,reply)
+    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt, reply)
     return jsonify({
         'success': True,
         'data': {"id": message_id}
     }), 201
+
 
 @message_bp.route('/renew', methods=['POST'])
 @jwt_required()
@@ -48,7 +49,7 @@ def renew():
 
     message_id = MessageService.renew(owner_id, msg_id, prompt)
     return jsonify({
-        'success': message_id==msg_id,
+        'success': message_id == msg_id,
         'data': {"id": message_id}
     }), 201
 
@@ -65,9 +66,10 @@ def del_msg():
 
     message_id = MessageService.del_msg(owner_id, msg_id, content_type)
     return jsonify({
-        'success': message_id==msg_id,
+        'success': message_id == msg_id,
         'data': {"id": message_id}
     }), 200
+
 
 @message_bp.route('', methods=['GET'])
 @swag_from({
@@ -86,34 +88,28 @@ def my_message():
     session_type = request.args.get("session_type", default='', type=str)  # "topic", "question"
     search = request.args.get('search', default='', type=str)
 
-    try:
-        if session_type == "favorite":
-            data = FavoriteService.get_favorite_by_owner(owner_id, page=page,
-                                                         limit=limit, search=search)
-        else:
-            data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
-                                                 search=search, page=page,
-                                                 limit=limit)
-        # import flask_sqlalchemy
-        # if isinstance(data, flask_sqlalchemy.BaseQuery):
-        #     return jsonify({
-        #         'success': True,
-        #         'data': {
-        #             'items': SessionMsgSchema(many=True).dump(data)
-        #         }
-        #     })
-        # else:
-        return jsonify({
-            'success': True,
-            'data': {
-                'items': SessionMsgSchema(many=True).dump(data)
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+    if session_type == "favorite":
+        data = FavoriteService.get_favorite_by_owner(owner_id, page=page,
+                                                     limit=limit, search=search)
+    else:
+        data = MessageService.filter_message(owner_id=owner_id, session_id=session_id, session_type=session_type,
+                                             search=search, page=page,
+                                             limit=limit)
+    # import flask_sqlalchemy
+    # if isinstance(data, flask_sqlalchemy.BaseQuery):
+    #     return jsonify({
+    #         'success': True,
+    #         'data': {
+    #             'items': SessionMsgSchema(many=True).dump(data)
+    #         }
+    #     })
+    # else:
+    return jsonify({
+        'success': True,
+        'data': {
+            'items': SessionMsgSchema(many=True).dump(data)
+        }
+    })
 
 
 # 带msg_id参数的路由
@@ -128,25 +124,19 @@ def msg_detail(msg_id):
     owner_id = get_jwt_identity()
     retry = request.args.get('retry', default=0, type=int)
     stop = request.args.get('stop', default=0, type=int)
-    try:
-        logging.warning(f"get_message:{msg_id}")
-        if msg_id == "welcome":
-            return jsonify({
-                'success': True,
-                'data': MessageService.welcome_msg
-            })
-        else:
-            data = MessageService.get_message(owner_id, msg_id,retry,stop)
-            return jsonify({
-                'success': True,
-                'data': MessageSchema().dump(data)
-            })
-    except Exception as e:
-        logging.exception(e)
+    lang = request.args.get('lang', default='', type=str)
+    logging.warning(f"get_message:{msg_id}")
+    if msg_id == "welcome":
         return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+            'success': True,
+            'data': MessageService.welcome_msg
+        })
+    else:
+        data = MessageService.get_message(owner_id, msg_id, retry, stop, lang)
+        return jsonify({
+            'success': True,
+            'data': MessageSchema().dump(data)
+        })
 
 
 # 带msg_id参数的路由

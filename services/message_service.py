@@ -146,7 +146,7 @@ class MessageService:
             return message.public_id
 
     @staticmethod
-    def new_message(owner_id, content, context_id, action, prompt,reply):
+    def new_message(owner_id, content, context_id, action, prompt, reply):
         '''
         :param reply:
         :param action:
@@ -162,7 +162,7 @@ class MessageService:
         if content:
             if prompt:
                 logging.warning(f"prompt:{owner_id, content, action, prompt}")
-            message = Message(0, owner_id, content, context_id, action=action,reply=reply)
+            message = Message(0, owner_id, content, context_id, action=action, reply=reply)
             message.feedback_text = prompt or ""
             db.session.add(message)
             db.session.commit()
@@ -249,7 +249,7 @@ class MessageService:
         # messages = query.paginate(page=page, per_page=limit, error_out=False)
 
     @staticmethod
-    def get_message(owner_id, msg_id, retry, stop):
+    def get_message(owner_id, msg_id, retry, stop, lang):
         if msg_id == "welcome":
             return MessageService.welcome_msg
         else:
@@ -263,6 +263,21 @@ class MessageService:
                 db.session.commit()
 
             try:
+                if message.status == MessageService.status_err and message.session_id <= 0:
+                    session_name = "其他话题"
+                    if lang:
+                        if "en" in lang:
+                            session_name = "Other Topics"
+                        elif "Hant" in lang:
+                            session_name = "其他話題"
+                    session = SessionService.new_session(session_name, owner_id, 0)
+                    message.session_id = session.id
+                    if not message.feedback:
+                        message.feedback = json.dumps({"topic": session_name}, ensure_ascii=False)
+                    else:
+                        message.feedback["topic"] = session_name
+                    db.session.commit()
+
                 funcs = []
                 feedback = json.loads(message.feedback)
                 explore = feedback.get("explore")
