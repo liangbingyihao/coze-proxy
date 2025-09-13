@@ -281,8 +281,8 @@ class MessageService:
                     else:
                         funcs.append([explore, MessageService.action_input_prompt])
 
-                if funcs:
-                    feedback["function"] = funcs
+                # if funcs:
+                #     feedback["function"] = funcs
                 message.feedback = feedback
 
                 if not message.summary:
