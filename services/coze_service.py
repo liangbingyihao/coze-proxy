@@ -339,6 +339,8 @@ class CozeService:
                         for s_id, s_name in session_lst:
                             if topic == s_name:
                                 message.session_id = s_id
+                                if not message.feedback:
+                                    message.feedback = json.dumps({"topic": topic}, ensure_ascii=False)
                                 session.query(Session).filter_by(id=s_id).update({
                                     "updated_at": func.now()
                                 })
