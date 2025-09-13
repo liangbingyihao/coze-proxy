@@ -8,7 +8,6 @@ from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
 from models.session import Session
-from services.session_service import SessionService
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
 from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL, MessageType  # noqa
@@ -250,6 +249,7 @@ class CozeService:
             return
 
         from services.message_service import MessageService
+        from services.session_service import SessionService
         if message.action == MessageService.action_bible_pic:
             message.status = MessageService.status_success
             message.feedback_text = "(实现中)将会为你生成经文图片"
