@@ -10,6 +10,11 @@ from services.coze_service import CozeService
 
 
 class SessionService:
+    session_qa = ["信仰问答", "Faith Q&A", "信仰問答"]
+
+    @staticmethod
+    def init_session(owner_id):
+        SessionService.new_session(SessionService.session_qa, owner_id, 0)
 
     @staticmethod
     def new_session(session_name, owner_id, robot_id):
@@ -52,6 +57,8 @@ class SessionService:
         exits_session = Session.query.filter_by(id=session_id, owner_id=owner_id).first()
 
         if exits_session:
+            if exits_session.session_name == SessionService.session_qa[0]:
+                return
             # 执行删除
             db.session.delete(exits_session)
             db.session.commit()
@@ -68,11 +75,13 @@ class SessionService:
         db.session.commit()
 
     @staticmethod
-    def set_session_name(owner_id,session_id,session_name):
+    def set_session_name(owner_id, session_id, session_name):
         if not session_id or session_id <= 0:
             return
         session = Session.query.filter_by(id=session_id, owner_id=owner_id).first()
         if session:
+            if session.session_name == SessionService.session_qa[0]:
+                return
             session.session_name = session_name
             db.session.commit()
             return True

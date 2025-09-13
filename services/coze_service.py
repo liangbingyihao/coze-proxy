@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from concurrent.futures import ThreadPoolExecutor
 
 from models.session import Session
+from services.session_service import SessionService
 
 coze_api_token = os.getenv("COZE_API_TOKEN")
 from cozepy import Coze, TokenAuth, Message, ChatEventType, COZE_CN_BASE_URL, COZE_COM_BASE_URL, MessageType  # noqa
@@ -191,7 +192,6 @@ color_map = {"#FFFBE8": ("信靠", "盼望", "刚强", "光明"),
 class CozeService:
     bot_id = "7547552285878960168"
     executor = ThreadPoolExecutor(3)
-    global_sessions = []
 
     @staticmethod
     def chat_with_coze_async(user_id, msg_id):
@@ -258,12 +258,9 @@ class CozeService:
 
         # custom_prompt = message.feedback_text
         session_lst = []
+        session_qa_name = SessionService.session_qa[0]
         auto_session = None
         from models.session import Session
-        if not CozeService.global_sessions:
-            CozeService.global_sessions = session.query(Session).filter_by(owner_id=0).order_by(
-                        desc(Session.id)).with_entities(Session.id, Session.session_name).all()
-            logger.error(f"global_sessions:{CozeService.global_sessions}")
         custom_variables = {}
         additional_messages = []
         is_explore = CozeService.is_explore_msg(message)
@@ -282,11 +279,12 @@ class CozeService:
                     additional_messages.append(cozepy.Message.build_user_question_text(context_content))
                     # ask_msg = (custom_prompt + context_content) if custom_prompt else msg_pray + context_content
                 else:
-                    auto_session = ["信仰问答"]
+                    auto_session = [session_qa_name]
                     custom_variables["target"] = "explore"
                     additional_messages.append(cozepy.Message.build_user_question_text(message.content))
-                    session_lst = session.query(Session).filter_by(owner_id=user_id, session_name="信仰问答").order_by(
-                        desc(Session.id)).with_entities(Session.id, Session.session_name).limit(100).all()
+                    session_lst = session.query(Session).filter_by(owner_id=user_id, session_name=session_qa_name).order_by(
+                        desc(Session.id)).with_entities(Session.id, Session.session_name).limit(1).all()
+
                     # ask_msg = (custom_prompt + message.content) if custom_prompt else msg_explore + message.content
                 # rsp_msg = message
             else:
@@ -335,9 +333,8 @@ class CozeService:
                 if not topic and len(topics) > 1:
                     topic = topics[1]
                 if topic:
-                    question_topics = ["信仰问答", "Faith Q&A", "信仰問答"]
-                    if topic in question_topics:
-                        topic = question_topics[0]
+                    if topic in SessionService.session_qa:
+                        topic = session_qa_name
                     if not message.session_id:
                         for s_id, s_name in session_lst:
                             if topic == s_name:

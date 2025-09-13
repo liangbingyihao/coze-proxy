@@ -311,6 +311,12 @@ def story_history(token):
     # print(response.status_code,response.json())
 
 if __name__ == '__main__':
+    a=[1,2]
+    b = a.copy()
+    a.append(1)
+    print(a)
+    print(b)
+    exit()
     token = login("user2")
     # get_conf(token)
     # my_favorite(token)
