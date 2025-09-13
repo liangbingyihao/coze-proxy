@@ -69,20 +69,14 @@ def login():
     guest = data.get('guest')
     fcm_token = data.get('fcmToken')
 
-    try:
-        if guest:
-            auth_data = AuthService.login_guest(guest, fcm_token)
-        else:
-            auth_data = AuthService.login_user(username, password, fcm_token)
-        return jsonify({
-            'success': True,
-            'data': AuthSchema().dump(auth_data)
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': str(e)
-        }), 400
+    if guest:
+        auth_data = AuthService.login_guest(guest, fcm_token)
+    else:
+        auth_data = AuthService.login_user(username, password, fcm_token)
+    return jsonify({
+        'success': True,
+        'data': AuthSchema().dump(auth_data)
+    })
 
 
 @auth_bp.route('/me', methods=['GET'])
