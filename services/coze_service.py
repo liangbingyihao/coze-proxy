@@ -267,6 +267,8 @@ class CozeService:
         try:
             if message.content == "test":
                 raise Exception("test error")
+            elif message.content == "timeout":
+                return
             if is_explore:
                 # 用户探索类型
                 if message.action == MessageService.action_daily_pray:
