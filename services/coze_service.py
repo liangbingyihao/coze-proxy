@@ -316,9 +316,11 @@ class CozeService:
                 messages = session.query(Message).filter_by(owner_id=user_id).filter(Message.id < msg_id).order_by(
                     desc(Message.id)).limit(5).all()
                 if messages:
+                    latest_lang = message.lang
                     for m in reversed(messages):
-                        additional_messages.append(cozepy.Message.build_user_question_text(m.content))
-                        additional_messages.append(cozepy.Message.build_assistant_answer(m.feedback))
+                        if m.lang==latest_lang:
+                            additional_messages.append(cozepy.Message.build_user_question_text(m.content))
+                            additional_messages.append(cozepy.Message.build_assistant_answer(m.feedback))
                         # if m.action == MessageService.action_daily_pray:
                         #     bible_study.append(m.content)
                         # elder_input += f"\nid:{m.id},用户输入:{m.content},AI回应:{m.feedback_text}"
