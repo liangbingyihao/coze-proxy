@@ -415,6 +415,7 @@ class CozeService:
             else:
                 logger.error(f"ai.error in chat and ignore:{message.id}")
                 message.status = MessageService.status_success
+                session.commit()
             # message.feedback_text = str(e)
 
         # finally:
