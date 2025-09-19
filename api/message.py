@@ -24,13 +24,14 @@ def add():
     context_id = data.get('context_id') or 0  # 探索对应的原msg id
     prompt = data.get("prompt")
     reply = data.get("reply")
+    lang = request.args.get('lang', default="zh-hant", type=str)
     owner_id = get_jwt_identity()
     # session_id = data.get("session_id")
 
     if not content:
         return jsonify({"error": "Missing required parameter 'content'"}), 400
 
-    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt, reply)
+    message_id = MessageService.new_message(owner_id, content, context_id, action, prompt, reply,lang)
     return jsonify({
         'success': True,
         'data': {"id": message_id}

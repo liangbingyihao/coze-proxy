@@ -146,8 +146,9 @@ class MessageService:
             return message.public_id
 
     @staticmethod
-    def new_message(owner_id, content, context_id, action, prompt, reply):
+    def new_message(owner_id, content, context_id, action, prompt, reply,lang):
         '''
+        :param lang:
         :param reply:
         :param action:
         :param prompt:
@@ -162,7 +163,7 @@ class MessageService:
         if content:
             if prompt:
                 logging.warning(f"prompt:{owner_id, content, action, prompt}")
-            message = Message(0, owner_id, content, context_id, action=action, reply=reply)
+            message = Message(0, owner_id, content, context_id, action=action, reply=reply,lang=lang)
             message.feedback_text = prompt or ""
             db.session.add(message)
             db.session.commit()
