@@ -256,7 +256,16 @@ class CozeService:
             session.commit()
             return
 
-        # custom_prompt = message.feedback_text
+        lang = ""
+        if message.lang:
+            lang = message.lang.lower()
+            if "en" in lang:
+                lang = "en"
+            elif "hans" in lang:
+                lang = "zh-hans"
+            elif "hant" in lang:
+                lang = 'zh-hant'
+
         session_lst = []
         session_qa_name = SessionService.session_qa[0]
         auto_session = None
@@ -269,6 +278,8 @@ class CozeService:
                 raise Exception("test error")
             elif message.content == "timeout":
                 return
+            if lang:
+                custom_variables["lang"] = lang
             if is_explore:
                 # 用户探索类型
                 if message.action == MessageService.action_daily_pray:
