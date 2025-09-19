@@ -408,10 +408,14 @@ class CozeService:
         except Exception as e:
             logger.error("ai.error in chat")
             logger.exception(e)
-            message.status = MessageService.status_err
+            if not message.feedback_text:
+                message.status = MessageService.status_err
+                CozeService._fix_ai_response(message, response)
+                session.commit()
+            else:
+                logger.error(f"ai.error in chat and ignore:{message.id}")
+                message.status = MessageService.status_success
             # message.feedback_text = str(e)
-            CozeService._fix_ai_response(message, response)
-            session.commit()
 
         # finally:
         #     if session:
